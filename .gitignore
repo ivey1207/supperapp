@@ -1,0 +1,30 @@
+# Backend
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/*.log
+
+# Admin / Node
+admin-super/node_modules/
+admin-super/dist/
+admin-partner/node_modules/
+admin-partner/dist/
+
+# Mobile
+mobile-rn/node_modules/
+mobile-rn/.expo/
+mobile-rn/dist/
+*.tsbuildinfo
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Env
+.env
+.env.local
+*.local
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,95 @@
+database:
+  url: "sqlite:///./carwash.db"
+  echo: false
+
+security:
+  secret_key: "your-secret-key-here"
+  algorithm: "HS256"
+  access_token_expire_minutes: 30
+
+desktop:
+  token: "desktop_secret_token"
+
+admin:
+  username: "admin"
+  password: "admin_password"
+
+hardware:
+  serial_port: "COM3"
+  baud_rate: 9600
+  timeout: 1.0
+
+websocket:
+  heartbeat_interval: 30
+  max_connections: 100
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# PRODUCTION Click Payment Gateway Configuration
+payment_gateways:
+  click:
+    merchant_id: "21771"
+    service_id: "71897"
+    secret_key: "2hBzIC6uuG"
+    merchant_user_id: "55009"
+    # Production settings
+    min_amount: 1000  # Minimum payment amount in UZS
+    max_amount: 1000000  # Maximum payment amount in UZS
+    timeout: 30  # Request timeout in seconds
+    enabled: true
+    
+  payme:
+    merchant_id: ""
+    secret_key: ""
+    enabled: false
+    
+  uzum:
+    merchant_id: ""
+    secret_key: ""
+    enabled: false
+
+# PRODUCTION Network Configuration
+network:
+  api_host: "0.0.0.0"
+  api_port: 8000
+  base_url: "https://garage-group.uz"
+  # Production SSL settings
+  ssl_enabled: true
+  ssl_cert_path: "/etc/ssl/certs/garage-group.uz.crt"
+  ssl_key_path: "/etc/ssl/private/garage-group.uz.key"
+
+# PRODUCTION Service Configuration
+service:
+  name: "GARAGE CAR WASH"
+  version: "1.0.0"
+  environment: "production"
+  debug: false
+  
+# PRODUCTION Logging Configuration
+production_logging:
+  level: "INFO"
+  file_path: "/var/log/carwash/app.log"
+  max_file_size: "10MB"
+  backup_count: 5
+  format: "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
+
+# PRODUCTION Database Configuration
+production_database:
+  # Для production рекомендуется PostgreSQL
+  # url: "postgresql+asyncpg://user:password@localhost/carwash_db"
+  url: "sqlite:///./carwash.db"
+  echo: false
+  pool_size: 20
+  max_overflow: 30
+  pool_timeout: 30
+
+# PRODUCTION Security Configuration
+production_security:
+  secret_key: "your-production-secret-key-change-this"
+  algorithm: "HS256"
+  access_token_expire_minutes: 60
+  cors_origins: ["https://garage-group.uz", "https://www.garage-group.uz"]
+  rate_limiting: true
+  max_requests_per_minute: 100

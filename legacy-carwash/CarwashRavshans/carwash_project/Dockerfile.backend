@@ -1,0 +1,28 @@
+# Dockerfile для Backend (FastAPI)
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копируем requirements.txt
+COPY requirements.txt .
+
+# Устанавливаем Python зависимости
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копируем код приложения
+COPY carwash_backend/ ./carwash_backend/
+COPY config.yaml .
+
+# Создаем директории для логов и БД
+RUN mkdir -p /app/logs /app/data
+
+# Открываем порт
+EXPOSE 8000
+
+# Команда запуска
+CMD ["uvicorn", "carwash_backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

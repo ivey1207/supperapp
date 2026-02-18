@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: superapp-backend
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/superapp}
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+server:
+  port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:superapp-jwt-secret-change-in-production-min-256-bits}
+  expiration-ms: 86400000
+
+logging:
+  level:
+    root: INFO
+    uz.superapp: DEBUG
