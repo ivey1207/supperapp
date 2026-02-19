@@ -13,11 +13,16 @@ jobs:
     - name: Install sshpass
       run: sudo apt-get update && sudo apt-get install -y sshpass
 
+    - name: Debug Secret Length
+      env:
+        SSHPASS: ${{ secrets.PASW }}
+      run: echo "Password length is ${#SSHPASS}"
+
     - name: Copy files via rsync
       env:
         SSHPASS: ${{ secrets.PASW }}
       run: |
-        sshpass -e rsync -avz --no-perms --no-owner --no-group -e "ssh -q -o StrictHostKeyChecking=no -p 22" \
+        sshpass -e rsync -avz --no-perms --no-owner --no-group -e "ssh -o StrictHostKeyChecking=no -p 22" \
           --exclude 'node_modules' \
           --exclude 'target' \
           --exclude 'dist' \
@@ -27,7 +32,7 @@ jobs:
 
     - name: Run remote commands
       run: |
-        sshpass -e ssh -q -o StrictHostKeyChecking=no -p 22 root@161.97.118.117 << 'EOF'
+        sshpass -e ssh -o StrictHostKeyChecking=no -p 22 root@161.97.118.117 << 'EOF'
           cd /root/uz-superapp
           # Ensure Docker is installed (idempotent check)
           if ! command -v docker &> /dev/null; then
