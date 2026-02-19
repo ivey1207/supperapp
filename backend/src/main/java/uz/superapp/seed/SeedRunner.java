@@ -31,16 +31,25 @@ public class SeedRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            // Create super admin
-            if (accountRepository.findByEmailAndArchivedFalse("admin@admin.com").isEmpty()) {
-                Account admin = new Account();
-                admin.setEmail("admin@admin.com");
-                admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
-                admin.setFullName("Admin");
-                admin.setRole("SUPER_ADMIN");
-                accountRepository.save(admin);
-                System.out.println("Created super admin: admin@admin.com");
-            }
+            // Create or reset super admin
+            accountRepository.findByEmailAndArchivedFalse("admin@admin.com").ifPresentOrElse(
+                    admin -> {
+                        if (!passwordEncoder.matches("Admin1!", admin.getPasswordHash())) {
+                            admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
+                            admin.setRole("SUPER_ADMIN"); // Ensure role is correct too
+                            accountRepository.save(admin);
+                            System.out.println("Reset super admin password: admin@admin.com");
+                        }
+                    },
+                    () -> {
+                        Account admin = new Account();
+                        admin.setEmail("admin@admin.com");
+                        admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
+                        admin.setFullName("Admin");
+                        admin.setRole("SUPER_ADMIN");
+                        accountRepository.save(admin);
+                        System.out.println("Created super admin: admin@admin.com");
+                    });
 
             // Create 100 partners: 30 car washes, 40 gas stations, 30 services
             long orgCount = organizationRepository.findAll().stream().filter(o -> !o.isArchived()).count();
