@@ -23,6 +23,8 @@ jobs:
           . root@161.97.118.117:/root/uz-superapp
 
     - name: Run remote commands
+      env:
+        SSHPASS: ${{ secrets.PASW }}
       run: |
         sshpass -e ssh -q -o StrictHostKeyChecking=no -p 22 root@161.97.118.117 << 'EOF'
           cd /root/uz-superapp
