@@ -25,7 +25,11 @@ public class CorsConfig {
                 "http://127.0.0.1:5173",
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1:8081",
-                "http://127.0.0.1:8082"));
+                "http://127.0.0.1:8082",
+                "http://161.97.118.117",
+                "http://161.97.118.117:3000",
+                "http://161.97.118.117:5173",
+                "http://161.97.118.117:8080"));
 
         // Methods
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
