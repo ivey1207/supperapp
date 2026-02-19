@@ -31,7 +31,7 @@ jobs:
           cd /root/uz-superapp
           # Ensure Docker is installed (idempotent check)
           if ! command -v docker &> /dev/null; then
-              curl -fsSL https://get.docker.sh -o get-docker.sh
+              curl -fsSL https://get.docker.com -o get-docker.sh
               sh get-docker.sh
           fi
           # Build and start services
