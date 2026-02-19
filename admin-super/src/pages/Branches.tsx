@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Plus, Search, Pencil, Trash2, RefreshCw } from 'lucide-react';
+import { MapPin, Plus, Search, Pencil, Trash2, RefreshCw, Car, Fuel, Wrench } from 'lucide-react';
 import Modal from '../components/Modal';
 import axios from 'axios';
 import { getBranches, getOrganizations, createBranch, updateBranch, deleteBranch, type Organization } from '../lib/api';
@@ -39,6 +39,12 @@ export default function Branches() {
     partnerType: '',
     boxCount: 0,
   });
+
+  const PARTNER_TYPES = [
+    { id: 'CAR_WASH', label: 'Автомойка', icon: Car },
+    { id: 'GAS_STATION', label: 'АЗС', icon: Fuel },
+    { id: 'SERVICE', label: 'Сервис', icon: Wrench },
+  ];
 
   const load = async () => {
     playClick();
@@ -313,16 +319,22 @@ export default function Branches() {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Тип филиала</label>
-            <select
-              value={form.partnerType}
-              onChange={(e) => setForm((f) => ({ ...f, partnerType: e.target.value }))}
-              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-            >
-              <option value="">Не выбрано</option>
-              <option value="CAR_WASH">Автомойка</option>
-              <option value="GAS_STATION">АЗС</option>
-              <option value="SERVICE">Сервис</option>
-            </select>
+            <div className="grid grid-cols-3 gap-3">
+              {PARTNER_TYPES.map((type) => (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, partnerType: type.id }))}
+                  className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${form.partnerType === type.id
+                      ? 'border-blue-500 bg-blue-500/20 text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+                      : 'border-slate-700 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:border-slate-600'
+                    }`}
+                >
+                  <type.icon className={`h-6 w-6 mb-2 ${form.partnerType === type.id ? 'text-blue-400' : 'text-slate-500'}`} />
+                  <span className="text-xs font-medium">{type.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
           {form.partnerType === 'CAR_WASH' && !editing && (
             <div>
