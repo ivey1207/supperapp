@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Smartphone, RefreshCw, Search, Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Smartphone, RefreshCw, Search, Plus, Pencil, Trash2 } from 'lucide-react';
+import Modal from '../components/Modal';
 import axios from 'axios';
 import { getBranches, getOrganizations, getDevices, createDevice, updateDevice, deleteDevice } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -342,113 +343,105 @@ export default function Devices() {
                       const nextOrgId = e.target.value;
                       setForm((f) => ({
                         ...f,
-                        orgId: nextOrgId,
-                        branchId:
-                          branches.find((b) => !nextOrgId || b.orgId === nextOrgId)?.id || '',
-                      }));
-                    }}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none"
+        < Modal
+        isOpen = { modal || !!editing}
+        onClose={closeModal}
+                    title={editing ? 'Редактировать устройство' : 'Новое устройство'}
+                    description="Устройство — это контроллер, установленный на филиале (в боксе автомойки или на колонке АЗС)."
+                    footer={
+                      <>
+                        <button
+                          type="button"
+                          onClick={closeModal}
+                          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80 transition-colors"
+                        >
+                          Отмена
+                        </button>
+                        <button
+                          type="button"
+                          onClick={save}
+                          className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 shadow-md shadow-blue-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                          Сохранить
+                        </button>
+                      </>
+                    }
                   >
-                    <option value="">Выберите компанию</option>
-                    {orgs.map((o) => (
-                      <option key={o.id} value={o.id}>
-                        {o.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Локация</label>
-                <select
-                  value={form.branchId}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      branchId: e.target.value,
-                    }))
-                  }
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none"
-                >
-                  <option value="">Выберите локацию</option>
-                  {branches
-                    .filter((b) => !form.orgId || b.orgId === form.orgId)
-                    .map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Название</label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="Название девайса"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">MAC Адрес (опционально)</label>
-                <input
-                  type="text"
-                  value={form.macId || ''}
-                  onChange={(e) => setForm((f) => ({ ...f, macId: e.target.value.toUpperCase() }))}
-                  placeholder="AA:BB:CC:11:22:33"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none font-mono"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Баланс, сум</label>
-                <input
-                  type="number"
-                  value={form.cashBalance}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      cashBalance: Number.isNaN(Number(e.target.value)) ? 0 : Number(e.target.value),
-                    }))
-                  }
-                  placeholder="Текущий баланс"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none"
-                >
-                  <option value="OPEN">OPEN (Работает)</option>
-                  <option value="CLOSED">CLOSED (Закрыт)</option>
-                  <option value="ACTIVE">ACTIVE (Готов к работе)</option>
-                  <option value="INACTIVE">INACTIVE (Не активирован)</option>
-                  <option value="REGISTERED">REGISTERED (Зарегистрирован)</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80"
-              >
-                Отмена
-              </button>
-              <button
-                type="button"
-                onClick={save}
-                className="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white hover:bg-violet-500 shadow-md shadow-violet-900/40"
-              >
-                Сохранить
-              </button>
-            </div>
-          </div>
-        </div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Филиал (Локация) *</label>
+                        <select
+                          value={form.branchId}
+                          onChange={(e) => setForm((f) => ({ ...f, branchId: e.target.value }))}
+                          className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                        >
+                          <option value="">Выберите филиал</option>
+                          {branches.map((b) => (
+                            <option key={b.id} value={b.id}>
+                              {b.name} ({b.address})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Название устройства *</label>
+                        <input
+                          type="text"
+                          value={form.name}
+                          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                          placeholder="Например: Бокс 1"
+                          className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Serial Number (MAC) *</label>
+                        <input
+                          type="text"
+                          value={form.serialNumber}
+                          onChange={(e) => setForm((f) => ({ ...f, serialNumber: e.target.value }))}
+                          placeholder="AA:BB:CC:DD:EE:FF"
+                          className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none font-mono"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-slate-300 mb-1">IP адрес</label>
+                          <input
+                            type="text"
+                            value={form.ipAddress}
+                            onChange={(e) => setForm((f) => ({ ...f, ipAddress: e.target.value }))}
+                            placeholder="192.168.1.100"
+                            className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none font-mono"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-slate-300 mb-1">Версия прошивки</label>
+                          <input
+                            type="text"
+                            value={form.firmwareVersion}
+                            onChange={(e) => setForm((f) => ({ ...f, firmwareVersion: e.target.value }))}
+                            placeholder="v1.0.0"
+                            className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
+                        <select
+                          value={form.status}
+                          onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+                          className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                        >
+                          <option value="ONLINE">ONLINE (В сети)</option>
+                          <option value="OFFLINE">OFFLINE (Не в сети)</option>
+                          <option value="MAINTENANCE">MAINTENANCE (Обслуживание)</option>
+                          <option value="ERROR">ERROR (Ошибка)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </Modal>
       )}
-    </div>
-  );
+                </div>
+              );
 }
+              ```

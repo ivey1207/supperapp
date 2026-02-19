@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users as UsersIcon, RefreshCw, Search, Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Users as UsersIcon, RefreshCw, Search, Plus, Pencil, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { getAccounts, createAccount, updateAccount, deleteAccount, getOrganizations } from '../lib/api';
 import { useAuth } from '../lib/auth';

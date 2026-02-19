@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Building2, RefreshCw, Search, Plus, Pencil, Trash2, X, Cpu } from 'lucide-react';
+import { Building2, Plus, Search, MoreVertical, Pencil, Trash2, Building, Shield, Fuel, Wrench, Droplets } from 'lucide-react';
+import Modal from '../components/Modal';
 import axios from 'axios';
 import {
   getOrganizations,
@@ -300,163 +301,165 @@ export default function Companies() {
       )}
 
       {modal && isSuperAdmin && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
-          onClick={closeModal}
-        >
-          <div
-            className="w-full max-w-4xl my-8 rounded-2xl border border-slate-700/80 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-6 shadow-2xl shadow-black/60 max-h-[80vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-white">
-                  {editing ? 'Редактировать организацию' : 'Новая организация'}
-                </h3>
-                <p className="mt-1 text-xs text-slate-400">
-                  Организация-партнёр: автомойка, АЗС или сервис. Филиалы создаются отдельно через модуль "Филиалы (локации)".
-                </p>
-              </div>
+        <Modal
+          isOpen={modal}
+          onClose={closeModal}
+          title={editing ? 'Редактировать организацию' : 'Новая организация'}
+          description='Организация-партнёр: автомойка, АЗС или сервис. Филиалы создаются отдельно через модуль "Филиалы (локации)".'
+          footer={
+            <>
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded p-1 text-slate-400 hover:bg-slate-700 hover:text-white"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Название *</label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="Название организации"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Описание</label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  placeholder="Описание организации"
-                  rows={3}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Адрес</label>
-                  <input
-                    type="text"
-                    value={form.address}
-                    onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                    placeholder="Адрес"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Телефон</label>
-                  <input
-                    type="text"
-                    value={form.phone}
-                    onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                    placeholder="+998901234567"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                    placeholder="email@example.com"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Время работы</label>
-                  <input
-                    type="text"
-                    value={form.workingHours}
-                    onChange={(e) => setForm((f) => ({ ...f, workingHours: e.target.value }))}
-                    placeholder="09:00-21:00"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Рейтинг</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="5"
-                    step="0.1"
-                    value={form.rating}
-                    onChange={(e) => setForm((f) => ({ ...f, rating: Number.parseFloat(e.target.value) || 0 }))}
-                    placeholder="4.5"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Количество отзывов</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={form.reviewCount}
-                    onChange={(e) => setForm((f) => ({ ...f, reviewCount: Number.parseInt(e.target.value) || 0 }))}
-                    placeholder="100"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">URL логотипа</label>
-                <input
-                  type="url"
-                  value={form.logoUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value }))}
-                  placeholder="https://example.com/logo.png"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="ACTIVE">Активна</option>
-                  <option value="INACTIVE">Неактивна</option>
-                  <option value="SUSPENDED">Приостановлена</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80 transition-colors"
               >
                 Отмена
               </button>
               <button
                 type="button"
                 onClick={save}
-                className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 shadow-md shadow-blue-900/40"
+                className="rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white hover:bg-violet-500 shadow-md shadow-violet-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 Сохранить
               </button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">
+                Название <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="Название организации"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">
+                Тип партнёра <span className="text-red-400">*</span>
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, partnerType: 'CAR_WASH' }))}
+                  className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${form.partnerType === 'CAR_WASH'
+                    ? 'bg-blue-500/10 border-blue-500/50 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+                    : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800 hover:border-slate-600'
+                    }`}
+                >
+                  <div className={`p-2 rounded-full mb-2 ${form.partnerType === 'CAR_WASH' ? 'bg-blue-500/20' : 'bg-slate-700/50'
+                    }`}>
+                    <Droplets className="h-5 w-5" />
+                  </div>
+                  <span className="text-xs font-medium">Автомойка</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, partnerType: 'GAS_STATION' }))}
+                  className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${form.partnerType === 'GAS_STATION'
+                    ? 'bg-amber-500/10 border-amber-500/50 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                    : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800 hover:border-slate-600'
+                    }`}
+                >
+                  <div className={`p-2 rounded-full mb-2 ${form.partnerType === 'GAS_STATION' ? 'bg-amber-500/20' : 'bg-slate-700/50'
+                    }`}>
+                    <Fuel className="h-5 w-5" />
+                  </div>
+                  <span className="text-xs font-medium">АЗС</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, partnerType: 'SERVICE' }))}
+                  className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${form.partnerType === 'SERVICE'
+                    ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                    : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800 hover:border-slate-600'
+                    }`}
+                >
+                  <div className={`p-2 rounded-full mb-2 ${form.partnerType === 'SERVICE' ? 'bg-emerald-500/20' : 'bg-slate-700/50'
+                    }`}>
+                    <Wrench className="h-5 w-5" />
+                  </div>
+                  <span className="text-xs font-medium">Сервис</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Описание</label>
+              <textarea
+                rows={3}
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                placeholder="Описание организации"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all resize-none"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Адрес</label>
+                <input
+                  type="text"
+                  value={form.address}
+                  onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                  placeholder="Главный офис"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Телефон</label>
+                <input
+                  type="text"
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  placeholder="+998..."
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                  placeholder="corp@example.com"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Режим работы</label>
+                <input
+                  type="text"
+                  value={form.workingHours}
+                  onChange={(e) => setForm((f) => ({ ...f, workingHours: e.target.value }))}
+                  placeholder="09:00 - 18:00"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all/50"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
+              <select
+                value={form.status}
+                onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+              >
+                <option value="ACTIVE">ACTIVE (Активен)</option>
+                <option value="INACTIVE">INACTIVE (Неактивен)</option>
+                <option value="PENDING">PENDING (На проверке)</option>
+                <option value="BLOCKED">BLOCKED (Заблокирован)</option>
+              </select>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       <div className="rounded-xl border border-slate-700/50 bg-slate-800/30 shadow-lg shadow-slate-900/40 overflow-hidden">

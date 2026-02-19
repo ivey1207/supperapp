@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Cpu, RefreshCw, Search, Pencil, Trash2, X, Link2, Unlink } from 'lucide-react';
+import { RefreshCw, Search, Pencil, Trash2, Link2, Unlink, Cpu } from 'lucide-react';
+import Modal from '../components/Modal';
 import axios from 'axios';
 import {
   getHardwareKiosks,
@@ -393,158 +394,122 @@ export default function HardwareKiosks() {
         )}
       </div>
 
-      {modal && editing && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
-          onClick={closeModal}
-        >
-          <div
-            className="w-full max-w-md my-8 rounded-2xl border border-slate-700/80 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-6 shadow-2xl shadow-black/60"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-white">Редактировать hardware киоск</h3>
-                <p className="mt-1 text-xs text-slate-400">MAC ID: {editing.macId}</p>
-              </div>
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded p-1 text-slate-400 hover:bg-slate-700 hover:text-white"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Название</label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Название киоска"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
-                <select
-                  value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value })}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="REGISTERED">Зарегистрирован</option>
-                  <option value="ACTIVE">Активен</option>
-                  <option value="INACTIVE">Неактивен</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80"
-              >
-                Отмена
-              </button>
-              <button
-                type="button"
-                onClick={save}
-                className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 shadow-md shadow-blue-900/40"
-              >
-                Сохранить
-              </button>
-            </div>
+      <Modal
+        isOpen={modal && !!editing}
+        onClose={closeModal}
+        title="Редактировать hardware киоск"
+        description={`MAC ID: ${editing?.macId}`}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={closeModal}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80 transition-colors"
+            >
+              Отмена
+            </button>
+            <button
+              type="button"
+              onClick={save}
+              className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 shadow-md shadow-blue-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Сохранить
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Название</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Название киоска"
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
+            <select
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+            >
+              <option value="REGISTERED">Зарегистрирован</option>
+              <option value="ACTIVE">Активен</option>
+              <option value="INACTIVE">Неактивен</option>
+            </select>
           </div>
         </div>
-      )}
+      </Modal>
 
-      {assignModal && assigning && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
-          onClick={closeAssignModal}
-        >
-          <div
-            className="w-full max-w-md my-8 rounded-2xl border border-slate-700/80 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-6 shadow-2xl shadow-black/60"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-white">
-                  {assigning.orgId ? 'Изменить привязку' : 'Привязать hardware киоск'}
-                </h3>
-                <p className="mt-1 text-xs text-slate-400">
-                  {assigning.name} (MAC: {assigning.macId})
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={closeAssignModal}
-                className="rounded p-1 text-slate-400 hover:bg-slate-700 hover:text-white"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Организация</label>
-                <select
-                  value={assignForm.orgId}
-                  onChange={(e) => {
-                    setAssignForm({ orgId: e.target.value, branchId: '' });
-                    if (e.target.value) {
-                      loadBranches(e.target.value);
-                    } else {
-                      setBranches([]);
-                    }
-                  }}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="">Не привязан</option>
-                  {orgs.map((org) => (
-                    <option key={org.id} value={org.id}>
-                      {org.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {assignForm.orgId && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Филиал (необязательно)</label>
-                  <select
-                    value={assignForm.branchId}
-                    onChange={(e) => setAssignForm((f) => ({ ...f, branchId: e.target.value }))}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-                  >
-                    <option value="">Не указан</option>
-                    {branches.map((branch) => (
-                      <option key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-            <div className="mt-6 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={closeAssignModal}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80"
-              >
-                Отмена
-              </button>
-              <button
-                type="button"
-                onClick={handleAssign}
-                className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 shadow-md shadow-blue-900/40"
-              >
-                {assigning.orgId ? 'Изменить' : 'Привязать'}
-              </button>
-            </div>
+      <Modal
+        isOpen={assignModal && !!assigning}
+        onClose={closeAssignModal}
+        title={assigning?.orgId ? 'Изменить привязку' : 'Привязать hardware киоск'}
+        description={`${assigning?.name} (MAC: ${assigning?.macId})`}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={closeAssignModal}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80 transition-colors"
+            >
+              Отмена
+            </button>
+            <button
+              type="button"
+              onClick={handleAssign}
+              className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 shadow-md shadow-blue-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {assigning?.orgId ? 'Изменить' : 'Привязать'}
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Организация</label>
+            <select
+              value={assignForm.orgId}
+              onChange={(e) => {
+                setAssignForm({ orgId: e.target.value, branchId: '' });
+                if (e.target.value) {
+                  loadBranches(e.target.value);
+                } else {
+                  setBranches([]);
+                }
+              }}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+            >
+              <option value="">Не привязан</option>
+              {orgs.map((org) => (
+                <option key={org.id} value={org.id}>
+                  {org.name}
+                </option>
+              ))}
+            </select>
           </div>
+          {assignForm.orgId && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Филиал (необязательно)</label>
+              <select
+                value={assignForm.branchId}
+                onChange={(e) => setAssignForm((f) => ({ ...f, branchId: e.target.value }))}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+              >
+                <option value="">Не указан</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

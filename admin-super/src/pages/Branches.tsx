@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { MapPin, RefreshCw, Search, Plus, Pencil, Trash2, X } from 'lucide-react';
+import { MapPin, Plus, Search, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import Modal from '../components/Modal';
 import axios from 'axios';
 import { getBranches, getOrganizations, createBranch, updateBranch, deleteBranch, type Organization } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -226,134 +227,122 @@ export default function Branches() {
         </div>
       )}
 
-      {(modal || editing) && (
-        <div className="rounded-xl border border-slate-800/60 bg-slate-900/60 shadow-lg shadow-slate-900/40 p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-white">
-                {editing ? 'Редактировать филиал' : 'Новый филиал'}
-              </h3>
-              <p className="mt-1 text-xs text-slate-400">
-                Филиал (локация) — это отдельное место организации, где могут быть киоски и услуги.
-              </p>
-            </div>
+      <Modal
+        isOpen={modal || !!editing}
+        onClose={closeModal}
+        title={editing ? 'Редактировать филиал' : 'Новый филиал'}
+        description="Филиал (локация) — это отдельное место организации, где могут быть киоски и услуги."
+        footer={
+          <>
             <button
               type="button"
               onClick={closeModal}
-              className="rounded p-1 text-slate-400 hover:bg-slate-700 hover:text-white"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          <div className="space-y-4">
-            {isSuperAdmin && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Организация *</label>
-                <select
-                  value={form.orgId}
-                  onChange={(e) => setForm((f) => ({ ...f, orgId: e.target.value }))}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="">Выберите организацию</option>
-                  {orgs.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Название филиала *</label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="Название филиала"
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Адрес</label>
-              <input
-                type="text"
-                value={form.address}
-                onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                placeholder="Адрес филиала"
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Телефон</label>
-              <input
-                type="text"
-                value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                placeholder="+998901234567"
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
-              <select
-                value={form.status}
-                onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-              >
-                <option value="OPEN">Открыт</option>
-                <option value="CLOSED">Закрыт</option>
-                <option value="MAINTENANCE">На обслуживании</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Тип филиала</label>
-              <select
-                value={form.partnerType}
-                onChange={(e) => setForm((f) => ({ ...f, partnerType: e.target.value }))}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-              >
-                <option value="">Не выбрано</option>
-                <option value="CAR_WASH">Автомойка</option>
-                <option value="GAS_STATION">АЗС</option>
-                <option value="SERVICE">Сервис</option>
-              </select>
-            </div>
-            {form.partnerType === 'CAR_WASH' && !editing && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Количество боксов</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="50"
-                  value={form.boxCount || ''}
-                  onChange={(e) => setForm((f) => ({ ...f, boxCount: Number.parseInt(e.target.value) || 0 }))}
-                  placeholder="Например: 4"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                />
-                <p className="mt-1 text-xs text-slate-500">
-                  Автоматически создаст указанное количество устройств
-                </p>
-              </div>
-            )}
-          </div>
-          <div className="mt-6 flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80 transition-colors"
             >
               Отмена
             </button>
             <button
               type="button"
               onClick={save}
-              className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 shadow-md shadow-blue-900/40"
+              className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 shadow-md shadow-blue-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               Сохранить
             </button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          {isSuperAdmin && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Организация *</label>
+              <select
+                value={form.orgId}
+                onChange={(e) => setForm((f) => ({ ...f, orgId: e.target.value }))}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+              >
+                <option value="">Выберите организацию</option>
+                {orgs.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Название филиала *</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder="Название филиала"
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+            />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Адрес</label>
+            <input
+              type="text"
+              value={form.address}
+              onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+              placeholder="Адрес филиала"
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Телефон</label>
+            <input
+              type="text"
+              value={form.phone}
+              onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+              placeholder="+998901234567"
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
+            <select
+              value={form.status}
+              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+            >
+              <option value="OPEN">Открыт</option>
+              <option value="CLOSED">Закрыт</option>
+              <option value="MAINTENANCE">На обслуживании</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Тип филиала</label>
+            <select
+              value={form.partnerType}
+              onChange={(e) => setForm((f) => ({ ...f, partnerType: e.target.value }))}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+            >
+              <option value="">Не выбрано</option>
+              <option value="CAR_WASH">Автомойка</option>
+              <option value="GAS_STATION">АЗС</option>
+              <option value="SERVICE">Сервис</option>
+            </select>
+          </div>
+          {form.partnerType === 'CAR_WASH' && !editing && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Количество боксов</label>
+              <input
+                type="number"
+                min="0"
+                max="50"
+                value={form.boxCount || ''}
+                onChange={(e) => setForm((f) => ({ ...f, boxCount: Number.parseInt(e.target.value) || 0 }))}
+                placeholder="Например: 4"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              />
+              <p className="mt-1 text-xs text-slate-500">
+                Автоматически создаст указанное количество устройств
+              </p>
+            </div>
+          )}
         </div>
-      )}
+      </Modal>
 
       <div className="rounded-xl border border-slate-800/60 bg-slate-900/60 shadow-lg shadow-slate-900/40 overflow-hidden">
         {loading && list.length === 0 ? (
