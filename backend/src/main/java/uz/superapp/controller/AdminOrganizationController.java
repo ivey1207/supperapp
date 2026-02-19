@@ -84,6 +84,7 @@ public class AdminOrganizationController {
 
         Organization org = new Organization();
         org.setName(name);
+        org.setInn(getStringValue(body, "inn"));
         String partnerType = getStringValue(body, "partnerType");
         org.setPartnerType(partnerType);
         org.setStatus(getStringValue(body, "status", "ACTIVE"));
@@ -126,6 +127,9 @@ public class AdminOrganizationController {
 
         if (body.containsKey("name")) {
             org.setName(getStringValue(body, "name"));
+        }
+        if (body.containsKey("inn")) {
+            org.setInn(getStringValue(body, "inn"));
         }
         if (body.containsKey("partnerType")) {
             org.setPartnerType(getStringValue(body, "partnerType"));
@@ -248,6 +252,7 @@ public class AdminOrganizationController {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", org.getId());
         m.put("name", org.getName() != null ? org.getName() : "");
+        m.put("inn", org.getInn() != null ? org.getInn() : "");
         m.put("partnerType", org.getPartnerType() != null ? org.getPartnerType() : "");
         m.put("status", org.getStatus() != null ? org.getStatus() : "ACTIVE");
         m.put("description", org.getDescription() != null ? org.getDescription() : "");

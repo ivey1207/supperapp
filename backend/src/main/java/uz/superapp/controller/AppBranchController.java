@@ -41,6 +41,7 @@ public class AppBranchController {
         m.put("status", b.getStatus() != null ? b.getStatus() : "OPEN");
         m.put("partnerType", b.getPartnerType() != null ? b.getPartnerType() : "");
         m.put("workingHours", b.getWorkingHours() != null ? b.getWorkingHours() : "");
+        m.put("photoUrl", b.getPhotoUrl() != null ? b.getPhotoUrl() : "");
         m.put("images", b.getImages() != null ? b.getImages() : List.of());
 
         if (b.getLocation() != null && b.getLocation().getCoordinates() != null

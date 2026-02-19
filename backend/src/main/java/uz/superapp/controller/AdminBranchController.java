@@ -11,6 +11,7 @@ import uz.superapp.repository.AccountRepository;
 import uz.superapp.repository.BranchRepository;
 import uz.superapp.repository.DeviceRepository;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,8 +36,9 @@ public class AdminBranchController {
     public ResponseEntity<List<Map<String, Object>>> list(@RequestParam(required = false) String orgId,
             Authentication auth) {
         String effectiveOrgId = orgId;
-        if ((effectiveOrgId == null || effectiveOrgId.isBlank()) && auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findById(auth.getName());
+        String username = auth != null ? auth.getName() : null;
+        if ((effectiveOrgId == null || effectiveOrgId.isBlank()) && username != null) {
+            Optional<Account> current = accountRepository.findById(username);
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String partnerOrgId = current.get().getOrgId();
                 if (partnerOrgId != null && !partnerOrgId.isBlank()) {
@@ -48,16 +50,7 @@ public class AdminBranchController {
                 ? branchRepository.findByOrgIdAndArchivedFalse(effectiveOrgId)
                 : branchRepository.findByArchivedFalse();
         List<Map<String, Object>> result = all.stream()
-                .map(b -> {
-                    String address = b.getAddress() != null ? b.getAddress() : "";
-                    String phone = b.getPhone() != null ? b.getPhone() : "";
-                    return Map.<String, Object>of(
-                            "name", b.getName() != null ? b.getName() : "",
-                            "address", address,
-                            "phone", phone,
-                            "status", b.getStatus() != null ? b.getStatus() : "OPEN",
-                            "partnerType", b.getPartnerType() != null ? b.getPartnerType() : "");
-                })
+                .map(this::buildBranchMap)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(result);
     }
@@ -92,6 +85,15 @@ public class AdminBranchController {
         branch.setStatus(getString(body, "status", "OPEN"));
         String partnerType = getString(body, "partnerType", "");
         branch.setPartnerType(partnerType);
+        branch.setPhotoUrl(getString(body, "photoUrl", ""));
+
+        Double lat = getDouble(body, "latitude");
+        Double lon = getDouble(body, "longitude");
+        if (lat != null && lon != null) {
+            Branch.GeoLocation loc = new Branch.GeoLocation();
+            loc.setCoordinates(List.of(lon, lat)); // GeoJSON format: [longitude, latitude]
+            branch.setLocation(loc);
+        }
 
         branch.setArchived(false);
         branchRepository.save(branch);
@@ -117,14 +119,7 @@ public class AdminBranchController {
             }
         }
 
-        return ResponseEntity.ok(Map.of(
-                "id", branch.getId(),
-                "orgId", branch.getOrgId() != null ? branch.getOrgId() : "",
-                "name", branch.getName() != null ? branch.getName() : "",
-                "address", branch.getAddress() != null ? branch.getAddress() : "",
-                "phone", branch.getPhone() != null ? branch.getPhone() : "",
-                "status", branch.getStatus() != null ? branch.getStatus() : "OPEN",
-                "partnerType", branch.getPartnerType() != null ? branch.getPartnerType() : ""));
+        return ResponseEntity.ok(buildBranchMap(branch));
     }
 
     @PutMapping("/{id}")
@@ -162,15 +157,20 @@ public class AdminBranchController {
         if (body.containsKey("partnerType")) {
             branch.setPartnerType(getString(body, "partnerType", ""));
         }
+        if (body.containsKey("photoUrl")) {
+            branch.setPhotoUrl(getString(body, "photoUrl", ""));
+        }
+        if (body.containsKey("latitude") && body.containsKey("longitude")) {
+            Double lat = getDouble(body, "latitude");
+            Double lon = getDouble(body, "longitude");
+            if (lat != null && lon != null) {
+                Branch.GeoLocation loc = new Branch.GeoLocation();
+                loc.setCoordinates(List.of(lon, lat));
+                branch.setLocation(loc);
+            }
+        }
         branchRepository.save(branch);
-        return ResponseEntity.ok(Map.of(
-                "id", branch.getId(),
-                "orgId", branch.getOrgId() != null ? branch.getOrgId() : "",
-                "name", branch.getName() != null ? branch.getName() : "",
-                "address", branch.getAddress() != null ? branch.getAddress() : "",
-                "phone", branch.getPhone() != null ? branch.getPhone() : "",
-                "status", branch.getStatus() != null ? branch.getStatus() : "OPEN",
-                "partnerType", branch.getPartnerType() != null ? branch.getPartnerType() : ""));
+        return ResponseEntity.ok(buildBranchMap(branch));
     }
 
     @DeleteMapping("/{id}")
@@ -197,11 +197,50 @@ public class AdminBranchController {
         return ResponseEntity.noContent().build();
     }
 
+    private Map<String, Object> buildBranchMap(Branch branch) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("id", branch.getId());
+        m.put("orgId", branch.getOrgId() != null ? branch.getOrgId() : "");
+        m.put("name", branch.getName() != null ? branch.getName() : "");
+        m.put("address", branch.getAddress() != null ? branch.getAddress() : "");
+        m.put("phone", branch.getPhone() != null ? branch.getPhone() : "");
+        m.put("status", branch.getStatus() != null ? branch.getStatus() : "OPEN");
+        m.put("partnerType", branch.getPartnerType() != null ? branch.getPartnerType() : "");
+        m.put("photoUrl", branch.getPhotoUrl() != null ? branch.getPhotoUrl() : "");
+
+        Double lat = null;
+        Double lon = null;
+        if (branch.getLocation() != null && branch.getLocation().getCoordinates() != null
+                && branch.getLocation().getCoordinates().size() >= 2) {
+            lon = branch.getLocation().getCoordinates().get(0);
+            lat = branch.getLocation().getCoordinates().get(1);
+        }
+        m.put("latitude", lat);
+        m.put("longitude", lon);
+
+        return m;
+    }
+
     private String getString(Map<String, Object> map, String key, String defaultValue) {
         Object value = map.get(key);
         if (value instanceof String) {
             return (String) value;
         }
         return defaultValue;
+    }
+
+    private Double getDouble(Map<String, Object> map, String key) {
+        Object value = map.get(key);
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        if (value instanceof String) {
+            try {
+                return Double.parseDouble((String) value);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
     }
 }

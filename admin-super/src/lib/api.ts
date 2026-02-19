@@ -14,6 +14,18 @@ api.interceptors.request.use((config) => {
 
 export default api;
 
+// File upload
+export async function uploadFile(file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await api.post('/api/v1/files/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+}
+
 // Auth functions
 export async function login(email: string, password: string) {
   const { data } = await api.post('/api/v1/admin/auth/login', { email, password });
@@ -40,6 +52,7 @@ export async function getMe(token: string) {
 export type Organization = {
   id: string;
   name: string;
+  inn?: string;
   status: string;
   description?: string;
   address?: string;

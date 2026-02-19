@@ -18,6 +18,7 @@ public class Branch {
     private GeoLocation location;
     private String workingHours;
     private List<String> images;
+    private String photoUrl;
     private boolean archived;
 
     public String getId() {
@@ -98,6 +99,14 @@ public class Branch {
 
     public void setImages(List<String> images) {
         this.images = images;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public boolean isArchived() {

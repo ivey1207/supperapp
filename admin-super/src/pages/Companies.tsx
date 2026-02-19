@@ -7,6 +7,7 @@ import {
   createOrganization,
   updateOrganization,
   deleteOrganization,
+  uploadFile,
   type Organization,
 } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -26,7 +27,7 @@ export default function Companies() {
 
   const [form, setForm] = useState({
     name: '',
-
+    inn: '',
     status: 'ACTIVE',
     description: '',
     address: '',
@@ -71,7 +72,9 @@ export default function Companies() {
   const filtered = list.filter((o) => {
     const matchesSearch =
       o.name.toLowerCase().includes(search.toLowerCase()) ||
+      o.name.toLowerCase().includes(search.toLowerCase()) ||
       o.status.toLowerCase().includes(search.toLowerCase()) ||
+      (o.inn || '').toLowerCase().includes(search.toLowerCase()) ||
       (o.partnerType || '').toLowerCase().includes(search.toLowerCase());
     return matchesSearch;
   });
@@ -90,7 +93,7 @@ export default function Companies() {
     setEditing(null);
     setForm({
       name: '',
-
+      inn: '',
       status: 'ACTIVE',
       description: '',
       address: '',
@@ -109,7 +112,7 @@ export default function Companies() {
     setEditing(org);
     setForm({
       name: org.name || '',
-
+      inn: org.inn || '',
       status: org.status || 'ACTIVE',
       description: org.description || '',
       address: org.address || '',
@@ -131,7 +134,7 @@ export default function Companies() {
     setEditing(null);
     setForm({
       name: '',
-
+      inn: '',
       status: 'ACTIVE',
       description: '',
       address: '',
@@ -152,7 +155,7 @@ export default function Companies() {
     try {
       const payload: any = {
         name: form.name,
-
+        inn: form.inn,
         status: form.status,
         description: form.description,
         address: form.address,
@@ -278,17 +281,60 @@ export default function Companies() {
           }
         >
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">
-                Название <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="Название организации"
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
-              />
+            <div className="flex items-center justify-center mb-4">
+              <div className="relative group">
+                <div className="w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center overflow-hidden">
+                  {form.logoUrl ? (
+                    <img src={form.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <Building2 className="w-10 h-10 text-slate-500" />
+                  )}
+                </div>
+                <label className="absolute bottom-0 right-0 bg-blue-600 p-1.5 rounded-full cursor-pointer hover:bg-blue-500 transition-colors shadow-lg">
+                  <Pencil className="w-3.5 h-3.5 text-white" />
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        try {
+                          const { url } = await uploadFile(file);
+                          setForm(f => ({ ...f, logoUrl: url }));
+                        } catch (error) {
+                          console.error('Upload failed', error);
+                          alert('Ошибка загрузки логотипа');
+                        }
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">
+                  Название <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  placeholder="Название организации"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">ИНН</label>
+                <input
+                  type="text"
+                  value={form.inn}
+                  onChange={(e) => setForm((f) => ({ ...f, inn: e.target.value }))}
+                  placeholder="123456789"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                />
+              </div>
             </div>
 
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { MapPin, Plus, Search, Pencil, Trash2, RefreshCw, Car, Fuel, Wrench } from 'lucide-react';
 import Modal from '../components/Modal';
 import axios from 'axios';
-import { getBranches, getOrganizations, createBranch, updateBranch, deleteBranch, type Organization } from '../lib/api';
+import { getBranches, getOrganizations, deleteBranch, uploadFile, type Organization } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
@@ -16,6 +16,9 @@ type Branch = {
   status: string;
   partnerType?: string;
   boxCount?: number;
+  photoUrl?: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 export default function Branches() {
@@ -30,7 +33,18 @@ export default function Branches() {
   const [pageSize, setPageSize] = useState(25);
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<Branch | null>(null);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    orgId: string;
+    name: string;
+    address: string;
+    phone: string;
+    status: string;
+    partnerType: string;
+    boxCount: number;
+    photoUrl: string;
+    latitude: string | number;
+    longitude: string | number;
+  }>({
     orgId: '',
     name: '',
     address: '',
@@ -38,6 +52,9 @@ export default function Branches() {
     status: 'OPEN',
     partnerType: '',
     boxCount: 0,
+    photoUrl: '',
+    latitude: '',
+    longitude: '',
   });
 
   const PARTNER_TYPES = [
@@ -113,6 +130,9 @@ export default function Branches() {
       status: 'OPEN',
       partnerType: '',
       boxCount: 0,
+      photoUrl: '',
+      latitude: '',
+      longitude: '',
     });
     setModal(true);
   };
@@ -127,7 +147,10 @@ export default function Branches() {
       phone: branch.phone,
       status: branch.status,
       partnerType: branch.partnerType || '',
-      boxCount: 0,
+      boxCount: 0, // Not editable for existing
+      photoUrl: branch.photoUrl || '',
+      latitude: branch.latitude || '',
+      longitude: branch.longitude || '',
     });
     setModal(true);
   };
@@ -142,11 +165,12 @@ export default function Branches() {
     playClick();
     if (!form.name.trim() || !form.orgId) return;
     try {
+      const payload = { ...form };
       if (editing) {
-        // Warning: updateBranch might not support partnerType yet in frontend api.ts, need to check
-        await updateBranch(editing.id, form.name, form.address, form.phone, form.status, form.partnerType);
+        // Use direct axios call since api.ts updateBranch doesn't support new fields yet
+        await axios.put(`/api/v1/admin/branches/${editing.id}`, payload);
       } else {
-        await createBranch(form.orgId, form.name, form.address, form.phone, form.status, form.partnerType, form.boxCount);
+        await axios.post('/api/v1/admin/branches', payload);
       }
       closeModal();
       load();
@@ -275,6 +299,39 @@ export default function Branches() {
               </select>
             </div>
           )}
+
+          <div className="flex items-center justify-center mb-4">
+            <div className="relative group">
+              <div className="w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center overflow-hidden">
+                {form.photoUrl ? (
+                  <img src={form.photoUrl} alt="Branch" className="w-full h-full object-cover" />
+                ) : (
+                  <MapPin className="w-10 h-10 text-slate-500" />
+                )}
+              </div>
+              <label className="absolute bottom-0 right-0 bg-blue-600 p-1.5 rounded-full cursor-pointer hover:bg-blue-500 transition-colors shadow-lg">
+                <Pencil className="w-3.5 h-3.5 text-white" />
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      try {
+                        const { url } = await uploadFile(file);
+                        setForm(f => ({ ...f, photoUrl: url }));
+                      } catch (error) {
+                        console.error('Upload failed', error);
+                        alert('Ошибка загрузки фото');
+                      }
+                    }
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Название филиала *</label>
             <input
@@ -305,6 +362,30 @@ export default function Branches() {
               className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Широта (Latitude)</label>
+              <input
+                type="number"
+                step="any"
+                value={form.latitude}
+                onChange={(e) => setForm((f) => ({ ...f, latitude: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
+                placeholder="41.311081"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Долгота (Longitude)</label>
+              <input
+                type="number"
+                step="any"
+                value={form.longitude}
+                onChange={(e) => setForm((f) => ({ ...f, longitude: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
+                placeholder="69.240562"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
             <select
@@ -326,8 +407,8 @@ export default function Branches() {
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, partnerType: type.id }))}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${form.partnerType === type.id
-                      ? 'border-blue-500 bg-blue-500/20 text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
-                      : 'border-slate-700 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:border-slate-600'
+                    ? 'border-blue-500 bg-blue-500/20 text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+                    : 'border-slate-700 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:border-slate-600'
                     }`}
                 >
                   <type.icon className={`h-6 w-6 mb-2 ${form.partnerType === type.id ? 'text-blue-400' : 'text-slate-500'}`} />
