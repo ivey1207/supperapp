@@ -90,7 +90,7 @@ export default function Companies() {
     setEditing(null);
     setForm({
       name: '',
-      partnerType: '',
+
       status: 'ACTIVE',
       description: '',
       address: '',
@@ -131,7 +131,7 @@ export default function Companies() {
     setEditing(null);
     setForm({
       name: '',
-      partnerType: '',
+
       status: 'ACTIVE',
       description: '',
       address: '',
@@ -152,7 +152,7 @@ export default function Companies() {
     try {
       const payload: any = {
         name: form.name,
-        partnerType: form.partnerType,
+
         status: form.status,
         description: form.description,
         address: form.address,
