@@ -6,8 +6,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Account;
 import uz.superapp.domain.Branch;
+import uz.superapp.domain.Device;
 import uz.superapp.repository.AccountRepository;
 import uz.superapp.repository.BranchRepository;
+import uz.superapp.repository.DeviceRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -20,10 +22,13 @@ public class AdminBranchController {
 
     private final BranchRepository branchRepository;
     private final AccountRepository accountRepository;
+    private final DeviceRepository deviceRepository;
 
-    public AdminBranchController(BranchRepository branchRepository, AccountRepository accountRepository) {
+    public AdminBranchController(BranchRepository branchRepository, AccountRepository accountRepository,
+            DeviceRepository deviceRepository) {
         this.branchRepository = branchRepository;
         this.accountRepository = accountRepository;
+        this.deviceRepository = deviceRepository;
     }
 
     @GetMapping
@@ -93,6 +98,27 @@ public class AdminBranchController {
 
         branch.setArchived(false);
         branchRepository.save(branch);
+
+        // Handle boxCount for CAR_WASH
+        if ("CAR_WASH".equals(partnerType)) {
+            Object boxCountObj = body.get("boxCount");
+            if (boxCountObj instanceof Integer) {
+                int boxCount = (Integer) boxCountObj;
+                if (boxCount > 0) {
+                    for (int i = 1; i <= boxCount; i++) {
+                        Device device = new Device();
+                        device.setOrgId(orgId);
+                        device.setBranchId(branch.getId());
+                        device.setName("Box " + i);
+                        device.setStatus("OPEN");
+                        // Use BigDecimal for cashBalance
+                        device.setCashBalance(java.math.BigDecimal.ZERO);
+                        device.setArchived(false);
+                        deviceRepository.save(device);
+                    }
+                }
+            }
+        }
 
         return ResponseEntity.ok(Map.of(
                 "id", branch.getId(),
