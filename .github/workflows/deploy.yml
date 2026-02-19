@@ -14,8 +14,8 @@ jobs:
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.PASW }}
         port: ${{ secrets.PORT }}
         source: "."
         target: "/root/uz-superapp"
@@ -26,8 +26,8 @@ jobs:
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
+        username: ${{ secrets.USER }}
+        password: ${{ secrets.PASW }}
         port: ${{ secrets.PORT }}
         script: |
           cd /root/uz-superapp
