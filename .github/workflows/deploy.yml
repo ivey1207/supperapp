@@ -23,11 +23,11 @@ jobs:
           --exclude 'dist' \
           --exclude '.git' \
           --exclude '.github' \
-          . root@${{ secrets.HOST }}:/root/uz-superapp
+          . root@161.97.118.117:/root/uz-superapp
 
     - name: Run remote commands
       run: |
-        sshpass -e ssh -q -o StrictHostKeyChecking=no -p 22 root@${{ secrets.HOST }} << 'EOF'
+        sshpass -e ssh -q -o StrictHostKeyChecking=no -p 22 root@161.97.118.117 << 'EOF'
           cd /root/uz-superapp
           # Ensure Docker is installed (idempotent check)
           if ! command -v docker &> /dev/null; then
