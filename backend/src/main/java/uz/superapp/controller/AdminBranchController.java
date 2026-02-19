@@ -87,14 +87,11 @@ public class AdminBranchController {
         Branch branch = new Branch();
         branch.setOrgId(orgId);
         branch.setName(name);
-        branch.setAddress((String) body.getOrDefault("address", ""));
-        branch.setPhone((String) body.getOrDefault("phone", ""));
-        branch.setStatus((String) body.getOrDefault("status", "OPEN"));
-
-        String partnerType = (String) body.get("partnerType");
-        if (partnerType != null) {
-            branch.setPartnerType(partnerType);
-        }
+        branch.setAddress(getString(body, "address", ""));
+        branch.setPhone(getString(body, "phone", ""));
+        branch.setStatus(getString(body, "status", "OPEN"));
+        String partnerType = getString(body, "partnerType", "");
+        branch.setPartnerType(partnerType);
 
         branch.setArchived(false);
         branchRepository.save(branch);
@@ -151,19 +148,19 @@ public class AdminBranchController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         if (body.containsKey("name")) {
-            branch.setName((String) body.get("name"));
+            branch.setName(getString(body, "name", branch.getName()));
         }
         if (body.containsKey("address")) {
-            branch.setAddress((String) body.get("address"));
+            branch.setAddress(getString(body, "address", ""));
         }
         if (body.containsKey("phone")) {
-            branch.setPhone((String) body.get("phone"));
+            branch.setPhone(getString(body, "phone", ""));
         }
         if (body.containsKey("status")) {
-            branch.setStatus((String) body.get("status"));
+            branch.setStatus(getString(body, "status", "OPEN"));
         }
         if (body.containsKey("partnerType")) {
-            branch.setPartnerType((String) body.get("partnerType"));
+            branch.setPartnerType(getString(body, "partnerType", ""));
         }
         branchRepository.save(branch);
         return ResponseEntity.ok(Map.of(
@@ -198,5 +195,13 @@ public class AdminBranchController {
         branch.setArchived(true);
         branchRepository.save(branch);
         return ResponseEntity.noContent().build();
+    }
+
+    private String getString(Map<String, Object> map, String key, String defaultValue) {
+        Object value = map.get(key);
+        if (value instanceof String) {
+            return (String) value;
+        }
+        return defaultValue;
     }
 }

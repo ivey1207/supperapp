@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building2, Plus, Search, Pencil, Trash2, Fuel, Wrench, Droplets, RefreshCw, Cpu, X } from 'lucide-react';
+import { Building2, Plus, Search, Pencil, Trash2, RefreshCw } from 'lucide-react';
 import Modal from '../components/Modal';
 import axios from 'axios';
 import {
@@ -7,10 +7,7 @@ import {
   createOrganization,
   updateOrganization,
   deleteOrganization,
-  getHardwareKiosks,
-  attachKiosksToOrganization,
   type Organization,
-  type HardwareKiosk,
 } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
@@ -19,20 +16,17 @@ import Pagination from '../components/Pagination';
 export default function Companies() {
   const { isSuperAdmin } = useAuth();
   const [list, setList] = useState<Organization[]>([]);
-  const [hardwareKiosks, setHardwareKiosks] = useState<HardwareKiosk[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [modal, setModal] = useState(false);
-  const [attachModal, setAttachModal] = useState(false);
   const [editing, setEditing] = useState<Organization | null>(null);
-  const [attachingOrg, setAttachingOrg] = useState<Organization | null>(null);
-  const [selectedHardwareKioskIds, setSelectedHardwareKioskIds] = useState<string[]>([]);
+
   const [form, setForm] = useState({
     name: '',
-    partnerType: '',
+
     status: 'ACTIVE',
     description: '',
     address: '',
@@ -49,12 +43,8 @@ export default function Companies() {
     setLoading(true);
     setError(null);
     try {
-      const [orgs, hwKiosks] = await Promise.all([
-        getOrganizations(),
-        isSuperAdmin ? getHardwareKiosks({ status: 'REGISTERED' }) : Promise.resolve([]),
-      ]);
+      const orgs = await getOrganizations();
       setList(orgs);
-      setHardwareKiosks(hwKiosks);
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         const status = e.response?.status;
@@ -119,7 +109,7 @@ export default function Companies() {
     setEditing(org);
     setForm({
       name: org.name || '',
-      partnerType: org.partnerType || '',
+
       status: org.status || 'ACTIVE',
       description: org.description || '',
       address: org.address || '',
@@ -133,13 +123,7 @@ export default function Companies() {
     setModal(true);
   };
 
-  const openAttachKiosks = (org: Organization) => {
-    playClick();
-    setAttachingOrg(org);
-    setSelectedHardwareKioskIds([]);
-    setAttachModal(true);
-    load(); // Обновить список hardware киосков
-  };
+
 
   const closeModal = () => {
     playClick();
@@ -160,12 +144,7 @@ export default function Companies() {
     });
   };
 
-  const closeAttachModal = () => {
-    playClick();
-    setAttachModal(false);
-    setAttachingOrg(null);
-    setSelectedHardwareKioskIds([]);
-  };
+
 
   const save = async () => {
     playClick();
@@ -203,23 +182,7 @@ export default function Companies() {
     }
   };
 
-  const handleAttachKiosks = async () => {
-    if (!attachingOrg) return;
-    playClick();
-    try {
-      if (selectedHardwareKioskIds.length === 0) {
-        setError('Выберите хотя бы один hardware киоск');
-        return;
-      }
-      await attachKiosksToOrganization(attachingOrg.id, selectedHardwareKioskIds);
-      closeAttachModal();
-      load();
-    } catch (e: unknown) {
-      if (axios.isAxiosError(e)) {
-        setError(e.response?.data?.message || 'Ошибка привязки киосков');
-      }
-    }
-  };
+
 
   const handleDelete = async (id: string) => {
     playClick();
@@ -236,18 +199,7 @@ export default function Companies() {
 
 
 
-  const partnerTypeLabel = (type?: string) => {
-    switch (type) {
-      case 'CAR_WASH':
-        return 'Автомойка';
-      case 'GAS_STATION':
-        return 'АЗС';
-      case 'SERVICE':
-        return 'Сервис';
-      default:
-        return '—';
-    }
-  };
+
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -339,57 +291,7 @@ export default function Companies() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">
-                Тип партнёра <span className="text-red-400">*</span>
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setForm(f => ({ ...f, partnerType: 'CAR_WASH' }))}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${form.partnerType === 'CAR_WASH'
-                    ? 'bg-blue-500/10 border-blue-500/50 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
-                    : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800 hover:border-slate-600'
-                    }`}
-                >
-                  <div className={`p-2 rounded-full mb-2 ${form.partnerType === 'CAR_WASH' ? 'bg-blue-500/20' : 'bg-slate-700/50'
-                    }`}>
-                    <Droplets className="h-5 w-5" />
-                  </div>
-                  <span className="text-xs font-medium">Автомойка</span>
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => setForm(f => ({ ...f, partnerType: 'GAS_STATION' }))}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${form.partnerType === 'GAS_STATION'
-                    ? 'bg-amber-500/10 border-amber-500/50 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
-                    : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800 hover:border-slate-600'
-                    }`}
-                >
-                  <div className={`p-2 rounded-full mb-2 ${form.partnerType === 'GAS_STATION' ? 'bg-amber-500/20' : 'bg-slate-700/50'
-                    }`}>
-                    <Fuel className="h-5 w-5" />
-                  </div>
-                  <span className="text-xs font-medium">АЗС</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setForm(f => ({ ...f, partnerType: 'SERVICE' }))}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${form.partnerType === 'SERVICE'
-                    ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
-                    : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800 hover:border-slate-600'
-                    }`}
-                >
-                  <div className={`p-2 rounded-full mb-2 ${form.partnerType === 'SERVICE' ? 'bg-emerald-500/20' : 'bg-slate-700/50'
-                    }`}>
-                    <Wrench className="h-5 w-5" />
-                  </div>
-                  <span className="text-xs font-medium">Сервис</span>
-                </button>
-              </div>
-            </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Описание</label>
@@ -471,7 +373,7 @@ export default function Companies() {
               <thead>
                 <tr className="border-b border-slate-700/60 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300">Название</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300">Тип</th>
+
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300">Адрес</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300">Телефон</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300">Рейтинг</th>
@@ -502,11 +404,7 @@ export default function Companies() {
                           <span className="text-[11px] text-slate-400">ID: {o.id.slice(0, 8)}…</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-500/20 text-blue-300">
-                          {partnerTypeLabel(o.partnerType)}
-                        </span>
-                      </td>
+
                       <td className="px-4 py-3 text-slate-200">{o.address || '—'}</td>
                       <td className="px-4 py-3 text-slate-200">{o.phone || '—'}</td>
                       <td className="px-4 py-3">
@@ -533,16 +431,7 @@ export default function Companies() {
                       </td>
                       {isSuperAdmin && (
                         <td className="px-4 py-3 flex items-center justify-end gap-1.5">
-                          {o.partnerType === 'CAR_WASH' && (
-                            <button
-                              type="button"
-                              onClick={() => openAttachKiosks(o)}
-                              className="rounded p-1.5 text-slate-300 hover:bg-slate-600 hover:text-white"
-                              title="Привязать киоски"
-                            >
-                              <Cpu className="h-4 w-4" />
-                            </button>
-                          )}
+
                           <button
                             type="button"
                             onClick={() => openEdit(o)}
@@ -584,99 +473,6 @@ export default function Companies() {
       </div>
 
 
-      {
-        attachModal && attachingOrg && isSuperAdmin && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
-            onClick={closeAttachModal}
-          >
-            <div
-              className="w-full max-w-2xl my-8 rounded-2xl border border-slate-700/80 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-6 shadow-2xl shadow-black/60"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Привязать hardware киоски</h3>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Выберите зарегистрированные hardware киоски для организации "{attachingOrg.name}"
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={closeAttachModal}
-                  className="rounded p-1 text-slate-400 hover:bg-slate-700 hover:text-white"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <div className="space-y-4">
-                {hardwareKiosks.length > 0 ? (
-                  <div className="max-h-[60vh] overflow-y-auto space-y-2 border border-slate-700/50 rounded-lg p-3 bg-slate-900/50">
-                    {hardwareKiosks.map((kiosk) => (
-                      <label
-                        key={kiosk.id}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-800/80 cursor-pointer border border-transparent hover:border-slate-700 transition-all"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedHardwareKioskIds.includes(kiosk.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedHardwareKioskIds((ids) => [...ids, kiosk.id]);
-                            } else {
-                              setSelectedHardwareKioskIds((ids) => ids.filter((id) => id !== kiosk.id));
-                            }
-                          }}
-                          className="h-4 w-4 rounded border-slate-600 bg-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-white">{kiosk.name}</span>
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${kiosk.status === 'ACTIVE'
-                              ? 'bg-emerald-500/20 text-emerald-400'
-                              : 'bg-slate-700 text-slate-300'
-                              }`}>
-                              {kiosk.status}
-                            </span>
-                          </div>
-                          <div className="text-xs text-slate-400 font-mono mt-0.5">MAC: {kiosk.macId}</div>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-slate-700/50 rounded-xl bg-slate-800/20">
-                    <div className="bg-slate-800 p-3 rounded-full mb-3">
-                      <Cpu className="h-8 w-8 text-slate-500" />
-                    </div>
-                    <h4 className="text-slate-300 font-medium mb-1">Нет доступных устройств</h4>
-                    <p className="text-sm text-slate-500 max-w-xs mx-auto">
-                      Свободные hardware-киоски не найдены. Зарегистрируйте их через API или создайте при добавлении организации.
-                    </p>
-                  </div>
-                )}
-              </div>
-              <div className="mt-6 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={closeAttachModal}
-                  className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80"
-                >
-                  Отмена
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAttachKiosks}
-                  disabled={selectedHardwareKioskIds.length === 0}
-                  className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500 shadow-md shadow-blue-900/40 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Привязать
-                </button>
-              </div>
-            </div>
-          </div>
-        )
-      }
     </div >
   );
 }

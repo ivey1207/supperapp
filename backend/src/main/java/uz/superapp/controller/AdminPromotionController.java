@@ -28,7 +28,7 @@ public class AdminPromotionController {
             @RequestParam(required = false) String branchId) {
 
         Account account = accountRepository.findByEmailAndArchivedFalse(principal.getName()).orElseThrow();
-        String effectiveOrgId = "ADMIN".equals(account.getRole()) ? orgId : account.getOrgId();
+        String effectiveOrgId = "SUPER_ADMIN".equals(account.getRole()) ? orgId : account.getOrgId();
 
         if (effectiveOrgId != null && !effectiveOrgId.isEmpty()) {
             if (branchId != null && !branchId.isEmpty()) {
@@ -47,7 +47,7 @@ public class AdminPromotionController {
     @PostMapping
     public Promotion create(@RequestBody Promotion promotion, Principal principal) {
         Account account = accountRepository.findByEmailAndArchivedFalse(principal.getName()).orElseThrow();
-        if (!"ADMIN".equals(account.getRole())) {
+        if (!"SUPER_ADMIN".equals(account.getRole())) {
             promotion.setOrgId(account.getOrgId());
         }
         return promotionRepository.save(promotion);
@@ -58,12 +58,12 @@ public class AdminPromotionController {
         Account account = accountRepository.findByEmailAndArchivedFalse(principal.getName()).orElseThrow();
         Promotion existing = promotionRepository.findById(id).orElseThrow();
 
-        if (!"ADMIN".equals(account.getRole()) && !existing.getOrgId().equals(account.getOrgId())) {
+        if (!"SUPER_ADMIN".equals(account.getRole()) && !existing.getOrgId().equals(account.getOrgId())) {
             throw new RuntimeException("Access denied");
         }
 
         promotion.setId(id);
-        if (!"ADMIN".equals(account.getRole())) {
+        if (!"SUPER_ADMIN".equals(account.getRole())) {
             promotion.setOrgId(account.getOrgId());
         }
         return promotionRepository.save(promotion);
@@ -74,7 +74,7 @@ public class AdminPromotionController {
         Account account = accountRepository.findByEmailAndArchivedFalse(principal.getName()).orElseThrow();
         Promotion existing = promotionRepository.findById(id).orElseThrow();
 
-        if (!"ADMIN".equals(account.getRole()) && !existing.getOrgId().equals(account.getOrgId())) {
+        if (!"SUPER_ADMIN".equals(account.getRole()) && !existing.getOrgId().equals(account.getOrgId())) {
             throw new RuntimeException("Access denied");
         }
 
