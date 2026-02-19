@@ -16,19 +16,7 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
         password: ${{ secrets.PASW }}
-        port: ${{ secrets.PORT }}
-        source: "."
-        target: "/root/uz-superapp"
-        strip_components: 0
-        exclude: "node_modules,target,dist,.git,.github"
-
-    - name: Executing remote ssh commands
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        password: ${{ secrets.PASW }}
-        port: ${{ secrets.PORT }}
+        port: 22
         script: |
           cd /root/uz-superapp
           # Ensure Docker is installed (idempotent check)
