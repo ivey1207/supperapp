@@ -17,17 +17,17 @@ jobs:
       env:
         SSHPASS: ${{ secrets.PASW }}
       run: |
-        sshpass -e rsync -avz --no-perms --no-owner --no-group -e "ssh -o StrictHostKeyChecking=no -p 22" \
+        sshpass -e rsync -avz --no-perms --no-owner --no-group -e "ssh -q -o StrictHostKeyChecking=no -p 22" \
           --exclude 'node_modules' \
           --exclude 'target' \
           --exclude 'dist' \
           --exclude '.git' \
           --exclude '.github' \
-          . ${{ secrets.USER }}@${{ secrets.HOST }}:/root/uz-superapp
+          . root@${{ secrets.HOST }}:/root/uz-superapp
 
     - name: Run remote commands
       run: |
-        sshpass -e ssh -o StrictHostKeyChecking=no -p 22 ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
+        sshpass -e ssh -q -o StrictHostKeyChecking=no -p 22 root@${{ secrets.HOST }} << 'EOF'
           cd /root/uz-superapp
           # Ensure Docker is installed (idempotent check)
           if ! command -v docker &> /dev/null; then
