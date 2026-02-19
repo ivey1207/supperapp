@@ -5,8 +5,7 @@ import {
     getOrganizations, getBranches
 } from '../lib/api';
 import type { Promotion, Organization } from '../lib/api';
-import { Search, Plus, Trash2, ImageIcon, Filter, GitBranch, CheckCircle, XCircle, Calendar, Edit2 } from 'lucide-react';
-import Modal from '../components/Modal';
+import { Search, Plus, Trash2, Filter, GitBranch, CheckCircle, XCircle, Calendar, Edit2 } from 'lucide-react';
 import { playClick } from '../lib/sound';
 
 export default function Promotions() {
