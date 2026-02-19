@@ -5,6 +5,7 @@ import { getAccounts, createAccount, updateAccount, deleteAccount, getOrganizati
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
+import Modal from '../components/Modal';
 
 type Account = { id: string; email: string; fullName: string; role: string; orgId: string };
 
@@ -258,125 +259,109 @@ export default function Users() {
         )}
       </div>
 
-      {modal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
-          onClick={closeModal}
-        >
-          <div
-            className="w-full max-w-md my-8 rounded-2xl border border-slate-700/80 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-6 shadow-2xl shadow-black/60"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-white">
-                  {editing ? 'Редактировать пользователя' : 'Новый пользователь'}
-                </h3>
-                <p className="mt-1 text-xs text-slate-400">
-                  Управление доступом в админку для партнёров и менеджеров.
-                </p>
-              </div>
-              <button type="button" onClick={closeModal} className="rounded p-1 text-slate-400 hover:bg-slate-700 hover:text-white">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                  placeholder="email@example.com"
-                  disabled={!!editing}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none disabled:opacity-50"
-                />
-              </div>
-              {!editing && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Пароль</label>
-                  <input
-                    type="password"
-                    value={form.password}
-                    onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                    placeholder="Пароль"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
-                  />
-                </div>
-              )}
-              {editing && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Новый пароль (оставьте пустым, чтобы не менять)</label>
-                  <input
-                    type="password"
-                    value={form.password}
-                    onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                    placeholder="Оставьте пустым"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
-                  />
-                </div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Имя</label>
-                <input
-                  type="text"
-                  value={form.fullName}
-                  onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
-                  placeholder="Полное имя"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
-                />
-              </div>
-              {isSuperAdmin && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">Компания</label>
-                    <select
-                      value={form.orgId}
-                      onChange={(e) => setForm((f) => ({ ...f, orgId: e.target.value }))}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
-                    >
-                      <option value="">Без компании</option>
-                      {orgs.map((o) => (
-                        <option key={o.id} value={o.id}>
-                          {o.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">Роль</label>
-                    <select
-                      value={form.role}
-                      onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
-                    >
-                      <option value="MANAGER">MANAGER</option>
-                      <option value="PARTNER_ADMIN">PARTNER_ADMIN</option>
-                      {isSuperAdmin && <option value="SUPER_ADMIN">SUPER_ADMIN</option>}
-                    </select>
-                  </div>
-                </>
-              )}
-            </div>
-            <div className="mt-6 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80"
-              >
-                Отмена
-              </button>
-              <button
-                type="button"
-                onClick={save}
-                className="rounded-lg bg-cyan-600 px-5 py-2 text-sm font-semibold text-white hover:bg-cyan-500 shadow-md shadow-cyan-900/40"
-              >
-                Сохранить
-              </button>
-            </div>
+      <Modal
+        isOpen={modal}
+        onClose={closeModal}
+        title={editing ? 'Редактировать пользователя' : 'Новый пользователь'}
+        description="Управление доступом в админку для партнёров и менеджеров."
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={closeModal}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80 transition-colors"
+            >
+              Отмена
+            </button>
+            <button
+              type="button"
+              onClick={save}
+              className="rounded-lg bg-cyan-600 px-5 py-2 text-sm font-semibold text-white hover:bg-cyan-500 shadow-md shadow-cyan-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Сохранить
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              placeholder="email@example.com"
+              disabled={!!editing}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none disabled:opacity-50"
+            />
           </div>
+          {!editing && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Пароль</label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                placeholder="Пароль"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+              />
+            </div>
+          )}
+          {editing && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Новый пароль (оставьте пустым, чтобы не менять)</label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                placeholder="Оставьте пустым"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+              />
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Имя</label>
+            <input
+              type="text"
+              value={form.fullName}
+              onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
+              placeholder="Полное имя"
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+            />
+          </div>
+          {isSuperAdmin && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Компания</label>
+                <select
+                  value={form.orgId}
+                  onChange={(e) => setForm((f) => ({ ...f, orgId: e.target.value }))}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="">Без компании</option>
+                  {orgs.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Роль</label>
+                <select
+                  value={form.role}
+                  onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none cursor-pointer"
+                >
+                  <option value="MANAGER">MANAGER</option>
+                  <option value="PARTNER_ADMIN">PARTNER_ADMIN</option>
+                  <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+                </select>
+              </div>
+            </>
+          )}
         </div>
-      )}
+      </Modal>
     </div>
   );
 }
