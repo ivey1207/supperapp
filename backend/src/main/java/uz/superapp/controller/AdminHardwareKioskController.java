@@ -96,8 +96,16 @@ public class AdminHardwareKioskController {
         }
 
         Optional<Account> current = accountRepository.findById(auth.getName());
-        if (current.isEmpty() || !"SUPER_ADMIN".equals(current.get().getRole())) {
+        if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Account acc = current.get();
+
+        Object bodyOrgId = body.get("orgId");
+        if (!"SUPER_ADMIN".equals(acc.getRole())) {
+            if (acc.getOrgId() == null || !acc.getOrgId().equals(bodyOrgId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
         }
 
         Optional<HardwareKiosk> kioskOpt = hardwareKioskRepository.findById(id);
@@ -145,16 +153,22 @@ public class AdminHardwareKioskController {
         }
 
         Optional<Account> current = accountRepository.findById(auth.getName());
-        if (current.isEmpty() || !"SUPER_ADMIN".equals(current.get().getRole())) {
+        if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        Account acc = current.get();
 
         Optional<HardwareKiosk> kioskOpt = hardwareKioskRepository.findById(id);
         if (kioskOpt.isEmpty() || kioskOpt.get().isArchived()) {
             return ResponseEntity.notFound().build();
         }
-
         HardwareKiosk kiosk = kioskOpt.get();
+
+        if (!"SUPER_ADMIN".equals(acc.getRole())) {
+            if (acc.getOrgId() == null || !acc.getOrgId().equals(kiosk.getOrgId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
         kiosk.setOrgId(null);
         kiosk.setBranchId(null);
         kiosk.setStatus("REGISTERED");
@@ -180,16 +194,22 @@ public class AdminHardwareKioskController {
         }
 
         Optional<Account> current = accountRepository.findById(auth.getName());
-        if (current.isEmpty() || !"SUPER_ADMIN".equals(current.get().getRole())) {
+        if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        Account acc = current.get();
 
         Optional<HardwareKiosk> kioskOpt = hardwareKioskRepository.findById(id);
         if (kioskOpt.isEmpty() || kioskOpt.get().isArchived()) {
             return ResponseEntity.notFound().build();
         }
-
         HardwareKiosk kiosk = kioskOpt.get();
+
+        if (!"SUPER_ADMIN".equals(acc.getRole())) {
+            if (acc.getOrgId() == null || !acc.getOrgId().equals(kiosk.getOrgId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
 
         if (body.containsKey("name")) {
             Object nameObj = body.get("name");
@@ -266,16 +286,23 @@ public class AdminHardwareKioskController {
         }
 
         Optional<Account> current = accountRepository.findById(auth.getName());
-        if (current.isEmpty() || !"SUPER_ADMIN".equals(current.get().getRole())) {
+        if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        Account acc = current.get();
 
         Optional<HardwareKiosk> kioskOpt = hardwareKioskRepository.findById(id);
         if (kioskOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-
         HardwareKiosk kiosk = kioskOpt.get();
+
+        if (!"SUPER_ADMIN".equals(acc.getRole())) {
+            if (acc.getOrgId() == null || !acc.getOrgId().equals(kiosk.getOrgId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+
         kiosk.setArchived(true);
         hardwareKioskRepository.save(kiosk);
 

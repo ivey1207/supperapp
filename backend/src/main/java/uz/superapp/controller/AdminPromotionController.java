@@ -34,7 +34,7 @@ public class AdminPromotionController {
             if (branchId != null && !branchId.isEmpty()) {
                 return promotionRepository.findByOrgIdAndBranchIdAndArchivedFalse(effectiveOrgId, branchId);
             }
-            return promotionRepository.findByOrgId(effectiveOrgId);
+            return promotionRepository.findByOrgIdAndArchivedFalse(effectiveOrgId);
         }
 
         if (branchId != null && !branchId.isEmpty()) {
@@ -58,7 +58,8 @@ public class AdminPromotionController {
         Account account = accountRepository.findById(principal.getName()).orElseThrow();
         Promotion existing = promotionRepository.findById(id).orElseThrow();
 
-        if (!"SUPER_ADMIN".equals(account.getRole()) && !existing.getOrgId().equals(account.getOrgId())) {
+        if (!"SUPER_ADMIN".equals(account.getRole())
+                && (existing.getOrgId() == null || !existing.getOrgId().equals(account.getOrgId()))) {
             throw new RuntimeException("Access denied");
         }
 
@@ -75,11 +76,13 @@ public class AdminPromotionController {
         Account account = accountRepository.findById(principal.getName()).orElseThrow();
         Promotion existing = promotionRepository.findById(id).orElseThrow();
 
-        if (!"SUPER_ADMIN".equals(account.getRole()) && !existing.getOrgId().equals(account.getOrgId())) {
+        if (!"SUPER_ADMIN".equals(account.getRole())
+                && (existing.getOrgId() == null || !existing.getOrgId().equals(account.getOrgId()))) {
             throw new RuntimeException("Access denied");
         }
 
-        promotionRepository.deleteById(id);
+        existing.setArchived(true);
+        promotionRepository.save(existing);
         return ResponseEntity.ok().build();
     }
 }

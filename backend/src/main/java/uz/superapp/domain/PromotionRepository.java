@@ -11,5 +11,7 @@ public interface PromotionRepository extends MongoRepository<Promotion, String> 
 
     List<Promotion> findByBranchIdAndArchivedFalse(String branchId);
 
+    List<Promotion> findByOrgIdAndArchivedFalse(String orgId);
+
     List<Promotion> findByOrgIdAndBranchIdAndArchivedFalse(String orgId, String branchId);
 }
