@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, Search, Pencil, Trash2, Link2, Unlink, Cpu } from 'lucide-react';
+import { RefreshCw, Search, Pencil, Trash2, Link2, Unlink, Cpu, Wallet } from 'lucide-react';
 import Modal from '../components/Modal';
 import axios from 'axios';
 import {
@@ -8,6 +8,7 @@ import {
   unassignHardwareKiosk,
   updateHardwareKiosk,
   deleteHardwareKiosk,
+  topUpHardwareKioskBalance,
   getOrganizations,
   getBranches,
   type HardwareKiosk,
@@ -36,6 +37,9 @@ export default function HardwareKiosks() {
   const [assigning, setAssigning] = useState<HardwareKiosk | null>(null);
   const [form, setForm] = useState({ name: '', status: '', orgId: '', branchId: '' });
   const [assignForm, setAssignForm] = useState({ orgId: '', branchId: '' });
+  const [topUpModal, setTopUpModal] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState<string>('');
+  const [targetKiosk, setTargetKiosk] = useState<HardwareKiosk | null>(null);
 
   const load = async () => {
     playClick();
@@ -374,8 +378,19 @@ export default function HardwareKiosks() {
                       <td className="px-4 py-3 text-sm text-slate-300 font-mono">{k.macId}</td>
                       <td className="px-4 py-3 text-sm text-slate-300">{orgName(k.orgId)}</td>
                       <td className="px-4 py-3 text-sm text-slate-300">{branchName(k.branchId)}</td>
-                      <td className="px-4 py-3 text-sm text-slate-300">
-                        {((k as any).cashBalance || 0).toLocaleString('ru-RU')}
+                      <td className="px-4 py-3 text-sm">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            playClick();
+                            setTargetKiosk(k);
+                            setTopUpModal(true);
+                          }}
+                          className="flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-medium transition-colors group"
+                        >
+                          <Wallet className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
+                          {((k as any).cashBalance || 0).toLocaleString('ru-RU')}
+                        </button>
                       </td>
                       <td className="px-4 py-3">
                         <span
@@ -606,6 +621,70 @@ export default function HardwareKiosks() {
               </select>
             </div>
           )}
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={topUpModal && !!targetKiosk}
+        onClose={() => {
+          setTopUpModal(false);
+          setTargetKiosk(null);
+          setTopUpAmount('');
+        }}
+        title="Пополнить баланс"
+        description={`Устройство: ${targetKiosk?.name} (${targetKiosk?.macId})`}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setTopUpModal(false);
+                setTargetKiosk(null);
+                setTopUpAmount('');
+              }}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80 transition-colors"
+            >
+              Отмена
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!targetKiosk || !topUpAmount) return;
+                playClick();
+                try {
+                  await topUpHardwareKioskBalance(targetKiosk.id, parseFloat(topUpAmount));
+                  setTopUpModal(false);
+                  setTargetKiosk(null);
+                  setTopUpAmount('');
+                  load();
+                } catch (e: any) {
+                  setError(e.response?.data?.message || 'Ошибка пополнения');
+                }
+              }}
+              className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-500 shadow-md shadow-emerald-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Пополнить
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Сумма пополнения</label>
+            <div className="relative">
+              <input
+                type="number"
+                value={topUpAmount}
+                onChange={(e) => setTopUpAmount(e.target.value)}
+                placeholder="0.00"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 pl-10 pr-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              />
+              <Wallet className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+            </div>
+            <p className="mt-2 text-xs text-slate-500">
+              Введите сумму, которая будет добавлена к текущему балансу устройства.
+            </p>
+          </div>
         </div>
       </Modal>
     </div>

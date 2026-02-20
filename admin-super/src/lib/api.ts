@@ -272,3 +272,8 @@ export async function assignHardwareKiosk(id: string, payload: { orgId: string, 
 export async function unassignHardwareKiosk(id: string) {
   await api.post(`/api/v1/admin/hardware-kiosks/${id}/unassign`);
 }
+
+export async function topUpHardwareKioskBalance(id: string, amount: number) {
+  const { data } = await api.post(`/api/v1/admin/hardware-kiosks/${id}/top-up`, { amount });
+  return data;
+}

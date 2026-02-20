@@ -35,6 +35,7 @@ public class AdminDeviceController {
     }
 
     @GetMapping
+    @SuppressWarnings("null")
     public ResponseEntity<List<Map<String, Object>>> list(@RequestParam(required = false) String orgId,
             Authentication auth) {
         String effectiveOrgId = orgId;

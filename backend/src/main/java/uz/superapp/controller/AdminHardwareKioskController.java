@@ -11,8 +11,6 @@ import uz.superapp.repository.AccountRepository;
 import uz.superapp.repository.DeviceRepository;
 import uz.superapp.repository.HardwareKioskRepository;
 import uz.superapp.repository.OrganizationRepository;
-
-import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,22 +58,28 @@ public class AdminHardwareKioskController {
             }
         }
 
-        List<HardwareKiosk> kiosks;
-        if (branchId != null && !branchId.isBlank()) {
-            kiosks = hardwareKioskRepository.findByBranchIdAndArchivedFalse(branchId);
-        } else if (effectiveOrgId != null && !effectiveOrgId.isBlank()) {
-            kiosks = hardwareKioskRepository.findByOrgIdAndArchivedFalse(effectiveOrgId);
-        } else if (status != null && !status.isBlank()) {
-            if ("UNASSIGNED".equals(status)) {
-                kiosks = hardwareKioskRepository.findByOrgIdIsNullAndArchivedFalse();
-            } else {
-                kiosks = hardwareKioskRepository.findByStatusAndArchivedFalse(status);
-            }
-        } else {
-            kiosks = hardwareKioskRepository.findByArchivedFalse();
-        }
+        List<HardwareKiosk> kiosks = hardwareKioskRepository.findByArchivedFalse();
 
+        // Apply filters in stream
+        final String finalEffectiveOrgId = effectiveOrgId;
         List<Map<String, Object>> result = kiosks.stream()
+                .filter(k -> {
+                    if (branchId != null && !branchId.isBlank() && !branchId.equals(k.getBranchId())) {
+                        return false;
+                    }
+                    if (finalEffectiveOrgId != null && !finalEffectiveOrgId.isBlank()
+                            && !finalEffectiveOrgId.equals(k.getOrgId())) {
+                        return false;
+                    }
+                    if (status != null && !status.isBlank()) {
+                        if ("UNASSIGNED".equals(status)) {
+                            return k.getOrgId() == null;
+                        } else if (!status.equals(k.getStatus())) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
                 .map(this::buildHardwareKioskMap)
                 .collect(Collectors.toList());
 
@@ -312,6 +316,66 @@ public class AdminHardwareKioskController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Пополнить баланс связанного устройства
+     */
+    @PostMapping("/{id}/top-up")
+    public ResponseEntity<Map<String, Object>> topUp(
+            @PathVariable String id,
+            @RequestBody Map<String, Object> body,
+            Authentication auth) {
+
+        if (auth == null || auth.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<Account> current = accountRepository.findById(auth.getName());
+        if (current.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Account acc = current.get();
+
+        Optional<HardwareKiosk> kioskOpt = hardwareKioskRepository.findById(id);
+        if (kioskOpt.isEmpty() || kioskOpt.get().isArchived()) {
+            return ResponseEntity.notFound().build();
+        }
+        HardwareKiosk kiosk = kioskOpt.get();
+
+        // Permission check
+        if (!"SUPER_ADMIN".equals(acc.getRole())) {
+            if (acc.getOrgId() == null || !acc.getOrgId().equals(kiosk.getOrgId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+
+        Object amountObj = body.get("amount");
+        if (!(amountObj instanceof Number)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "amount must be a number"));
+        }
+        double amount = ((Number) amountObj).doubleValue();
+        if (amount <= 0) {
+            return ResponseEntity.badRequest().body(Map.of("message", "amount must be positive"));
+        }
+
+        if (kiosk.getMacId() == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Kiosk has no MAC ID"));
+        }
+
+        Optional<uz.superapp.domain.Device> deviceOpt = deviceRepository.findByMacIdAndArchivedFalse(kiosk.getMacId());
+        if (deviceOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Associated device not found"));
+        }
+
+        uz.superapp.domain.Device device = deviceOpt.get();
+        java.math.BigDecimal currentBalance = device.getCashBalance() != null ? device.getCashBalance()
+                : java.math.BigDecimal.ZERO;
+        device.setCashBalance(currentBalance.add(java.math.BigDecimal.valueOf(amount)));
+        deviceRepository.save(device);
+
+        return ResponseEntity.ok(buildHardwareKioskMap(kiosk));
+    }
+
+    @SuppressWarnings("null")
     private Map<String, Object> buildHardwareKioskMap(HardwareKiosk kiosk) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", kiosk.getId());

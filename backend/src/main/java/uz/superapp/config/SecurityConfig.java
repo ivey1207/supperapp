@@ -42,8 +42,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/app-auth/**").permitAll()
                         .requestMatchers("/api/v1/admin/auth/**").permitAll()
-                        .requestMatchers("/api/v1/hardware/**").permitAll() // Hardware устройства регистрируются без
-                                                                            // авторизации
+                        .requestMatchers("/api/v1/hardware/**").permitAll()
+                        .requestMatchers("/api/v1/admin/hardware-kiosks/*/top-up").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAnyRole("SUPER_ADMIN", "PARTNER_ADMIN", "MANAGER")
                         .requestMatchers("/api/v1/app/**").permitAll() // TEMPORARY: Allow public access for UI
                                                                        // verification

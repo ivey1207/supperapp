@@ -225,6 +225,7 @@ public class AdminBranchController {
         return ResponseEntity.noContent().build();
     }
 
+    @SuppressWarnings("null")
     private Map<String, Object> buildBranchMap(Branch branch) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", branch.getId());
