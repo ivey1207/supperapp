@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Smartphone, RefreshCw, Search, Pencil, Trash2 } from 'lucide-react';
 import Modal from '../components/Modal';
 import axios from 'axios';
-import api, { getBranches, getOrganizations, getDevices, createDevice, updateDevice, deleteDevice } from '../lib/api';
+import { getBranches, getOrganizations, getDevices, createDevice, updateDevice, deleteDevice } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
