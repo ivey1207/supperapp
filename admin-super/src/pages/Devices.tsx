@@ -62,14 +62,11 @@ export default function Devices() {
     load();
   }, [orgId]);
 
-  const orgName = (id: string) => orgs.find((o) => o.id === id)?.name ?? id.slice(0, 8);
-  const branchName = (id: string) => branches.find((b) => b.id === id)?.name ?? id.slice(0, 8);
 
   const filtered = devices.filter(
     (d) =>
       d.name.toLowerCase().includes(search.toLowerCase()) ||
-      branchName(d.branchId).toLowerCase().includes(search.toLowerCase()) ||
-      orgName(d.orgId).toLowerCase().includes(search.toLowerCase()) ||
+      (d.macId || '').toLowerCase().includes(search.toLowerCase()) ||
       d.status.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -212,9 +209,6 @@ export default function Devices() {
               <thead>
                 <tr className="border-b border-slate-800/70 bg-gradient-to-r from-slate-900 to-slate-800">
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Название / MAC</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Локация</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Компания</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Баланс, сум</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Статус</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 text-right">Действия</th>
                 </tr>
@@ -238,11 +232,6 @@ export default function Devices() {
                           {d.macId && <span className="text-[10px] text-violet-400 font-mono">MAC: {d.macId}</span>}
                           <span className="text-[11px] text-slate-500">ID: {d.id.slice(0, 8)}…</span>
                         </div>
-                      </td>
-                      <td className="px-4 py-3 text-slate-300">{branchName(d.branchId)}</td>
-                      <td className="px-4 py-3 text-slate-400">{orgName(d.orgId)}</td>
-                      <td className="px-4 py-3 text-slate-300">
-                        {d.cashBalance?.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}
                       </td>
                       <td className="px-4 py-3">
                         <span

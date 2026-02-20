@@ -25,6 +25,8 @@ export default function HardwareKiosks() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [orgFilter, setOrgFilter] = useState<string>('');
+  const [branchFilter, setBranchFilter] = useState<string>('');
   const [assignmentFilter, setAssignmentFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
@@ -42,9 +44,11 @@ export default function HardwareKiosks() {
     try {
       const params: any = {};
       if (statusFilter) params.status = statusFilter;
+      if (orgFilter) params.orgId = orgFilter;
+      if (branchFilter) params.branchId = branchFilter;
       const [kiosks, organizations] = await Promise.all([
         getHardwareKiosks(params),
-        isSuperAdmin ? getOrganizations() : Promise.resolve([]),
+        getOrganizations(),
       ]);
       setList(kiosks);
       setOrgs(organizations);
@@ -73,7 +77,16 @@ export default function HardwareKiosks() {
     } else {
       setError('Доступ запрещён. Только Super Admin может управлять hardware киосками.');
     }
-  }, [statusFilter]);
+  }, [statusFilter, orgFilter, branchFilter]);
+
+  useEffect(() => {
+    if (orgFilter) {
+      loadBranches(orgFilter);
+    } else {
+      setBranches([]);
+      setBranchFilter('');
+    }
+  }, [orgFilter]);
 
   const loadBranches = async (orgId: string) => {
     try {
@@ -88,6 +101,8 @@ export default function HardwareKiosks() {
     (k) =>
       k.name.toLowerCase().includes(search.toLowerCase()) ||
       k.macId.toLowerCase().includes(search.toLowerCase()) ||
+      (orgName(k.orgId) || '').toLowerCase().includes(search.toLowerCase()) ||
+      (branchName(k.branchId) || '').toLowerCase().includes(search.toLowerCase()) ||
       k.status.toLowerCase().includes(search.toLowerCase())
   ).filter((k) => {
     if (assignmentFilter === 'assigned') return !!k.orgId;
@@ -196,6 +211,9 @@ export default function HardwareKiosks() {
     }
   };
 
+  const orgName = (id: string | null) => orgs.find((o) => o.id === id)?.name ?? '';
+  const branchName = (id: string | null) => branches.find((b) => b.id === id)?.name ?? '';
+
   const statusLabel = (status: string) => {
     switch (status) {
       case 'REGISTERED':
@@ -237,6 +255,31 @@ export default function HardwareKiosks() {
               className="w-56 rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
             />
           </div>
+          <select
+            value={orgFilter}
+            onChange={(e) => setOrgFilter(e.target.value)}
+            className="rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+          >
+            <option value="">Все компании</option>
+            {orgs.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={branchFilter}
+            onChange={(e) => setBranchFilter(e.target.value)}
+            disabled={!orgFilter}
+            className="rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none disabled:opacity-50"
+          >
+            <option value="">Все филиалы</option>
+            {branches.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
+              </option>
+            ))}
+          </select>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -284,8 +327,10 @@ export default function HardwareKiosks() {
                 <tr className="border-b border-slate-800/70 bg-gradient-to-r from-slate-900 to-slate-800">
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Название</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">MAC ID</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Статус</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Организация</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Филиал</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Баланс</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Статус</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Последний heartbeat</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 text-right">
                     Действия
@@ -312,6 +357,11 @@ export default function HardwareKiosks() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-300 font-mono">{k.macId}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300">{orgName(k.orgId)}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300">{branchName(k.branchId)}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300">
+                        {((k as any).cashBalance || 0).toLocaleString('ru-RU')}
+                      </td>
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${k.status === 'ACTIVE'
@@ -323,13 +373,6 @@ export default function HardwareKiosks() {
                         >
                           {statusLabel(k.status)}
                         </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-slate-300">
-                        {k.orgId ? (
-                          <span className="text-emerald-400">Привязан</span>
-                        ) : (
-                          <span className="text-slate-500">Не привязан</span>
-                        )}
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-400">
                         {k.lastHeartbeat

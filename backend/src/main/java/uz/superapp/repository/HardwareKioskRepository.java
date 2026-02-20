@@ -7,16 +7,18 @@ import java.util.List;
 import java.util.Optional;
 
 public interface HardwareKioskRepository extends MongoRepository<HardwareKiosk, String> {
-    
+
     Optional<HardwareKiosk> findByMacIdAndArchivedFalse(String macId);
-    
+
     List<HardwareKiosk> findByArchivedFalse();
-    
+
     List<HardwareKiosk> findByStatusAndArchivedFalse(String status);
-    
+
     List<HardwareKiosk> findByOrgIdAndArchivedFalse(String orgId);
-    
+
     List<HardwareKiosk> findByOrgIdIsNullAndArchivedFalse();
-    
+
+    List<HardwareKiosk> findByBranchIdAndArchivedFalse(String branchId);
+
     List<HardwareKiosk> findByStatusAndOrgIdIsNullAndArchivedFalse(String status);
 }

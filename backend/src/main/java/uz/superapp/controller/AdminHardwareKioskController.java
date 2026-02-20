@@ -8,6 +8,7 @@ import uz.superapp.domain.Account;
 import uz.superapp.domain.HardwareKiosk;
 import uz.superapp.domain.Organization;
 import uz.superapp.repository.AccountRepository;
+import uz.superapp.repository.DeviceRepository;
 import uz.superapp.repository.HardwareKioskRepository;
 import uz.superapp.repository.OrganizationRepository;
 
@@ -25,13 +26,16 @@ public class AdminHardwareKioskController {
     private final HardwareKioskRepository hardwareKioskRepository;
     private final OrganizationRepository organizationRepository;
     private final AccountRepository accountRepository;
+    private final DeviceRepository deviceRepository;
 
     public AdminHardwareKioskController(HardwareKioskRepository hardwareKioskRepository,
             OrganizationRepository organizationRepository,
-            AccountRepository accountRepository) {
+            AccountRepository accountRepository,
+            DeviceRepository deviceRepository) {
         this.hardwareKioskRepository = hardwareKioskRepository;
         this.organizationRepository = organizationRepository;
         this.accountRepository = accountRepository;
+        this.deviceRepository = deviceRepository;
     }
 
     /**
@@ -42,6 +46,7 @@ public class AdminHardwareKioskController {
     public ResponseEntity<List<Map<String, Object>>> list(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String orgId,
+            @RequestParam(required = false) String branchId,
             Authentication auth) {
 
         String effectiveOrgId = orgId;
@@ -56,7 +61,9 @@ public class AdminHardwareKioskController {
         }
 
         List<HardwareKiosk> kiosks;
-        if (effectiveOrgId != null && !effectiveOrgId.isBlank()) {
+        if (branchId != null && !branchId.isBlank()) {
+            kiosks = hardwareKioskRepository.findByBranchIdAndArchivedFalse(branchId);
+        } else if (effectiveOrgId != null && !effectiveOrgId.isBlank()) {
             kiosks = hardwareKioskRepository.findByOrgIdAndArchivedFalse(effectiveOrgId);
         } else if (status != null && !status.isBlank()) {
             if ("UNASSIGNED".equals(status)) {
@@ -232,6 +239,17 @@ public class AdminHardwareKioskController {
         m.put("branchId", kiosk.getBranchId() != null ? kiosk.getBranchId() : null);
         m.put("registeredAt", kiosk.getRegisteredAt() != null ? kiosk.getRegisteredAt().toString() : null);
         m.put("lastHeartbeat", kiosk.getLastHeartbeat() != null ? kiosk.getLastHeartbeat().toString() : null);
+
+        // Include cash balance from Device
+        if (kiosk.getMacId() != null) {
+            deviceRepository.findByMacIdAndArchivedFalse(kiosk.getMacId()).ifPresent(device -> {
+                m.put("cashBalance", device.getCashBalance() != null ? device.getCashBalance() : 0);
+            });
+        }
+        if (!m.containsKey("cashBalance")) {
+            m.put("cashBalance", 0);
+        }
+
         return m;
     }
 }
