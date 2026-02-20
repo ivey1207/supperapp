@@ -52,8 +52,7 @@ public class AdminAccountController {
                         "email", a.getEmail() != null ? a.getEmail() : "",
                         "fullName", a.getFullName() != null ? a.getFullName() : "",
                         "role", a.getRole() != null ? a.getRole() : "",
-                        "orgId", a.getOrgId() != null ? a.getOrgId() : ""
-                ))
+                        "orgId", a.getOrgId() != null ? a.getOrgId() : ""))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(result);
     }
@@ -94,12 +93,12 @@ public class AdminAccountController {
                 "email", account.getEmail(),
                 "fullName", account.getFullName() != null ? account.getFullName() : "",
                 "role", account.getRole() != null ? account.getRole() : "",
-                "orgId", account.getOrgId() != null ? account.getOrgId() : ""
-        ));
+                "orgId", account.getOrgId() != null ? account.getOrgId() : ""));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> update(@PathVariable String id, @RequestBody Map<String, String> body, Authentication auth) {
+    public ResponseEntity<Map<String, Object>> update(@PathVariable String id, @RequestBody Map<String, String> body,
+            Authentication auth) {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -132,12 +131,12 @@ public class AdminAccountController {
                 "email", account.getEmail(),
                 "fullName", account.getFullName() != null ? account.getFullName() : "",
                 "role", account.getRole() != null ? account.getRole() : "",
-                "orgId", account.getOrgId() != null ? account.getOrgId() : ""
-        ));
+                "orgId", account.getOrgId() != null ? account.getOrgId() : ""));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, Authentication auth) {
+        System.out.println("DEBUG: AdminAccountController.delete called for id: " + id);
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

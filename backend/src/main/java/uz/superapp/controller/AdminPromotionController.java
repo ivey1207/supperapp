@@ -27,7 +27,7 @@ public class AdminPromotionController {
             @RequestParam(required = false) String orgId,
             @RequestParam(required = false) String branchId) {
 
-        Account account = accountRepository.findByEmailAndArchivedFalse(principal.getName()).orElseThrow();
+        Account account = accountRepository.findById(principal.getName()).orElseThrow();
         String effectiveOrgId = "SUPER_ADMIN".equals(account.getRole()) ? orgId : account.getOrgId();
 
         if (effectiveOrgId != null && !effectiveOrgId.isEmpty()) {
@@ -46,7 +46,7 @@ public class AdminPromotionController {
 
     @PostMapping
     public Promotion create(@RequestBody Promotion promotion, Principal principal) {
-        Account account = accountRepository.findByEmailAndArchivedFalse(principal.getName()).orElseThrow();
+        Account account = accountRepository.findById(principal.getName()).orElseThrow();
         if (!"SUPER_ADMIN".equals(account.getRole())) {
             promotion.setOrgId(account.getOrgId());
         }
@@ -55,7 +55,7 @@ public class AdminPromotionController {
 
     @PutMapping("/{id}")
     public Promotion update(@PathVariable String id, @RequestBody Promotion promotion, Principal principal) {
-        Account account = accountRepository.findByEmailAndArchivedFalse(principal.getName()).orElseThrow();
+        Account account = accountRepository.findById(principal.getName()).orElseThrow();
         Promotion existing = promotionRepository.findById(id).orElseThrow();
 
         if (!"SUPER_ADMIN".equals(account.getRole()) && !existing.getOrgId().equals(account.getOrgId())) {
@@ -71,7 +71,8 @@ public class AdminPromotionController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id, Principal principal) {
-        Account account = accountRepository.findByEmailAndArchivedFalse(principal.getName()).orElseThrow();
+        System.out.println("DEBUG: AdminPromotionController.delete called for id: " + id);
+        Account account = accountRepository.findById(principal.getName()).orElseThrow();
         Promotion existing = promotionRepository.findById(id).orElseThrow();
 
         if (!"SUPER_ADMIN".equals(account.getRole()) && !existing.getOrgId().equals(account.getOrgId())) {

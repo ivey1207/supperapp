@@ -182,14 +182,16 @@ export default function Branches() {
   };
 
   const handleDelete = async (id: string) => {
-    playClick();
     if (!confirm('Удалить этот филиал? (он будет архивирован)')) return;
+    playClick();
     try {
       await deleteBranch(id);
       load();
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
-        setError(e.response?.data?.message || 'Ошибка удаления');
+        const msg = e.response?.data?.message || 'Ошибка удаления';
+        setError(msg);
+        alert(msg);
       }
     }
   };

@@ -135,8 +135,9 @@ export default function Promotions() {
         try {
             await deletePromotion(id);
             loadData();
-        } catch (err) {
-            alert('Ошибка при удалении');
+        } catch (err: any) {
+            const msg = err.response?.data?.message || 'Ошибка при удалении';
+            alert(msg);
         }
     };
 

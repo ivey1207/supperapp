@@ -212,14 +212,16 @@ export default function HardwareKiosks() {
   };
 
   const handleDelete = async (id: string) => {
-    playClick();
     if (!confirm('Удалить этот hardware киоск? (он будет архивирован)')) return;
+    playClick();
     try {
       await deleteHardwareKiosk(id);
       load();
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
-        setError(e.response?.data?.message || 'Ошибка удаления');
+        const msg = e.response?.data?.message || 'Ошибка удаления';
+        setError(msg);
+        alert(msg);
       }
     }
   };

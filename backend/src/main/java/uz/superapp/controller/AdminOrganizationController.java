@@ -168,6 +168,7 @@ public class AdminOrganizationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, Authentication auth) {
+        System.out.println("DEBUG: AdminOrganizationController.delete called for id: " + id);
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

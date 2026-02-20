@@ -202,6 +202,7 @@ public class AdminBranchController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, Authentication auth) {
+        System.out.println("DEBUG: AdminBranchController.delete called for id: " + id);
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

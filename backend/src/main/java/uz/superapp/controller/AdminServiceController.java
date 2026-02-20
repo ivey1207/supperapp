@@ -38,7 +38,7 @@ public class AdminServiceController {
         String effectiveBranchId = branchId;
 
         if (auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findByEmailAndArchivedFalse(auth.getName());
+            Optional<Account> current = accountRepository.findById(auth.getName());
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 effectiveOrgId = current.get().getOrgId();
             }
@@ -68,7 +68,7 @@ public class AdminServiceController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findByEmailAndArchivedFalse(auth.getName());
+        Optional<Account> current = accountRepository.findById(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -124,7 +124,7 @@ public class AdminServiceController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findByEmailAndArchivedFalse(auth.getName());
+        Optional<Account> current = accountRepository.findById(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -183,10 +183,11 @@ public class AdminServiceController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, Authentication auth) {
+        System.out.println("DEBUG: AdminServiceController.delete called for id: " + id);
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findByEmailAndArchivedFalse(auth.getName());
+        Optional<Account> current = accountRepository.findById(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

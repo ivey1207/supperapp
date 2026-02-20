@@ -188,14 +188,16 @@ export default function Companies() {
 
 
   const handleDelete = async (id: string) => {
-    playClick();
     if (!confirm('Удалить эту организацию? (она будет архивирована)')) return;
+    playClick();
     try {
       await deleteOrganization(id);
       load();
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
-        setError(e.response?.data?.message || 'Ошибка удаления');
+        const msg = e.response?.data?.message || 'Ошибка удаления';
+        setError(msg);
+        alert(msg);
       }
     }
   };
