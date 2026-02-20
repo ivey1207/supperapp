@@ -49,8 +49,8 @@ public class AdminDeviceController {
         }
 
         List<Device> all = effectiveOrgId != null && !effectiveOrgId.isBlank()
-                ? deviceRepository.findByOrgIdAndArchivedFalse(effectiveOrgId)
-                : deviceRepository.findByArchivedFalse();
+                ? deviceRepository.findByOrgIdAndBranchIdIsNullAndArchivedFalse(effectiveOrgId)
+                : deviceRepository.findByBranchIdIsNullAndArchivedFalse();
 
         List<Map<String, Object>> result = all.stream()
                 .map(d -> {

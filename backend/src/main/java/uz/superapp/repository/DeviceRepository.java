@@ -25,5 +25,7 @@ public interface DeviceRepository extends MongoRepository<Device, String> {
 
     List<Device> findByBranchIdAndArchivedFalse(String branchId);
 
+    List<Device> findByOrgIdAndBranchIdIsNullAndArchivedFalse(String orgId);
+
     List<Device> findByBranchIdIsNullAndArchivedFalse();
 }
