@@ -61,7 +61,7 @@ public class AdminDeviceController {
                     m.put("name", d.getName() != null ? d.getName() : "");
                     m.put("macId", d.getMacId() != null ? d.getMacId() : "");
                     m.put("cashBalance", d.getCashBalance() != null ? d.getCashBalance() : BigDecimal.ZERO);
-                    m.put("status", d.getStatus() != null ? d.getStatus() : "OPEN");
+                    m.put("status", d.getStatus() != null ? d.getStatus() : "ACTIVE");
                     return m;
                 })
                 .collect(Collectors.toList());
@@ -82,23 +82,34 @@ public class AdminDeviceController {
         Account account = current.get();
         String role = account.getRole();
         String userOrgId = account.getOrgId();
-
         Object branchIdObj = body.get("branchId");
-        if (!(branchIdObj instanceof String) || ((String) branchIdObj).isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "branchId is required"));
-        }
-        String branchId = (String) branchIdObj;
 
-        Optional<Branch> branchOpt = branchRepository.findById(branchId);
-        if (branchOpt.isEmpty() || branchOpt.get().isArchived()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("message", "Branch not found or archived"));
-        }
-        Branch branch = branchOpt.get();
-        String branchOrgId = branch.getOrgId();
+        String branchId = null;
+        String branchOrgId = userOrgId;
 
-        if (!"SUPER_ADMIN".equals(role) && (userOrgId == null || !userOrgId.equals(branchOrgId))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        if (branchIdObj instanceof String && !((String) branchIdObj).isBlank()) {
+            branchId = (String) branchIdObj;
+            Optional<Branch> branchOpt = branchRepository.findById(branchId);
+            if (branchOpt.isEmpty() || branchOpt.get().isArchived()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("message", "Branch not found or archived"));
+            }
+            Branch branch = branchOpt.get();
+            branchOrgId = branch.getOrgId();
+
+            if (!"SUPER_ADMIN".equals(role) && (userOrgId == null || !userOrgId.equals(branchOrgId))) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        } else if (!"SUPER_ADMIN".equals(role)) {
+            // If not super admin and no branch provided, use user's org
+            branchOrgId = userOrgId;
+        } else {
+            // Super admin but no branch and possibly no org in body?
+            // Let's check body for orgId
+            Object orgIdObj = body.get("orgId");
+            if (orgIdObj instanceof String && !((String) orgIdObj).isBlank()) {
+                branchOrgId = (String) orgIdObj;
+            }
         }
 
         Object nameObj = body.get("name");
@@ -107,7 +118,7 @@ public class AdminDeviceController {
         }
         String name = (String) nameObj;
 
-        String status = "OPEN";
+        String status = "ACTIVE";
         Object statusObj = body.get("status");
         if (statusObj instanceof String && !((String) statusObj).isBlank()) {
             status = (String) statusObj;
@@ -187,6 +198,23 @@ public class AdminDeviceController {
 
                 device.setBranchId(newBranchId);
                 device.setOrgId(branchOrgId);
+            } else {
+                // Explicitly clearing branch
+                device.setBranchId(null);
+                // We keep orgId if it was already set, or allow updating it separately?
+                // Usually device stays in same org if just unassigned from branch.
+            }
+        }
+
+        if (body.containsKey("orgId")) {
+            Object orgIdObj = body.get("orgId");
+            if (orgIdObj instanceof String && !"SUPER_ADMIN".equals(role)) {
+                // If not super admin, can only set to own org
+                if (userOrgId != null && userOrgId.equals(orgIdObj)) {
+                    device.setOrgId((String) orgIdObj);
+                }
+            } else if (orgIdObj instanceof String) {
+                device.setOrgId((String) orgIdObj);
             }
         }
 

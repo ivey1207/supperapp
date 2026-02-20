@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { MapPin, Plus, Search, Pencil, Trash2, RefreshCw, Car, Fuel, Wrench } from 'lucide-react';
 import Modal from '../components/Modal';
 import axios from 'axios';
-import { getBranches, getOrganizations, deleteBranch, uploadFile, type Organization } from '../lib/api';
+import api, { getBranches, getOrganizations, deleteBranch, uploadFile, type Organization } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
@@ -167,10 +167,10 @@ export default function Branches() {
     try {
       const payload = { ...form };
       if (editing) {
-        // Use direct axios call since api.ts updateBranch doesn't support new fields yet
-        await axios.put(`/api/v1/admin/branches/${editing.id}`, payload);
+        // Use direct api call since api.ts updateBranch doesn't support new fields yet
+        await api.put(`/api/v1/admin/branches/${editing.id}`, payload);
       } else {
-        await axios.post('/api/v1/admin/branches', payload);
+        await api.post('/api/v1/admin/branches', payload);
       }
       closeModal();
       load();

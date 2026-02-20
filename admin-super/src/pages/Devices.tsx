@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Smartphone, RefreshCw, Search, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Smartphone, RefreshCw, Search, Pencil, Trash2 } from 'lucide-react';
 import Modal from '../components/Modal';
 import axios from 'axios';
-import { getBranches, getOrganizations, getDevices, createDevice, updateDevice, deleteDevice } from '../lib/api';
+import api, { getBranches, getOrganizations, getDevices, createDevice, updateDevice, deleteDevice } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
@@ -12,7 +12,7 @@ type Org = { id: string; name: string; status: string };
 type Device = { id: string; orgId: string; branchId: string; name: string; cashBalance: number; status: string; macId?: string };
 
 export default function Devices() {
-  const { isSuperAdmin, user } = useAuth();
+  const { isSuperAdmin } = useAuth();
   const [devices, setDevices] = useState<Device[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [orgs, setOrgs] = useState<Org[]>([]);
@@ -24,7 +24,7 @@ export default function Devices() {
   const [pageSize, setPageSize] = useState(25);
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<Device | null>(null);
-  const [form, setForm] = useState({ orgId: '', branchId: '', name: '', cashBalance: 0, status: 'OPEN', macId: '' });
+  const [form, setForm] = useState({ orgId: '', name: '', cashBalance: 0, status: 'ACTIVE', macId: '' });
 
   const load = async () => {
     playClick();
@@ -82,25 +82,15 @@ export default function Devices() {
     }
   }, [totalPages, currentPage]);
 
-  const openAdd = () => {
-    playClick();
-    setEditing(null);
-    const defaultOrgId = isSuperAdmin ? (orgs[0]?.id || '') : (user?.orgId || '');
-    const defaultBranchId =
-      branches.find((b) => !defaultOrgId || b.orgId === defaultOrgId)?.id || '';
-    setForm({ orgId: defaultOrgId, branchId: defaultBranchId, name: '', cashBalance: 0, status: 'OPEN', macId: '' });
-    setModal(true);
-  };
-
   const openEdit = (device: Device) => {
     playClick();
     setEditing(device);
+    const fallbackOrgId = branches.find(b => b.id === device.branchId)?.orgId || '';
     setForm({
-      orgId: device.orgId,
-      branchId: device.branchId,
+      orgId: device.orgId || fallbackOrgId,
       name: device.name,
       cashBalance: device.cashBalance ?? 0,
-      status: device.status || 'OPEN',
+      status: device.status || 'ACTIVE',
       macId: device.macId || '',
     });
     setModal(true);
@@ -113,12 +103,15 @@ export default function Devices() {
 
   const save = async () => {
     playClick();
-    if (!form.name.trim() || !form.orgId || !form.branchId) return;
+    if (!form.name.trim()) {
+      alert('Введите название устройства');
+      return;
+    }
     try {
+      console.log('Saving device:', form);
       if (editing) {
         await updateDevice(editing.id, {
           name: form.name,
-          branchId: form.branchId,
           cashBalance: form.cashBalance,
           status: form.status,
           macId: form.macId,
@@ -126,7 +119,6 @@ export default function Devices() {
       } else {
         await createDevice({
           orgId: form.orgId,
-          branchId: form.branchId,
           name: form.name,
           cashBalance: form.cashBalance,
           status: form.status,
@@ -136,6 +128,7 @@ export default function Devices() {
       closeModal();
       load();
     } catch (e: unknown) {
+      console.error('Save error:', e);
       if (axios.isAxiosError(e)) {
         setError(e.response?.data?.message || 'Ошибка сохранения');
       }
@@ -187,14 +180,6 @@ export default function Devices() {
               className="w-48 rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
             />
           </div>
-          <button
-            type="button"
-            onClick={openAdd}
-            className="flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500"
-          >
-            <Plus className="h-4 w-4" />
-            Создать
-          </button>
           <button
             type="button"
             onClick={load}
@@ -261,14 +246,12 @@ export default function Devices() {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${d.status === 'OPEN' || d.status === 'ACTIVE'
+                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${d.status === 'ACTIVE'
                             ? 'bg-emerald-500/20 text-emerald-400'
-                            : d.status === 'INACTIVE'
-                              ? 'bg-amber-500/20 text-amber-400'
-                              : 'bg-slate-500/20 text-slate-300'
+                            : 'bg-amber-500/20 text-amber-400'
                             }`}
                         >
-                          {d.status}
+                          {d.status === 'ACTIVE' ? 'Активен' : 'Не активен'}
                         </span>
                       </td>
                       <td className="px-4 py-3 flex items-center justify-end gap-1.5">
@@ -343,8 +326,7 @@ export default function Devices() {
                 value={form.orgId}
                 onChange={(e) => {
                   const nextOrgId = e.target.value;
-                  const firstBranch = branches.find(b => b.orgId === nextOrgId)?.id || '';
-                  setForm(f => ({ ...f, orgId: nextOrgId, branchId: firstBranch }));
+                  setForm(f => ({ ...f, orgId: nextOrgId, branchId: '' }));
                 }}
                 className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none cursor-pointer"
               >
@@ -358,23 +340,6 @@ export default function Devices() {
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Филиал *</label>
-            <select
-              value={form.branchId}
-              onChange={(e) => setForm(f => ({ ...f, branchId: e.target.value }))}
-              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none cursor-pointer"
-            >
-              <option value="">Выберите филиал</option>
-              {branches
-                .filter(b => !form.orgId || b.orgId === form.orgId)
-                .map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-            </select>
-          </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Название девайса *</label>
@@ -415,9 +380,8 @@ export default function Devices() {
                 onChange={(e) => setForm(f => ({ ...f, status: e.target.value }))}
                 className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none cursor-pointer"
               >
-                <option value="OPEN">OPEN (Активен)</option>
+                <option value="ACTIVE">ACTIVE (Активен)</option>
                 <option value="INACTIVE">INACTIVE (Не активен)</option>
-                <option value="CLOSED">CLOSED (Закрыт)</option>
               </select>
             </div>
           </div>

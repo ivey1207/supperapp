@@ -35,7 +35,7 @@ public class Device {
     /**
      * Статус девайса: например, OPEN / CLOSED / MAINTENANCE.
      */
-    private String status = "OPEN";
+    private String status = "ACTIVE";
 
     /**
      * MAC адрес устройства (для Hardware Kiosks).

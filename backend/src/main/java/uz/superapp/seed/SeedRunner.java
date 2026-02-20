@@ -3,14 +3,8 @@ package uz.superapp.seed;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import uz.superapp.domain.Account;
-import uz.superapp.domain.Branch;
-import uz.superapp.domain.Organization;
-import uz.superapp.repository.AccountRepository;
-import uz.superapp.repository.BranchRepository;
-import uz.superapp.repository.OrganizationRepository;
-
-import java.util.List;
+import uz.superapp.domain.*;
+import uz.superapp.repository.*;
 
 @Component
 public class SeedRunner implements CommandLineRunner {
@@ -19,26 +13,55 @@ public class SeedRunner implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final OrganizationRepository organizationRepository;
     private final BranchRepository branchRepository;
+    private final DeviceRepository deviceRepository;
+    private final HardwareKioskRepository hardwareKioskRepository;
+    private final ServiceRepository serviceRepository;
+    private final OrderRepository orderRepository;
+    private final BookingRepository bookingRepository;
 
-    public SeedRunner(AccountRepository accountRepository, PasswordEncoder passwordEncoder,
-            OrganizationRepository organizationRepository, BranchRepository branchRepository) {
+    public SeedRunner(AccountRepository accountRepository,
+            PasswordEncoder passwordEncoder,
+            OrganizationRepository organizationRepository,
+            BranchRepository branchRepository,
+            DeviceRepository deviceRepository,
+            HardwareKioskRepository hardwareKioskRepository,
+            ServiceRepository serviceRepository,
+            OrderRepository orderRepository,
+            BookingRepository bookingRepository) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.organizationRepository = organizationRepository;
         this.branchRepository = branchRepository;
+        this.deviceRepository = deviceRepository;
+        this.hardwareKioskRepository = hardwareKioskRepository;
+        this.serviceRepository = serviceRepository;
+        this.orderRepository = orderRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Override
     public void run(String... args) {
         try {
+            System.out.println("SeedRunner starting...");
             // Create or reset super admin
-            accountRepository.findByEmailAndArchivedFalse("admin@admin.com").ifPresentOrElse(
+            accountRepository.findByEmail("admin@admin.com").ifPresentOrElse(
                     admin -> {
+                        boolean changed = false;
                         if (!passwordEncoder.matches("Admin1!", admin.getPasswordHash())) {
                             admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
-                            admin.setRole("SUPER_ADMIN"); // Ensure role is correct too
+                            changed = true;
+                        }
+                        if (!"SUPER_ADMIN".equals(admin.getRole())) {
+                            admin.setRole("SUPER_ADMIN");
+                            changed = true;
+                        }
+                        if (admin.isArchived()) {
+                            admin.setArchived(false);
+                            changed = true;
+                        }
+                        if (changed) {
                             accountRepository.save(admin);
-                            System.out.println("Reset super admin password: admin@admin.com");
+                            System.out.println("Updated super admin: admin@admin.com");
                         }
                     },
                     () -> {
@@ -51,26 +74,68 @@ public class SeedRunner implements CommandLineRunner {
                         System.out.println("Created super admin: admin@admin.com");
                     });
 
-            // Create 100 partners: 30 car washes, 40 gas stations, 30 services
-            long orgCount = organizationRepository.findAll().stream().filter(o -> !o.isArchived()).count();
-            if (orgCount < 100) {
-                System.out.println("Creating partners (current count: " + orgCount + ")...");
-                createPartners();
-                System.out.println("Partners created successfully!");
+            // 1. CLEAR DATABASE (Keep only Super Admin)
+            long totalOrgs = organizationRepository.count();
+            if (totalOrgs > 1) { // If more than 1, we reset
+                System.out.println("Cleaning database (more than 1 organization found)...");
+
+                organizationRepository.deleteAll();
+                branchRepository.deleteAll();
+                deviceRepository.deleteAll();
+                hardwareKioskRepository.deleteAll();
+                serviceRepository.deleteAll();
+                orderRepository.deleteAll();
+                bookingRepository.deleteAll();
+
+                // Remove all accounts except super admin
+                accountRepository.findAll().stream()
+                        .filter(a -> !"SUPER_ADMIN".equals(a.getRole()))
+                        .forEach(accountRepository::delete);
+
+                System.out.println("Database cleared.");
             }
 
-            // Create demo partner account
-            if (accountRepository.findByEmailAndArchivedFalse("partner@demo.com").isEmpty()) {
-                Organization org = organizationRepository.findByArchivedFalse().stream().findFirst().orElse(null);
-                if (org != null) {
-                    Account partner = new Account();
-                    partner.setEmail("partner@demo.com");
-                    partner.setPasswordHash(passwordEncoder.encode("Partner1!"));
-                    partner.setFullName("Partner Demo");
-                    partner.setRole("PARTNER_ADMIN");
-                    partner.setOrgId(org.getId());
-                    accountRepository.save(partner);
-                    System.out.println("Created partner: partner@demo.com");
+            // 2. Ensure ONE organization exists
+            Organization masterOrg = organizationRepository.findAll().stream().findFirst().orElse(null);
+            if (masterOrg == null) {
+                System.out.println("Creating default Master Organization...");
+                masterOrg = new Organization();
+                masterOrg.setName("SuperApp Master Partner");
+                masterOrg.setPartnerType("SERVICE");
+                masterOrg.setStatus("ACTIVE");
+                masterOrg.setAddress("Ташкент, пр. Амира Темура, 1");
+                masterOrg.setPhone("+998901234567");
+                masterOrg.setEmail("master@superapp.uz");
+                masterOrg.setArchived(false);
+                organizationRepository.save(masterOrg);
+
+                Branch mainBranch = new Branch();
+                mainBranch.setOrgId(masterOrg.getId());
+                mainBranch.setName("Главный офис");
+                mainBranch.setAddress(masterOrg.getAddress());
+                mainBranch.setPartnerType(masterOrg.getPartnerType());
+                mainBranch.setStatus("OPEN");
+                mainBranch.setArchived(false);
+                branchRepository.save(mainBranch);
+
+                System.out.println("Master Organization created.");
+            }
+
+            // 3. Seed 15 inactive devices if none exist
+            if (deviceRepository.count() < 15) {
+                System.out.println("Seeding missing inactive devices...");
+                for (int i = 1; i <= 15; i++) {
+                    String macId = String.format("00:00:00:00:00:%02X", i);
+                    if (deviceRepository.findByMacIdAndArchivedFalse(macId).isEmpty()) {
+                        Device d = new Device();
+                        d.setName("Device " + i);
+                        d.setOrgId(masterOrg.getId());
+                        d.setMacId(macId);
+                        d.setStatus("INACTIVE");
+                        d.setArchived(false);
+                        deviceRepository.save(d);
+                        System.out.println("Seeded device: " + macId);
+                    }
                 }
             }
 
@@ -81,139 +146,4 @@ public class SeedRunner implements CommandLineRunner {
         }
     }
 
-    private void createPartners() {
-        String[] carWashNames = {
-                "Автомойка 'Чистота'", "Мойка 'Блеск'", "Автомойка 'Вода'", "Мойка 'Стрела'", "Автомойка 'Быстрая'",
-                "Мойка 'Кристалл'", "Автомойка 'Звёздная'", "Мойка 'Аква'", "Автомойка 'Премиум'", "Мойка 'Элит'",
-                "Автомойка 'Люкс'", "Мойка 'Топ'", "Автомойка 'Супер'", "Мойка 'Профи'", "Автомойка 'Мастер'",
-                "Мойка 'Экспресс'", "Автомойка 'Скорость'", "Мойка 'Турбо'", "Автомойка 'Форсаж'", "Мойка 'Ракета'",
-                "Автомойка 'Молния'", "Мойка 'Вихрь'", "Автомойка 'Ураган'", "Мойка 'Шторм'", "Автомойка 'Цунами'",
-                "Мойка 'Океан'", "Автомойка 'Волна'", "Мойка 'Поток'", "Автомойка 'Река'", "Мойка 'Ручей'"
-        };
-
-        String[] gasStationNames = {
-                "АЗС 'Нефть'", "Заправка 'Топливо'", "АЗС 'Бензин'", "Заправка 'Дизель'", "АЗС 'Газ'",
-                "Заправка 'Энергия'", "АЗС 'Мощность'", "Заправка 'Сила'", "АЗС 'Движение'", "Заправка 'Скорость'",
-                "АЗС 'Дорога'", "Заправка 'Путь'", "АЗС 'Маршрут'", "Заправка 'Трасса'", "АЗС 'Шоссе'",
-                "Заправка 'Автобан'", "АЗС 'Магистраль'", "Заправка 'Проспект'", "АЗС 'Авеню'", "Заправка 'Бульвар'",
-                "АЗС 'Площадь'", "Заправка 'Перекрёсток'", "АЗС 'Развязка'", "Заправка 'Въезд'", "АЗС 'Выезд'",
-                "Заправка 'Парковка'", "АЗС 'Стоянка'", "Заправка 'Остановка'", "АЗС 'Терминал'", "Заправка 'Станция'",
-                "АЗС 'Пункт'", "Заправка 'Пост'", "АЗС 'База'", "Заправка 'Депо'", "АЗС 'Склад'",
-                "Заправка 'Хранилище'", "АЗС 'Резервуар'", "Заправка 'Цистерна'", "АЗС 'Танкер'",
-                "Заправка 'Трубопровод'"
-        };
-
-        String[] serviceNames = {
-                "Сервис 'Мастер'", "СТО 'Профи'", "Сервис 'Эксперт'", "СТО 'Специалист'", "Сервис 'Профессионал'",
-                "СТО 'Мастерская'", "Сервис 'Гараж'", "СТО 'Автосервис'", "Сервис 'Техцентр'", "СТО 'Диагностика'",
-                "Сервис 'Ремонт'", "СТО 'Восстановление'", "Сервис 'Реставрация'", "СТО 'Реставрация'",
-                "Сервис 'Обновление'",
-                "СТО 'Модернизация'", "Сервис 'Тюнинг'", "СТО 'Улучшение'", "Сервис 'Оптимизация'", "СТО 'Настройка'",
-                "Сервис 'Калибровка'", "СТО 'Регулировка'", "Сервис 'Балансировка'", "СТО 'Выравнивание'",
-                "Сервис 'Исправление'",
-                "СТО 'Починка'", "Сервис 'Восстановление'", "СТО 'Реанимация'", "Сервис 'Оживление'",
-                "СТО 'Реабилитация'"
-        };
-
-        String[] addresses = {
-                "Ташкент, ул. Навои", "Ташкент, ул. Амира Темура", "Ташкент, пр. Бунёдкор",
-                "Ташкент, ул. Шахрисабз", "Ташкент, ул. Чилонзар", "Ташкент, ул. Юнусабад",
-                "Ташкент, ул. Сергели", "Ташкент, ул. Мирзо-Улугбек", "Ташкент, ул. Фараби",
-                "Ташкент, ул. Алишера Навои"
-        };
-
-        String[] phones = {
-                "+998901234567", "+998901234568", "+998901234569", "+998901234570", "+998901234571",
-                "+998901234572", "+998901234573", "+998901234574", "+998901234575", "+998901234576"
-        };
-
-        // Create 30 car washes with branches
-        for (int i = 0; i < 30; i++) {
-            try {
-                Organization org = new Organization();
-                org.setName(carWashNames[i]);
-                org.setPartnerType("CAR_WASH");
-                org.setStatus("ACTIVE");
-                org.setDescription("Автомойка полного цикла с современным оборудованием");
-                org.setAddress(addresses[i % addresses.length] + " " + (i + 1));
-                org.setPhone(phones[i % phones.length]);
-                org.setEmail("carwash" + (i + 1) + "@example.com");
-                org.setWorkingHours("08:00-22:00");
-                org.setRating(4.0 + Math.random() * 1.0);
-                org.setReviewCount((int) (10 + Math.random() * 90));
-                org.setArchived(false);
-                organizationRepository.save(org);
-                createBranch(org);
-            } catch (Exception e) {
-                System.err.println("Failed to create car wash " + i + ": " + e.getMessage());
-            }
-        }
-
-        // Create 40 gas stations with branches
-        for (int i = 0; i < 40; i++) {
-            try {
-                Organization org = new Organization();
-                org.setName(gasStationNames[i]);
-                org.setPartnerType("GAS_STATION");
-                org.setStatus("ACTIVE");
-                org.setDescription("Автозаправочная станция с полным спектром услуг");
-                org.setAddress(addresses[i % addresses.length] + " " + (i + 31));
-                org.setPhone(phones[i % phones.length]);
-                org.setEmail("gas" + (i + 1) + "@example.com");
-                org.setWorkingHours("00:00-24:00");
-                org.setRating(4.2 + Math.random() * 0.8);
-                org.setReviewCount((int) (20 + Math.random() * 80));
-                org.setArchived(false);
-                organizationRepository.save(org);
-                createBranch(org);
-            } catch (Exception e) {
-                System.err.println("Failed to create gas station " + i + ": " + e.getMessage());
-            }
-        }
-
-        // Create 30 services with branches
-        for (int i = 0; i < 30; i++) {
-            try {
-                Organization org = new Organization();
-                org.setName(serviceNames[i]);
-                org.setPartnerType("SERVICE");
-                org.setStatus("ACTIVE");
-                org.setDescription("Автосервис с диагностикой и ремонтом");
-                org.setAddress(addresses[i % addresses.length] + " " + (i + 71));
-                org.setPhone(phones[i % phones.length]);
-                org.setEmail("service" + (i + 1) + "@example.com");
-                org.setWorkingHours("09:00-20:00");
-                org.setRating(4.3 + Math.random() * 0.7);
-                org.setReviewCount((int) (15 + Math.random() * 85));
-                org.setArchived(false);
-                organizationRepository.save(org);
-                createBranch(org);
-            } catch (Exception e) {
-                System.err.println("Failed to create service " + i + ": " + e.getMessage());
-            }
-        }
-    }
-
-    private void createBranch(Organization org) {
-        Branch branch = new Branch();
-        branch.setOrgId(org.getId());
-        branch.setName(org.getName() + " - Филиал 1");
-        branch.setAddress(org.getAddress());
-
-        Branch.GeoLocation loc = new Branch.GeoLocation();
-        loc.setCoordinates(List.of(
-                69.2401 + (Math.random() - 0.5) * 0.1, // Longitude
-                41.2995 + (Math.random() - 0.5) * 0.1 // Latitude
-        ));
-        branch.setLocation(loc);
-
-        branch.setPhone(org.getPhone());
-        branch.setWorkingHours(org.getWorkingHours());
-        branch.setPartnerType(org.getPartnerType());
-        branch.setStatus("OPEN");
-        branch.setArchived(false);
-        branch.setImages(List.of("https://images.unsplash.com/photo-1552664730-d307ca884978?w=800"));
-        branchRepository.save(branch);
-        System.out.println("  Created branch for: " + org.getName());
-    }
 }

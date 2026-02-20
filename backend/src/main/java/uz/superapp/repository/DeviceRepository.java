@@ -14,8 +14,14 @@ public interface DeviceRepository extends MongoRepository<Device, String> {
 
     Optional<Device> findByMacIdAndArchivedFalse(String macId);
 
+    // Для авто-назначения: найти активные устройства организации
+    List<Device> findByStatusAndOrgIdAndBranchIdIsNullAndArchivedFalse(String status, String orgId);
+
     // Для авто-назначения: найти активные устройства без организации
     List<Device> findByStatusAndOrgIdIsNullAndArchivedFalse(String status);
+
+    // Для авто-назначения: найти активные устройства, не привязанные к филиалу
+    List<Device> findByStatusAndBranchIdIsNullAndArchivedFalse(String status);
 
     List<Device> findByBranchIdAndArchivedFalse(String branchId);
 }

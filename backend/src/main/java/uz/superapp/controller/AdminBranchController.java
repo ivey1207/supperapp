@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Account;
 import uz.superapp.domain.Branch;
 import uz.superapp.domain.Device;
+import uz.superapp.domain.HardwareKiosk;
 import uz.superapp.repository.AccountRepository;
 import uz.superapp.repository.BranchRepository;
 import uz.superapp.repository.DeviceRepository;
+import uz.superapp.repository.HardwareKioskRepository;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,12 +26,14 @@ public class AdminBranchController {
     private final BranchRepository branchRepository;
     private final AccountRepository accountRepository;
     private final DeviceRepository deviceRepository;
+    private final HardwareKioskRepository hardwareKioskRepository;
 
     public AdminBranchController(BranchRepository branchRepository, AccountRepository accountRepository,
-            DeviceRepository deviceRepository) {
+            DeviceRepository deviceRepository, HardwareKioskRepository hardwareKioskRepository) {
         this.branchRepository = branchRepository;
         this.accountRepository = accountRepository;
         this.deviceRepository = deviceRepository;
+        this.hardwareKioskRepository = hardwareKioskRepository;
     }
 
     @GetMapping
@@ -98,22 +102,46 @@ public class AdminBranchController {
         branch.setArchived(false);
         branchRepository.save(branch);
 
-        // Handle boxCount for CAR_WASH
-        if ("CAR_WASH".equals(partnerType)) {
-            Object boxCountObj = body.get("boxCount");
-            if (boxCountObj instanceof Integer) {
-                int boxCount = (Integer) boxCountObj;
-                if (boxCount > 0) {
-                    for (int i = 1; i <= boxCount; i++) {
-                        Device device = new Device();
-                        device.setOrgId(orgId);
-                        device.setBranchId(branch.getId());
-                        device.setName("Box " + i);
-                        device.setStatus("OPEN");
-                        // Use BigDecimal for cashBalance
-                        device.setCashBalance(java.math.BigDecimal.ZERO);
-                        device.setArchived(false);
-                        deviceRepository.save(device);
+        // Handle boxCount if provided (automatic assignment of Hardware Kiosks)
+        Object boxCountObj = body.get("boxCount");
+        if (boxCountObj instanceof Number) {
+            int boxCount = ((Number) boxCountObj).intValue();
+            if (boxCount > 0) {
+                // NEW LOGIC: Find existing ACTIVE unassigned devices (regardless of
+                // organization)
+                List<Device> available = deviceRepository.findByStatusAndBranchIdIsNullAndArchivedFalse("ACTIVE");
+
+                if (available.size() < boxCount) {
+                    branchRepository.delete(branch);
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("message",
+                                    "Недостаточно активных свободных устройств (Hardware Kiosks). Требуется: "
+                                            + boxCount + ", доступно: " + available.size()));
+                }
+
+                for (int i = 0; i < boxCount; i++) {
+                    Device device = available.get(i);
+                    device.setOrgId(orgId); // Move to the branch's organization
+                    device.setBranchId(branch.getId());
+                    device.setName("Box " + (i + 1));
+                    device.setStatus("OPEN"); // Transition from ACTIVE to OPEN upon assignment
+                    deviceRepository.save(device);
+
+                    // Sync with HardwareKiosk
+                    if (device.getMacId() != null) {
+                        HardwareKiosk kiosk = hardwareKioskRepository.findByMacIdAndArchivedFalse(device.getMacId())
+                                .orElseGet(() -> {
+                                    HardwareKiosk newKiosk = new HardwareKiosk();
+                                    newKiosk.setMacId(device.getMacId());
+                                    newKiosk.setRegisteredAt(java.time.Instant.now());
+                                    return newKiosk;
+                                });
+                        kiosk.setName(device.getName());
+                        kiosk.setOrgId(orgId);
+                        kiosk.setBranchId(branch.getId());
+                        kiosk.setStatus("ACTIVE");
+                        kiosk.setArchived(false);
+                        hardwareKioskRepository.save(kiosk);
                     }
                 }
             }
