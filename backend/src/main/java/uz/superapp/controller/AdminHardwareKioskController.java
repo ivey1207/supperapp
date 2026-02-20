@@ -16,9 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/admin/hardware-kiosks")
+@Tag(name = "Админ: Аппаратные киоски", description = "Управление аппаратными киосками и их балансом")
 public class AdminHardwareKioskController {
 
     private final HardwareKioskRepository hardwareKioskRepository;
@@ -41,6 +44,8 @@ public class AdminHardwareKioskController {
      * Для супер-админа - все, для партнёра - только привязанные к его организации
      */
     @GetMapping
+    @Operation(summary = "Получить список киосков", description = "Возвращает список всех киосков с учетом фильтров по организации, филиалу и статусу. Фильтры не являются взаимоисключающими.")
+    @SuppressWarnings("null")
     public ResponseEntity<List<Map<String, Object>>> list(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String orgId,
@@ -320,6 +325,7 @@ public class AdminHardwareKioskController {
      * Пополнить баланс связанного устройства
      */
     @PostMapping("/{id}/top-up")
+    @Operation(summary = "Пополнить баланс", description = "Аддитивное пополнение баланса связанного с киоском устройства (Device).")
     public ResponseEntity<Map<String, Object>> topUp(
             @PathVariable String id,
             @RequestBody Map<String, Object> body,
