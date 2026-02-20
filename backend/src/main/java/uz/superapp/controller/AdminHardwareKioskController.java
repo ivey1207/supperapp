@@ -230,9 +230,10 @@ public class AdminHardwareKioskController {
         deviceRepository.findByMacIdAndArchivedFalse(kiosk.getMacId()).ifPresent(device -> {
             boolean changed = false;
 
-            if (kiosk.getBranchId() == null) {
-                // If unassigned from branch
-                if (device.getBranchId() != null) {
+            if (kiosk.isArchived() || kiosk.getBranchId() == null) {
+                // If kiosk is deleted OR unassigned from branch
+                if (device.getBranchId() != null || device.getOrgId() != null
+                        || !"INACTIVE".equals(device.getStatus())) {
                     device.setBranchId(null);
                     device.setOrgId(null);
                     device.setStatus("INACTIVE"); // Move back to inventory
@@ -240,7 +241,7 @@ public class AdminHardwareKioskController {
                 }
             } else {
                 // If assigned to branch
-                if (!kiosk.getBranchId().equals(device.getBranchId())) {
+                if (!kiosk.getBranchId().equals(device.getBranchId()) || !kiosk.getOrgId().equals(device.getOrgId())) {
                     device.setBranchId(kiosk.getBranchId());
                     device.setOrgId(kiosk.getOrgId());
                     device.setStatus("OPEN");
@@ -276,6 +277,9 @@ public class AdminHardwareKioskController {
         HardwareKiosk kiosk = kioskOpt.get();
         kiosk.setArchived(true);
         hardwareKioskRepository.save(kiosk);
+
+        // SYNC with Device
+        syncWithDevice(kiosk);
 
         return ResponseEntity.noContent().build();
     }
