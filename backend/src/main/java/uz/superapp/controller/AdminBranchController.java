@@ -107,15 +107,14 @@ public class AdminBranchController {
         if (boxCountObj instanceof Number) {
             int boxCount = ((Number) boxCountObj).intValue();
             if (boxCount > 0) {
-                // NEW LOGIC: Find existing ACTIVE unassigned devices (regardless of
-                // organization)
-                List<Device> available = deviceRepository.findByStatusAndBranchIdIsNullAndArchivedFalse("ACTIVE");
+                // NEW LOGIC: Find any unassigned devices (regardless of status or organization)
+                List<Device> available = deviceRepository.findByBranchIdIsNullAndArchivedFalse();
 
                 if (available.size() < boxCount) {
                     branchRepository.delete(branch);
                     return ResponseEntity.badRequest()
                             .body(Map.of("message",
-                                    "Недостаточно активных свободных устройств (Hardware Kiosks). Требуется: "
+                                    "Недостаточно свободных устройств (Inventory). Требуется: "
                                             + boxCount + ", доступно: " + available.size()));
                 }
 

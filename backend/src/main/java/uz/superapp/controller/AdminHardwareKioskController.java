@@ -129,6 +129,9 @@ public class AdminHardwareKioskController {
         kiosk.setStatus("ACTIVE");
         hardwareKioskRepository.save(kiosk);
 
+        // SYNC with Device
+        syncWithDevice(kiosk);
+
         return ResponseEntity.ok(buildHardwareKioskMap(kiosk));
     }
 
@@ -156,6 +159,9 @@ public class AdminHardwareKioskController {
         kiosk.setBranchId(null);
         kiosk.setStatus("REGISTERED");
         hardwareKioskRepository.save(kiosk);
+
+        // SYNC with Device
+        syncWithDevice(kiosk);
 
         return ResponseEntity.ok(buildHardwareKioskMap(kiosk));
     }
@@ -199,8 +205,53 @@ public class AdminHardwareKioskController {
             }
         }
 
+        if (body.containsKey("orgId")) {
+            Object orgIdObj = body.get("orgId");
+            kiosk.setOrgId(orgIdObj instanceof String ? (String) orgIdObj : null);
+        }
+
+        if (body.containsKey("branchId")) {
+            Object branchIdObj = body.get("branchId");
+            kiosk.setBranchId(branchIdObj instanceof String ? (String) branchIdObj : null);
+        }
+
         hardwareKioskRepository.save(kiosk);
+
+        // SYNC with Device
+        syncWithDevice(kiosk);
+
         return ResponseEntity.ok(buildHardwareKioskMap(kiosk));
+    }
+
+    private void syncWithDevice(HardwareKiosk kiosk) {
+        if (kiosk.getMacId() == null)
+            return;
+
+        deviceRepository.findByMacIdAndArchivedFalse(kiosk.getMacId()).ifPresent(device -> {
+            boolean changed = false;
+
+            if (kiosk.getBranchId() == null) {
+                // If unassigned from branch
+                if (device.getBranchId() != null) {
+                    device.setBranchId(null);
+                    device.setOrgId(null);
+                    device.setStatus("INACTIVE"); // Move back to inventory
+                    changed = true;
+                }
+            } else {
+                // If assigned to branch
+                if (!kiosk.getBranchId().equals(device.getBranchId())) {
+                    device.setBranchId(kiosk.getBranchId());
+                    device.setOrgId(kiosk.getOrgId());
+                    device.setStatus("OPEN");
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                deviceRepository.save(device);
+            }
+        });
     }
 
     /**

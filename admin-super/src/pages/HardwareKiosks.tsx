@@ -34,7 +34,7 @@ export default function HardwareKiosks() {
   const [assignModal, setAssignModal] = useState(false);
   const [editing, setEditing] = useState<HardwareKiosk | null>(null);
   const [assigning, setAssigning] = useState<HardwareKiosk | null>(null);
-  const [form, setForm] = useState({ name: '', status: '' });
+  const [form, setForm] = useState({ name: '', status: '', orgId: '', branchId: '' });
   const [assignForm, setAssignForm] = useState({ orgId: '', branchId: '' });
 
   const load = async () => {
@@ -122,7 +122,15 @@ export default function HardwareKiosks() {
   const openEdit = (kiosk: HardwareKiosk) => {
     playClick();
     setEditing(kiosk);
-    setForm({ name: kiosk.name, status: kiosk.status });
+    setForm({
+      name: kiosk.name,
+      status: kiosk.status,
+      orgId: kiosk.orgId || '',
+      branchId: kiosk.branchId || '',
+    });
+    if (kiosk.orgId) {
+      loadBranches(kiosk.orgId);
+    }
     setModal(true);
   };
 
@@ -154,7 +162,12 @@ export default function HardwareKiosks() {
     if (!editing) return;
     playClick();
     try {
-      await updateHardwareKiosk(editing.id, { name: form.name, status: form.status });
+      await updateHardwareKiosk(editing.id, {
+        name: form.name,
+        status: form.status,
+        orgId: form.orgId || null,
+        branchId: form.branchId || null,
+      });
       closeModal();
       load();
     } catch (e: unknown) {
@@ -484,6 +497,46 @@ export default function HardwareKiosks() {
               <option value="INACTIVE">Неактивен</option>
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Организация</label>
+            <select
+              value={form.orgId}
+              onChange={(e) => {
+                const newOrgId = e.target.value;
+                setForm({ ...form, orgId: newOrgId, branchId: '' });
+                if (newOrgId) {
+                  loadBranches(newOrgId);
+                } else {
+                  setBranches([]);
+                }
+              }}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+            >
+              <option value="">Не привязан</option>
+              {orgs.map((org) => (
+                <option key={org.id} value={org.id}>
+                  {org.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {form.orgId && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Филиал (необязательно)</label>
+              <select
+                value={form.branchId}
+                onChange={(e) => setForm((f) => ({ ...f, branchId: e.target.value }))}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+              >
+                <option value="">Не указан</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </Modal>
 
