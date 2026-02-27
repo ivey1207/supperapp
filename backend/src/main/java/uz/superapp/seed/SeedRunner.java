@@ -173,8 +173,7 @@ public class SeedRunner implements CommandLineRunner {
             if ("Garage Group".equals(name) || "Lafz".equals(name)) {
                 kioskCount = i;
             }
-            createKiosksForBranch(org.getId(), b.getId(), kioskCount);
-            assignExistingDevicesForBranch(org.getId(), b.getId(), 2);
+            assignExistingDevicesForBranch(org.getId(), b.getId(), kioskCount);
         }
         System.out.println("Seeded Organization: " + name);
     }
@@ -217,7 +216,6 @@ public class SeedRunner implements CommandLineRunner {
         branchRepository.save(b1);
 
         seedServicesForBranch(org.getId(), b1.getId());
-        createKiosksForBranch(org.getId(), b1.getId(), 2);
         assignExistingDevicesForBranch(org.getId(), b1.getId(), 2);
 
         // Branch 2: GAS Station
@@ -238,7 +236,6 @@ public class SeedRunner implements CommandLineRunner {
         b2.setArchived(false);
         branchRepository.save(b2);
 
-        createKiosksForBranch(org.getId(), b2.getId(), 2);
         assignExistingDevicesForBranch(org.getId(), b2.getId(), 2);
 
         System.out.println("Seeded Mixed Organization: " + name);
@@ -262,22 +259,32 @@ public class SeedRunner implements CommandLineRunner {
         createService(orgId, branchId, "Пена", "Химия", 7000, "F", "00000008", 45, 0, 0, 20, 0);
     }
 
-    // Присваивает уже существующие не привязанные к филиалу устройства
+    // Присваивает уже существующие устройства и создаёт для них киоски с ТЕМ ЖЕ MAC
+    // адресом
     private void assignExistingDevicesForBranch(String orgId, String branchId, int count) {
-        // Найдем любые активные устройства, не привязанные ни к каким филиалам
         List<Device> available = deviceRepository.findByBranchIdIsNullAndArchivedFalse();
         int assigned = 0;
         for (Device d : available) {
             if (assigned >= count)
                 break;
-            // Убедимся, что устройство свободно (сброшено)
             if (d.getOrgId() != null) {
-                continue; // пропускаем, если оно занято кем-то другим
+                continue;
             }
             d.setOrgId(orgId);
             d.setBranchId(branchId);
             d.setStatus("ACTIVE");
             deviceRepository.save(d);
+
+            HardwareKiosk kiosk = new HardwareKiosk();
+            kiosk.setName("Kiosk " + (assigned + 1) + " for branch " + branchId);
+            kiosk.setKioskId("KIOSK-" + d.getMacId().replace(":", "").substring(6)); // последняя часть MAC
+            kiosk.setMacId(d.getMacId()); // ТОТ ЖЕ MAC
+            kiosk.setOrgId(orgId);
+            kiosk.setBranchId(branchId);
+            kiosk.setStatus("ACTIVE");
+            kiosk.setArchived(false);
+            hardwareKioskRepository.save(kiosk);
+
             assigned++;
         }
         if (assigned < count) {
@@ -319,56 +326,11 @@ public class SeedRunner implements CommandLineRunner {
                     if (masterOrgId != null)
                         d.setOrgId(masterOrgId);
                     d.setMacId(macId);
-                    d.setStatus("ACTIVE");
+                    d.setStatus("INACTIVE"); // начинаем с неактивного статуса (по просьбе пользователя)
                     d.setArchived(false);
                     deviceRepository.save(d);
                 }
             }
-        }
-        // Создаём киоски для всех уже созданных филиалов
-        createKiosksForAllBranches();
-    }
-
-    private void createKiosksForAllBranches() {
-        // Получаем все активные филиалы
-        List<Branch> branches = branchRepository.findByArchivedFalse();
-        for (Branch branch : branches) {
-            // Если для филиала уже есть киоск, пропускаем
-            List<HardwareKiosk> existing = hardwareKioskRepository.findByBranchIdAndArchivedFalse(branch.getId());
-            if (!existing.isEmpty())
-                continue;
-            createKioskForBranch(branch.getOrgId(), branch.getId());
-        }
-    }
-
-    private void createKioskForBranch(String orgId, String branchId) {
-        // Создаёт один киоск – вспомогательный метод для единичного создания
-        HardwareKiosk kiosk = new HardwareKiosk();
-        kiosk.setName("Kiosk for branch " + branchId);
-        String suffix = branchId.length() > 8 ? branchId.substring(0, 8) : branchId;
-        kiosk.setKioskId("KIOSK-" + suffix);
-        kiosk.setMacId("AA:BB:CC:DD:EE:" + suffix);
-        kiosk.setOrgId(orgId);
-        kiosk.setBranchId(branchId);
-        kiosk.setStatus("ACTIVE");
-        kiosk.setArchived(false);
-        hardwareKioskRepository.save(kiosk);
-    }
-
-    // Создаёт указанное количество киосков для данного филиала
-    private void createKiosksForBranch(String orgId, String branchId, int count) {
-        for (int i = 1; i <= count; i++) {
-            HardwareKiosk kiosk = new HardwareKiosk();
-            kiosk.setName("Kiosk " + i + " for branch " + branchId);
-            String base = branchId.length() > 8 ? branchId.substring(0, 8) : branchId;
-            String suffix = base + String.format("%02d", i);
-            kiosk.setKioskId("KIOSK-" + suffix);
-            kiosk.setMacId("AA:BB:CC:DD:EE:" + suffix);
-            kiosk.setOrgId(orgId);
-            kiosk.setBranchId(branchId);
-            kiosk.setStatus("ACTIVE");
-            kiosk.setArchived(false);
-            hardwareKioskRepository.save(kiosk);
         }
     }
 
