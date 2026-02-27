@@ -10,6 +10,9 @@ public interface HardwareKioskRepository extends MongoRepository<HardwareKiosk, 
 
     Optional<HardwareKiosk> findByMacIdAndArchivedFalse(String macId);
 
+    /** Поиск по QR-коду (kioskId = уникальный ID на наклейке) */
+    Optional<HardwareKiosk> findByKioskIdAndArchivedFalse(String kioskId);
+
     List<HardwareKiosk> findByArchivedFalse();
 
     List<HardwareKiosk> findByStatusAndArchivedFalse(String status);

@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
@@ -19,6 +20,18 @@ public class HardwareKiosk {
      */
     @Indexed(unique = true)
     private String macId;
+
+    /**
+     * Уникальный ID киоска для QR-кода (совпадает с controllerId для heartbeat).
+     * Формат: KIOSK_001, KIOSK_002 и т.д. Печатается на наклейке QR.
+     */
+    @Indexed(unique = true, sparse = true)
+    private String kioskId;
+
+    /**
+     * Баланс киоска (пополняется через мобильное приложение после QR-скана)
+     */
+    private BigDecimal balance = BigDecimal.ZERO;
 
     /**
      * Название устройства (опционально)
@@ -70,6 +83,22 @@ public class HardwareKiosk {
 
     public void setMacId(String macId) {
         this.macId = macId;
+    }
+
+    public String getKioskId() {
+        return kioskId;
+    }
+
+    public void setKioskId(String kioskId) {
+        this.kioskId = kioskId;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
     }
 
     public String getName() {

@@ -13,6 +13,7 @@ import Settings from './pages/Settings';
 import HardwareKiosks from './pages/HardwareKiosks';
 import Branches from './pages/Branches';
 import Promotions from './pages/Promotions';
+import WashSessions from './pages/WashSessions';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token, isLoading } = useAuth();
@@ -37,6 +38,7 @@ function AppRoutes() {
         <Route path="hardware-kiosks" element={<HardwareKiosks />} />
         <Route path="settings" element={<Settings />} />
         <Route path="promotions" element={<Promotions />} />
+        <Route path="wash-sessions" element={<WashSessions />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

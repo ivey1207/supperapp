@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
-import { LayoutDashboard, Users, Building2, Smartphone, CreditCard, FileText, Settings, LogOut, Globe, Shield, Store, Sliders, Cpu, GitBranch, Tag } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, Smartphone, CreditCard, FileText, Settings, LogOut, Globe, Shield, Store, Sliders, Cpu, GitBranch, Tag, Droplets } from 'lucide-react';
 import { playClick } from '../lib/sound';
 
 const superAdminNav = [
@@ -14,6 +14,7 @@ const superAdminNav = [
   { to: '/reports', label: 'Отчёты по сети', icon: FileText },
   { to: '/promotions', label: 'Акции и скидки', icon: Tag },
   { to: '/services', label: 'Услуги (шаблоны)', icon: Settings },
+  { to: '/wash-sessions', label: 'Сеансы мойки 🚿', icon: Droplets },
   { to: '/settings', label: 'Настройки платформы', icon: Sliders },
 ];
 
@@ -64,10 +65,10 @@ export default function Layout() {
                 type="button"
                 onClick={() => handleNav(item.to)}
                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-all duration-200 animate-slide-in ${active
-                    ? isSuperAdmin
-                      ? 'bg-amber-500/20 text-amber-400'
-                      : 'bg-blue-500/20 text-blue-400'
-                    : 'text-slate-400 hover:bg-slate-900/70 hover:text-slate-100'
+                  ? isSuperAdmin
+                    ? 'bg-amber-500/20 text-amber-400'
+                    : 'bg-blue-500/20 text-blue-400'
+                  : 'text-slate-400 hover:bg-slate-900/70 hover:text-slate-100'
                   }`}
                 style={{ animationDelay: `${i * 30}ms` }}
               >
