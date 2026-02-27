@@ -28,15 +28,21 @@ public class AdminHardwareKioskController {
     private final OrganizationRepository organizationRepository;
     private final AccountRepository accountRepository;
     private final DeviceRepository deviceRepository;
+    private final uz.superapp.service.CommandQueueService commandQueueService;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     public AdminHardwareKioskController(HardwareKioskRepository hardwareKioskRepository,
             OrganizationRepository organizationRepository,
             AccountRepository accountRepository,
-            DeviceRepository deviceRepository) {
+            DeviceRepository deviceRepository,
+            uz.superapp.service.CommandQueueService commandQueueService,
+            com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
         this.hardwareKioskRepository = hardwareKioskRepository;
         this.organizationRepository = organizationRepository;
         this.accountRepository = accountRepository;
         this.deviceRepository = deviceRepository;
+        this.commandQueueService = commandQueueService;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -377,6 +383,20 @@ public class AdminHardwareKioskController {
                 : java.math.BigDecimal.ZERO;
         device.setCashBalance(currentBalance.add(java.math.BigDecimal.valueOf(amount)));
         deviceRepository.save(device);
+
+        try {
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("kiosk_id", kiosk.getKioskId());
+            payload.put("kiosk_name", kiosk.getName());
+            payload.put("amount", amount);
+            payload.put("cash_from_admin", true);
+            payload.put("timestamp", java.time.Instant.now().toString());
+
+            String payloadStr = objectMapper.writeValueAsString(payload);
+            commandQueueService.createCommand(kiosk.getKioskId(), "kiosk_topup", payloadStr, 10);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return ResponseEntity.ok(buildHardwareKioskMap(kiosk));
     }
