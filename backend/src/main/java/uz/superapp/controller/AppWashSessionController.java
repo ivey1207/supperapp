@@ -33,14 +33,14 @@ public class AppWashSessionController {
     }
 
     /**
-     * Получить информацию о киоске по QR-коду.
-     * Вызывается сразу после сканирования QR в мобильном приложении.
+     * Получить информацию о киоске по MAC ID (из QR-кода).
+     * QR-код содержит: uzsuper://kiosk?mac=AA:BB:CC:DD:EE:FF
      * Не требует авторизации — чтобы даже без логина можно было посмотреть цены.
      */
-    @GetMapping("/kiosk/{kioskId}")
-    public ResponseEntity<?> getKioskInfo(@PathVariable String kioskId) {
+    @GetMapping("/kiosk/{macId}")
+    public ResponseEntity<?> getKioskInfo(@PathVariable String macId) {
         try {
-            Map<String, Object> info = washSessionService.getKioskInfo(kioskId);
+            Map<String, Object> info = washSessionService.getKioskInfo(macId);
             return ResponseEntity.ok(info);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

@@ -36,13 +36,14 @@ public class WashSessionService {
     }
 
     /**
-     * Получить информацию о киоске по kioskId (для мобильного приложения после
+     * Получить информацию о киоске по MAC ID (для мобильного приложения после
      * сканирования QR).
-     * Возвращает: название, баланс, статус, список доступных услуг.
+     * QR-код содержит MAC ID Raspberry Pi: uzsuper://kiosk?mac=AA:BB:CC:DD:EE:FF
      */
-    public Map<String, Object> getKioskInfo(String kioskId) {
-        HardwareKiosk kiosk = hardwareKioskRepository.findByKioskIdAndArchivedFalse(kioskId)
-                .orElseThrow(() -> new RuntimeException("Kiosk not found: " + kioskId));
+    public Map<String, Object> getKioskInfo(String macId) {
+        String normalizedMac = macId.trim().toUpperCase();
+        HardwareKiosk kiosk = hardwareKioskRepository.findByMacIdAndArchivedFalse(normalizedMac)
+                .orElseThrow(() -> new RuntimeException("Kiosk not found: " + normalizedMac));
 
         // Получить услуги этого бокса (по branchId)
         List<uz.superapp.domain.Service> services = kiosk.getBranchId() != null
@@ -71,10 +72,10 @@ public class WashSessionService {
         }
 
         // Есть ли активная сессия?
-        Optional<WashSession> activeSession = washSessionRepository.findByKioskIdAndStatus(kioskId, "ACTIVE");
+        Optional<WashSession> activeSession = washSessionRepository.findByKioskIdAndStatus(normalizedMac, "ACTIVE");
 
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("kioskId", kiosk.getKioskId());
+        result.put("macId", kiosk.getMacId());
         result.put("name", kiosk.getName());
         result.put("status", kiosk.getStatus());
         result.put("orgId", kiosk.getOrgId());
@@ -89,16 +90,17 @@ public class WashSessionService {
      * Пополнить баланс киоска и запустить сессию мойки.
      * Вызывается из мобильного приложения после успешной оплаты.
      *
-     * @param kioskId ID киоска (из QR-кода)
-     * @param userId  ID пользователя приложения
-     * @param amount  Сумма оплаты
+     * @param macId  MAC ID Raspberry Pi (из QR-кода наклейки)
+     * @param userId ID пользователя приложения
+     * @param amount Сумма оплаты
      */
-    public WashSession startSession(String kioskId, String userId, BigDecimal amount) {
-        HardwareKiosk kiosk = hardwareKioskRepository.findByKioskIdAndArchivedFalse(kioskId)
-                .orElseThrow(() -> new RuntimeException("Kiosk not found: " + kioskId));
+    public WashSession startSession(String macId, String userId, BigDecimal amount) {
+        String normalizedMac = macId.trim().toUpperCase();
+        HardwareKiosk kiosk = hardwareKioskRepository.findByMacIdAndArchivedFalse(normalizedMac)
+                .orElseThrow(() -> new RuntimeException("Kiosk not found: " + normalizedMac));
 
         // Проверить нет ли уже активной сессии
-        Optional<WashSession> existing = washSessionRepository.findByKioskIdAndStatus(kioskId, "ACTIVE");
+        Optional<WashSession> existing = washSessionRepository.findByKioskIdAndStatus(normalizedMac, "ACTIVE");
         if (existing.isPresent()) {
             throw new RuntimeException("Kiosk already has an active session");
         }
@@ -115,7 +117,7 @@ public class WashSessionService {
 
         // Создать сессию
         WashSession session = new WashSession();
-        session.setKioskId(kioskId);
+        session.setKioskId(normalizedMac); // kioskId = MAC ID устройства
         session.setUserId(userId);
         session.setOrgId(kiosk.getOrgId());
         session.setBranchId(kiosk.getBranchId());
@@ -133,11 +135,9 @@ public class WashSessionService {
             commandStr = "{}";
         }
 
-        // Положить команду в очередь киоска (controllerId = kioskId)
+        // Положить команду в очередь (controllerId = MAC ID Raspberry Pi)
         ControllerCommand cmd = commandQueueService.createCommand(
-                kioskId, "session_started", commandStr, 10);
-
-        // Сохранить commandId в сессии
+                normalizedMac, "session_started", commandStr, 10); // Сохранить commandId в сессии
         session.setCommandId(cmd.getId());
         washSessionRepository.save(session);
 
