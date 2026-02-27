@@ -426,9 +426,13 @@ export default function Services() {
               <div className="space-y-4">
                 <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
                   <span className="h-px flex-1 bg-slate-700/60" />
-                  Настройки оборудования (IoT)
+                  Базовые Настройки Оборудования (IoT)
                   <span className="h-px flex-1 bg-slate-700/60" />
                 </h4>
+                <p className="text-xs text-slate-400 -mt-2 mb-2 px-1">
+                  Это базовые значения. Они будут применяться ко всем киоскам по умолчанию.
+                  Вы можете переопределить эти параметры для конкретного бокса в разделе "Hardware Киоски".
+                </p>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>

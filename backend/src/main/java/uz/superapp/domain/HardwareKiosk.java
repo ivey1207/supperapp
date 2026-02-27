@@ -6,6 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Hardware киоск - физическое устройство с MAC ID
@@ -68,6 +70,11 @@ public class HardwareKiosk {
      * Мягкое удаление
      */
     private boolean archived;
+
+    /**
+     * Индивидуальные настройки IoT для каждой услуги (ключ - ID услуги)
+     */
+    private Map<String, KioskServiceIotConfig> iotOverrides = new HashMap<>();
 
     public String getId() {
         return id;
@@ -155,5 +162,13 @@ public class HardwareKiosk {
 
     public void setArchived(boolean archived) {
         this.archived = archived;
+    }
+
+    public Map<String, KioskServiceIotConfig> getIotOverrides() {
+        return iotOverrides;
+    }
+
+    public void setIotOverrides(Map<String, KioskServiceIotConfig> iotOverrides) {
+        this.iotOverrides = iotOverrides;
     }
 }

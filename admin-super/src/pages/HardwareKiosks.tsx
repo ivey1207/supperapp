@@ -12,9 +12,12 @@ import {
   topUpHardwareKioskBalance,
   getOrganizations,
   getBranches,
+  getServices,
   type HardwareKiosk,
   type Organization,
   type Branch,
+  type Service,
+  type KioskServiceIotConfig,
 } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
@@ -38,7 +41,14 @@ export default function HardwareKiosks() {
   const [assignModal, setAssignModal] = useState(false);
   const [editing, setEditing] = useState<HardwareKiosk | null>(null);
   const [assigning, setAssigning] = useState<HardwareKiosk | null>(null);
-  const [form, setForm] = useState({ name: '', status: '', orgId: '', branchId: '' });
+  const [form, setForm] = useState<{
+    name: string;
+    status: string;
+    orgId: string;
+    branchId: string;
+    iotOverrides: Record<string, KioskServiceIotConfig>;
+  }>({ name: '', status: '', orgId: '', branchId: '', iotOverrides: {} });
+  const [branchServices, setBranchServices] = useState<Service[]>([]);
   const [assignForm, setAssignForm] = useState({ orgId: '', branchId: '' });
   const [topUpModal, setTopUpModal] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState<string>('');
@@ -129,7 +139,7 @@ export default function HardwareKiosks() {
     }
   }, [totalPages, currentPage]);
 
-  const openEdit = (kiosk: HardwareKiosk) => {
+  const openEdit = async (kiosk: HardwareKiosk) => {
     playClick();
     setEditing(kiosk);
     setForm({
@@ -137,9 +147,18 @@ export default function HardwareKiosks() {
       status: kiosk.status,
       orgId: kiosk.orgId || '',
       branchId: kiosk.branchId || '',
+      iotOverrides: kiosk.iotOverrides || {},
     });
     if (kiosk.orgId) {
       loadBranches(kiosk.orgId);
+    }
+    if (kiosk.branchId) {
+      try {
+        const servs = await getServices(kiosk.branchId);
+        setBranchServices(servs);
+      } catch (e) { console.error(e); }
+    } else {
+      setBranchServices([]);
     }
     setModal(true);
   };
@@ -177,6 +196,7 @@ export default function HardwareKiosks() {
         status: form.status,
         orgId: form.orgId || null,
         branchId: form.branchId || null,
+        iotOverrides: form.iotOverrides,
       });
       closeModal();
       load();
@@ -560,7 +580,18 @@ export default function HardwareKiosks() {
               <label className="block text-sm font-medium text-slate-300 mb-1">Филиал (необязательно)</label>
               <select
                 value={form.branchId}
-                onChange={(e) => setForm((f) => ({ ...f, branchId: e.target.value }))}
+                onChange={async (e) => {
+                  const bId = e.target.value;
+                  setForm((f) => ({ ...f, branchId: bId }));
+                  if (bId) {
+                    try {
+                      const servs = await getServices(bId);
+                      setBranchServices(servs);
+                    } catch (e) { }
+                  } else {
+                    setBranchServices([]);
+                  }
+                }}
                 className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
               >
                 <option value="">Не указан</option>
@@ -570,6 +601,120 @@ export default function HardwareKiosks() {
                   </option>
                 ))}
               </select>
+            </div>
+          )}
+
+          {form.branchId && branchServices.length > 0 && (
+            <div className="pt-4 mt-4 border-t border-slate-700/50">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-slate-200">Тонкая настройка оборудования (IoT)</h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClick();
+                    // Load defaults from services
+                    const defaults: Record<string, KioskServiceIotConfig> = { ...form.iotOverrides };
+                    branchServices.forEach(s => {
+                      defaults[s.id] = {
+                        relayBits: s.relayBits || '',
+                        motorFrequency: s.motorFrequency || 0,
+                        motorFlag: s.motorFlag || '',
+                        pump1Power: s.pump1Power || 0,
+                        pump2Power: s.pump2Power || 0,
+                        pump3Power: s.pump3Power || 0,
+                        pump4Power: s.pump4Power || 0,
+                      };
+                    });
+                    setForm(f => ({ ...f, iotOverrides: defaults }));
+                  }}
+                  className="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-md transition-colors font-medium border border-slate-600"
+                >
+                  Заполнить по умолчанию
+                </button>
+              </div>
+              <div className="space-y-3">
+                {branchServices.map(service => {
+                  const override = form.iotOverrides[service.id] || {};
+                  const isOverridden = Object.keys(override).length > 0;
+
+                  return (
+                    <div key={service.id} className="border border-slate-700/80 rounded-lg p-3 bg-slate-800/30">
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className={`w-2 h-2 rounded-full ${isOverridden ? 'bg-blue-500' : 'bg-slate-500'}`}></div>
+                        <span className="text-sm font-medium text-white">{service.name}</span>
+                        {isOverridden && <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded ml-auto">Переопределено</span>}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1">Relay Bits (База: {service.relayBits || '-'})</label>
+                          <input type="text" value={override.relayBits ?? ''}
+                            placeholder="Оставить пустым = база"
+                            onChange={e => setForm(f => ({
+                              ...f,
+                              iotOverrides: {
+                                ...f.iotOverrides,
+                                [service.id]: { ...f.iotOverrides[service.id], relayBits: e.target.value || undefined }
+                              }
+                            }))}
+                            className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white h-8" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1">Мот. Freq (База: {service.motorFrequency || 0})</label>
+                          <input type="number" value={override.motorFrequency ?? ''}
+                            placeholder="Оставить пустым = база"
+                            onChange={e => setForm(f => ({
+                              ...f,
+                              iotOverrides: {
+                                ...f.iotOverrides,
+                                [service.id]: { ...f.iotOverrides[service.id], motorFrequency: e.target.value ? parseInt(e.target.value) : undefined }
+                              }
+                            }))}
+                            className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white h-8" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1">Насос 1 (База: {service.pump1Power || 0})</label>
+                          <input type="number" value={override.pump1Power ?? ''}
+                            placeholder="Оставить пустым = база"
+                            onChange={e => setForm(f => ({
+                              ...f,
+                              iotOverrides: {
+                                ...f.iotOverrides,
+                                [service.id]: { ...f.iotOverrides[service.id], pump1Power: e.target.value ? parseInt(e.target.value) : undefined }
+                              }
+                            }))}
+                            className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white h-8" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1">Насос 2 (База: {service.pump2Power || 0})</label>
+                          <input type="number" value={override.pump2Power ?? ''}
+                            placeholder="Оставить пустым = база"
+                            onChange={e => setForm(f => ({
+                              ...f,
+                              iotOverrides: {
+                                ...f.iotOverrides,
+                                [service.id]: { ...f.iotOverrides[service.id], pump2Power: e.target.value ? parseInt(e.target.value) : undefined }
+                              }
+                            }))}
+                            className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white h-8" />
+                        </div>
+                        <div className="col-span-2">
+                          {(!override.relayBits && !override.motorFrequency && !override.pump1Power && !override.pump2Power && isOverridden) && (
+                            <button onClick={() => {
+                              playClick();
+                              const newOverrides = { ...form.iotOverrides };
+                              delete newOverrides[service.id];
+                              setForm(f => ({ ...f, iotOverrides: newOverrides }));
+                            }} className="text-xs text-red-400 hover:text-red-300">
+                              Сбросить переопределение для этой услуги
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>

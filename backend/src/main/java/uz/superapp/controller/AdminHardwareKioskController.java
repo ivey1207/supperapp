@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Account;
 import uz.superapp.domain.HardwareKiosk;
+import uz.superapp.domain.KioskServiceIotConfig;
 import uz.superapp.domain.Organization;
 import uz.superapp.repository.AccountRepository;
 import uz.superapp.repository.DeviceRepository;
@@ -250,6 +251,21 @@ public class AdminHardwareKioskController {
             kiosk.setBranchId(branchIdObj instanceof String ? (String) branchIdObj : null);
         }
 
+        if (body.containsKey("iotOverrides")) {
+            Object iotOverridesObj = body.get("iotOverrides");
+            if (iotOverridesObj instanceof Map) {
+                try {
+                    String json = objectMapper.writeValueAsString(iotOverridesObj);
+                    com.fasterxml.jackson.core.type.TypeReference<Map<String, KioskServiceIotConfig>> typeRef = new com.fasterxml.jackson.core.type.TypeReference<>() {
+                    };
+                    Map<String, KioskServiceIotConfig> overrides = objectMapper.readValue(json, typeRef);
+                    kiosk.setIotOverrides(overrides);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         hardwareKioskRepository.save(kiosk);
 
         // SYNC with Device
@@ -412,6 +428,7 @@ public class AdminHardwareKioskController {
         m.put("branchId", kiosk.getBranchId() != null ? kiosk.getBranchId() : null);
         m.put("registeredAt", kiosk.getRegisteredAt() != null ? kiosk.getRegisteredAt().toString() : null);
         m.put("lastHeartbeat", kiosk.getLastHeartbeat() != null ? kiosk.getLastHeartbeat().toString() : null);
+        m.put("iotOverrides", kiosk.getIotOverrides());
 
         // Include cash balance from Device
         if (kiosk.getMacId() != null) {

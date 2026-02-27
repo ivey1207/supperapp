@@ -252,6 +252,16 @@ export async function updateDevice(id: string, payload: Record<string, unknown>)
 export async function deleteDevice(id: string) {
   await api.delete(`/api/v1/admin/devices/${id}`);
 }
+export type KioskServiceIotConfig = {
+  relayBits?: string;
+  motorFrequency?: number;
+  motorFlag?: string;
+  pump1Power?: number;
+  pump2Power?: number;
+  pump3Power?: number;
+  pump4Power?: number;
+};
+
 export type HardwareKiosk = {
   id: string;
   name: string;
@@ -263,6 +273,7 @@ export type HardwareKiosk = {
   lastHeartbeat?: string;
   ipAddress?: string;
   version?: string;
+  iotOverrides?: Record<string, KioskServiceIotConfig>;
 };
 
 export async function getHardwareKiosks(params?: Record<string, unknown>): Promise<HardwareKiosk[]> {
