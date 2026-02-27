@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, Search, Pencil, Trash2, Link2, Unlink, Cpu, Wallet } from 'lucide-react';
+import { RefreshCw, Search, Pencil, Trash2, Link2, Unlink, Cpu, Wallet, QrCode } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import Modal from '../components/Modal';
 import axios from 'axios';
 import {
@@ -40,6 +41,8 @@ export default function HardwareKiosks() {
   const [topUpModal, setTopUpModal] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState<string>('');
   const [targetKiosk, setTargetKiosk] = useState<HardwareKiosk | null>(null);
+  const [qrModal, setQrModal] = useState(false);
+  const [selectedQrKiosk, setSelectedQrKiosk] = useState<HardwareKiosk | null>(null);
 
   const load = async () => {
     playClick();
@@ -412,6 +415,18 @@ export default function HardwareKiosks() {
                       <td className="px-4 py-3 flex items-center justify-end gap-1.5">
                         <button
                           type="button"
+                          onClick={() => {
+                            playClick();
+                            setSelectedQrKiosk(k);
+                            setQrModal(true);
+                          }}
+                          className="rounded p-1.5 text-slate-400 hover:bg-blue-500/20 hover:text-blue-400"
+                          title="Показать QR-код"
+                        >
+                          <QrCode className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => openAssign(k)}
                           className="rounded p-1.5 text-slate-400 hover:bg-slate-600 hover:text-white"
                           title={k.orgId ? 'Изменить привязку' : 'Привязать'}
@@ -684,6 +699,70 @@ export default function HardwareKiosks() {
             <p className="mt-2 text-xs text-slate-500">
               Введите сумму, которая будет добавлена к текущему балансу устройства.
             </p>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={qrModal && !!selectedQrKiosk}
+        onClose={() => {
+          setQrModal(false);
+          setSelectedQrKiosk(null);
+        }}
+        title="QR-код для киоска"
+        description={`${selectedQrKiosk?.name} (MAC: ${selectedQrKiosk?.macId})`}
+        footer={
+          <button
+            type="button"
+            onClick={() => {
+              setQrModal(false);
+              setSelectedQrKiosk(null);
+            }}
+            className="w-full rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 transition-colors"
+          >
+            Закрыть
+          </button>
+        }
+      >
+        <div className="flex flex-col items-center justify-center space-y-6 py-4">
+          <div className="p-4 bg-white rounded-2xl shadow-xl shadow-white/5 border border-white/20">
+            <QRCodeSVG
+              value={`uzsuper://kiosk?mac=${selectedQrKiosk?.macId}`}
+              size={240}
+              level="H"
+              includeMargin={true}
+              imageSettings={{
+                src: "/favicon.svg", // Assuming there's a logo or favicon
+                x: undefined,
+                y: undefined,
+                height: 40,
+                width: 40,
+                excavate: true,
+              }}
+            />
+          </div>
+
+          <div className="w-full space-y-3">
+            <div className="rounded-lg bg-slate-800/50 p-3 border border-slate-700/50">
+              <label className="block text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1">Ссылка для QR</label>
+              <code className="text-[13px] text-blue-300 break-all">
+                uzsuper://kiosk?mac={selectedQrKiosk?.macId}
+              </code>
+            </div>
+
+            <p className="text-xs text-slate-400 text-center leading-relaxed px-4">
+              Распечатайте этот QR-код и наклейте на киоск. <br />
+              Пользователь отсканирует его через мобильное приложение для начала мойки.
+            </p>
+
+            <div className="flex justify-center">
+              <button
+                onClick={() => window.print()}
+                className="text-xs text-blue-400 hover:text-blue-300 underline font-medium"
+              >
+                Версия для печати
+              </button>
+            </div>
           </div>
         </div>
       </Modal>
