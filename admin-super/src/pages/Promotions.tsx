@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/auth';
 import {
     getPromotions, createPromotion, updatePromotion, deletePromotion,
-    getOrganizations, getBranches
+    getOrganizations, getBranches, uploadFile, getFileUrl
 } from '../lib/api';
 import type { Promotion, Organization } from '../lib/api';
-import { Search, Plus, Trash2, Filter, GitBranch, CheckCircle, XCircle, Calendar, Edit2 } from 'lucide-react';
+import { Search, Plus, Trash2, Filter, GitBranch, CheckCircle, XCircle, Calendar, Edit2, Pencil, Image as ImageIcon } from 'lucide-react';
 import { playClick } from '../lib/sound';
 
 export default function Promotions() {
@@ -209,7 +209,7 @@ export default function Promotions() {
                     <div key={promo.id} className="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/40 p-4 transition-all hover:border-slate-700 hover:bg-slate-900/60">
                         {promo.imageUrl && (
                             <div className="mb-4 aspect-video overflow-hidden rounded-xl bg-slate-800">
-                                <img src={promo.imageUrl} alt={promo.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                <img src={getFileUrl(promo.imageUrl)} alt={promo.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
                             </div>
                         )}
 
@@ -316,14 +316,46 @@ export default function Promotions() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">URL картинки</label>
-                                    <input
-                                        type="url"
-                                        className="w-full rounded-2xl border border-slate-700 bg-slate-800/30 px-5 py-3.5 text-white outline-none focus:border-blue-500/50 focus:bg-slate-800/50 transition-all font-medium"
-                                        value={formData.imageUrl}
-                                        placeholder="https://..."
-                                        onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                    />
+                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Изображение акции</label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative aspect-video w-48 rounded-2xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center overflow-hidden">
+                                            {formData.imageUrl ? (
+                                                <img src={getFileUrl(formData.imageUrl)} alt="Promo" className="h-full w-full object-cover" />
+                                            ) : (
+                                                <ImageIcon className="h-10 w-10 text-slate-600" />
+                                            )}
+                                            <label className="absolute bottom-2 right-2 bg-blue-600 p-2 rounded-xl cursor-pointer hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/40">
+                                                <Pencil className="h-4 w-4 text-white" />
+                                                <input
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) {
+                                                            try {
+                                                                const { url } = await uploadFile(file);
+                                                                setFormData(f => ({ ...f, imageUrl: url }));
+                                                            } catch (err) {
+                                                                console.error('Upload failed', err);
+                                                                alert('Ошибка загрузки изображения');
+                                                            }
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                        </div>
+                                        <div className="flex-1 space-y-2">
+                                            <input
+                                                type="url"
+                                                className="w-full rounded-2xl border border-slate-700 bg-slate-800/30 px-5 py-3.5 text-white outline-none focus:border-blue-500/50 focus:bg-slate-800/50 transition-all font-medium text-sm"
+                                                value={formData.imageUrl}
+                                                placeholder="Или вставьте URL https://..."
+                                                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                                            />
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-2">Рекомендуемый размер: 16:9 (напр. 1280x720)</p>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">

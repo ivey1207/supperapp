@@ -8,6 +8,7 @@ import {
   updateOrganization,
   deleteOrganization,
   uploadFile,
+  getFileUrl,
   type Organization,
 } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -287,7 +288,7 @@ export default function Companies() {
               <div className="relative group">
                 <div className="w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center overflow-hidden">
                   {form.logoUrl ? (
-                    <img src={form.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                    <img src={getFileUrl(form.logoUrl)} alt="Logo" className="w-full h-full object-cover" />
                   ) : (
                     <Building2 className="w-10 h-10 text-slate-500" />
                   )}

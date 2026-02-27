@@ -4,6 +4,13 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '',
 });
 
+export const getFileUrl = (url?: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+  return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -23,7 +30,7 @@ export async function uploadFile(file: File): Promise<{ url: string }> {
       'Content-Type': 'multipart/form-data',
     },
   });
-  return data;
+  return { url: getFileUrl(data.url) };
 }
 
 // Auth functions

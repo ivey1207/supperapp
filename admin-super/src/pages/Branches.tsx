@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { MapPin, Plus, Search, Pencil, Trash2, RefreshCw, Car, Fuel, Wrench } from 'lucide-react';
 import Modal from '../components/Modal';
 import axios from 'axios';
-import api, { getBranches, getOrganizations, deleteBranch, uploadFile, type Organization } from '../lib/api';
+import api, { getBranches, getOrganizations, deleteBranch, uploadFile, getFileUrl, type Organization } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
@@ -306,7 +306,7 @@ export default function Branches() {
             <div className="relative group">
               <div className="w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center overflow-hidden">
                 {form.photoUrl ? (
-                  <img src={form.photoUrl} alt="Branch" className="w-full h-full object-cover" />
+                  <img src={getFileUrl(form.photoUrl)} alt="Branch" className="w-full h-full object-cover" />
                 ) : (
                   <MapPin className="w-10 h-10 text-slate-500" />
                 )}
