@@ -698,8 +698,47 @@ export default function HardwareKiosks() {
                             }))}
                             className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white h-8" />
                         </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1">Насос 3 (База: {service.pump3Power || 0})</label>
+                          <input type="number" value={override.pump3Power ?? ''}
+                            placeholder="Оставить пустым = база"
+                            onChange={e => setForm(f => ({
+                              ...f,
+                              iotOverrides: {
+                                ...f.iotOverrides,
+                                [service.id]: { ...f.iotOverrides[service.id], pump3Power: e.target.value ? parseInt(e.target.value) : undefined }
+                              }
+                            }))}
+                            className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white h-8" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1">Насос 4 (База: {service.pump4Power || 0})</label>
+                          <input type="number" value={override.pump4Power ?? ''}
+                            placeholder="Оставить пустым = база"
+                            onChange={e => setForm(f => ({
+                              ...f,
+                              iotOverrides: {
+                                ...f.iotOverrides,
+                                [service.id]: { ...f.iotOverrides[service.id], pump4Power: e.target.value ? parseInt(e.target.value) : undefined }
+                              }
+                            }))}
+                            className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white h-8" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-400 mb-1">Флаг мотора (База: {service.motorFlag || '-'})</label>
+                          <input type="text" value={override.motorFlag ?? ''}
+                            placeholder="Оставить пустым = база"
+                            onChange={e => setForm(f => ({
+                              ...f,
+                              iotOverrides: {
+                                ...f.iotOverrides,
+                                [service.id]: { ...f.iotOverrides[service.id], motorFlag: e.target.value || undefined }
+                              }
+                            }))}
+                            className="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-xs text-white h-8" />
+                        </div>
                         <div className="col-span-2">
-                          {(!override.relayBits && !override.motorFrequency && !override.pump1Power && !override.pump2Power && isOverridden) && (
+                          {(!override.relayBits && !override.motorFrequency && !override.pump1Power && !override.pump2Power && !override.pump3Power && !override.pump4Power && !override.motorFlag && isOverridden) && (
                             <button onClick={() => {
                               playClick();
                               const newOverrides = { ...form.iotOverrides };
