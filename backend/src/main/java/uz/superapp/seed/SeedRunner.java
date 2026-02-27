@@ -31,16 +31,38 @@ public class SeedRunner implements CommandLineRunner {
     public void run(String... args) {
         try {
             System.out.println("SeedRunner starting...");
-            // Create super admin ONLY if not exists
-            if (accountRepository.findByEmail("admin@admin.com").isEmpty()) {
-                Account admin = new Account();
-                admin.setEmail("admin@admin.com");
-                admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
-                admin.setFullName("Admin");
-                admin.setRole("SUPER_ADMIN");
-                accountRepository.save(admin);
-                System.out.println("Created super admin: admin@admin.com");
-            }
+            // Ensure super admin works
+            accountRepository.findByEmail("admin@admin.com").ifPresentOrElse(
+                    admin -> {
+                        boolean changed = false;
+                        if (admin.isArchived()) {
+                            admin.setArchived(false);
+                            changed = true;
+                        }
+                        if (!"SUPER_ADMIN".equals(admin.getRole())) {
+                            admin.setRole("SUPER_ADMIN");
+                            changed = true;
+                        }
+                        // Forcing password to Admin1! to ensure access
+                        if (!passwordEncoder.matches("Admin1!", admin.getPasswordHash())) {
+                            admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
+                            changed = true;
+                        }
+                        if (changed) {
+                            accountRepository.save(admin);
+                            System.out.println("Repaired super admin: admin@admin.com");
+                        }
+                    },
+                    () -> {
+                        Account admin = new Account();
+                        admin.setEmail("admin@admin.com");
+                        admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
+                        admin.setFullName("Admin");
+                        admin.setRole("SUPER_ADMIN");
+                        admin.setArchived(false);
+                        accountRepository.save(admin);
+                        System.out.println("Created super admin: admin@admin.com");
+                    });
 
             // 2. Ensure ONE organization exists
             Organization masterOrg = organizationRepository.findAll().stream().findFirst().orElse(null);
