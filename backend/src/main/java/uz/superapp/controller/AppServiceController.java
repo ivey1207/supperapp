@@ -41,6 +41,12 @@ public class AppServiceController {
         m.put("workingHours", s.getWorkingHours() != null ? s.getWorkingHours() : "");
         m.put("command", s.getCommand() != null ? s.getCommand() : "");
         m.put("relayBits", s.getRelayBits() != null ? s.getRelayBits() : "");
+        m.put("motorFrequency", s.getMotorFrequency() != null ? s.getMotorFrequency() : 0);
+        m.put("motorFlag", s.getMotorFlag() != null ? s.getMotorFlag() : "");
+        m.put("pump1Power", s.getPump1Power() != null ? s.getPump1Power() : 0);
+        m.put("pump2Power", s.getPump2Power() != null ? s.getPump2Power() : 0);
+        m.put("pump3Power", s.getPump3Power() != null ? s.getPump3Power() : 0);
+        m.put("pump4Power", s.getPump4Power() != null ? s.getPump4Power() : 0);
         return m;
     }
 }
