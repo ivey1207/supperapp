@@ -21,17 +21,20 @@ public class WashSessionService {
     private final HardwareKioskRepository hardwareKioskRepository;
     private final ServiceRepository serviceRepository;
     private final CommandQueueService commandQueueService;
+    private final PaymentTransactionRepository paymentTransactionRepository;
     private final ObjectMapper objectMapper;
 
     public WashSessionService(WashSessionRepository washSessionRepository,
             HardwareKioskRepository hardwareKioskRepository,
             ServiceRepository serviceRepository,
             CommandQueueService commandQueueService,
+            PaymentTransactionRepository paymentTransactionRepository,
             ObjectMapper objectMapper) {
         this.washSessionRepository = washSessionRepository;
         this.hardwareKioskRepository = hardwareKioskRepository;
         this.serviceRepository = serviceRepository;
         this.commandQueueService = commandQueueService;
+        this.paymentTransactionRepository = paymentTransactionRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -137,9 +140,24 @@ public class WashSessionService {
 
         // Положить команду в очередь (controllerId = MAC ID Raspberry Pi)
         ControllerCommand cmd = commandQueueService.createCommand(
-                normalizedMac, "session_started", commandStr, 10); // Сохранить commandId в сессии
+                normalizedMac, "session_started", commandStr, 10);
         session.setCommandId(cmd.getId());
-        washSessionRepository.save(session);
+        session = washSessionRepository.save(session);
+
+        // Зарегистрировать ONLINE транзакцию оплаты
+        PaymentTransaction tx = new PaymentTransaction();
+        tx.setPaymentType("ONLINE");
+        tx.setKioskId(normalizedMac);
+        tx.setOrgId(kiosk.getOrgId());
+        tx.setBranchId(kiosk.getBranchId());
+        tx.setUserId(userId);
+        tx.setWashSessionId(session.getId());
+        tx.setAmount(amount);
+        tx.setCurrency("UZS");
+        tx.setStatus("SUCCESS");
+        tx.setDescription("Online payment via mobile app");
+        tx.setCreatedAt(Instant.now());
+        paymentTransactionRepository.save(tx);
 
         return session;
     }

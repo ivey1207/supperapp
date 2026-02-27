@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
-import { LayoutDashboard, Users, Building2, Smartphone, CreditCard, FileText, Settings, LogOut, Globe, Shield, Store, Sliders, Cpu, GitBranch, Tag, Droplets } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, Smartphone, CreditCard, FileText, Settings, LogOut, Globe, Shield, Store, Sliders, Cpu, GitBranch, Tag, Droplets, Receipt } from 'lucide-react';
 import { playClick } from '../lib/sound';
 
 const superAdminNav = [
@@ -15,6 +15,7 @@ const superAdminNav = [
   { to: '/promotions', label: 'Акции и скидки', icon: Tag },
   { to: '/services', label: 'Услуги (шаблоны)', icon: Settings },
   { to: '/wash-sessions', label: 'Сеансы мойки 🚿', icon: Droplets },
+  { to: '/payment-reports', label: 'Отчёты по оплатам', icon: Receipt },
   { to: '/settings', label: 'Настройки платформы', icon: Sliders },
 ];
 
