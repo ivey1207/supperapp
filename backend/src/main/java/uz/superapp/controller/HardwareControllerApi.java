@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "Hardware Api API")
 @RestController
 @RequestMapping("/api/v1/controller")
 public class HardwareControllerApi {
@@ -28,6 +33,7 @@ public class HardwareControllerApi {
                 this.hardwareKioskRepository = hardwareKioskRepository;
         }
 
+        @Operation(summary = "Execute controllerHeartbeat operation")
         @PostMapping("/heartbeat/{macId}")
         public ResponseEntity<Map<String, Object>> controllerHeartbeat(
                         @PathVariable String macId,
@@ -140,6 +146,7 @@ public class HardwareControllerApi {
                 return ResponseEntity.ok(response);
         }
 
+        @Operation(summary = "Execute markCommandExecuted operation")
         @PostMapping("/command/{commandId}/executed")
         public ResponseEntity<Map<String, Object>> markCommandExecuted(
                         @PathVariable String commandId,
@@ -159,6 +166,7 @@ public class HardwareControllerApi {
                 return ResponseEntity.ok(Map.of("status", "ok", "message", "Command marked as executed"));
         }
 
+        @Operation(summary = "Execute markCommandFailed operation")
         @PostMapping("/command/{commandId}/failed")
         public ResponseEntity<Map<String, Object>> markCommandFailed(
                         @PathVariable String commandId,

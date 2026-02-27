@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +23,7 @@ import java.util.stream.Collectors;
  * 2. Пополнить баланс → запустить сессию
  * 3. Пауза / Стоп сессии
  */
+@Tag(name = "App Wash Session API")
 @RestController
 @RequestMapping("/api/v1/app")
 public class AppWashSessionController {
@@ -37,6 +42,7 @@ public class AppWashSessionController {
      * QR-код содержит: uzsuper://kiosk?mac=AA:BB:CC:DD:EE:FF
      * Не требует авторизации — чтобы даже без логина можно было посмотреть цены.
      */
+    @Operation(summary = "Execute getKioskInfo operation")
     @GetMapping("/kiosk/{macId}")
     public ResponseEntity<?> getKioskInfo(@PathVariable String macId) {
         try {
@@ -53,6 +59,7 @@ public class AppWashSessionController {
      *
      * Body: { "amount": 50000 }
      */
+    @Operation(summary = "Execute startSession operation")
     @PostMapping("/kiosk/{kioskId}/start-session")
     public ResponseEntity<?> startSession(@PathVariable String kioskId,
             @RequestBody Map<String, Object> body,
@@ -85,6 +92,7 @@ public class AppWashSessionController {
     /**
      * Остановить активную сессию (пользователь нажал "Завершить" в приложении).
      */
+    @Operation(summary = "Execute stopSession operation")
     @PostMapping("/wash-sessions/{sessionId}/stop")
     public ResponseEntity<?> stopSession(@PathVariable String sessionId,
             @RequestBody(required = false) Map<String, Object> body) {
@@ -101,6 +109,7 @@ public class AppWashSessionController {
      * Поставить сессию на паузу / снять с паузы.
      * Body: { "pause": true | false }
      */
+    @Operation(summary = "Execute pauseSession operation")
     @PostMapping("/wash-sessions/{sessionId}/pause")
     public ResponseEntity<?> pauseSession(@PathVariable String sessionId,
             @RequestBody Map<String, Object> body) {
@@ -116,6 +125,7 @@ public class AppWashSessionController {
     /**
      * Получить активную сессию текущего пользователя.
      */
+    @Operation(summary = "Execute getActiveSession operation")
     @GetMapping("/wash-sessions/active")
     public ResponseEntity<?> getActiveSession(Authentication auth) {
         if (auth == null)
@@ -129,6 +139,7 @@ public class AppWashSessionController {
     /**
      * История сессий пользователя.
      */
+    @Operation(summary = "Execute getMyHistory operation")
     @GetMapping("/wash-sessions")
     public ResponseEntity<?> getMyHistory(Authentication auth) {
         if (auth == null)

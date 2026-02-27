@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Tag(name = "Admin Organization API")
 @RestController
 @RequestMapping("/api/v1/admin/organizations")
 public class AdminOrganizationController {
@@ -39,6 +44,7 @@ public class AdminOrganizationController {
         this.hardwareKioskRepository = hardwareKioskRepository;
     }
 
+    @Operation(summary = "Get list of items")
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> list(Authentication auth) {
         List<Organization> all;
@@ -67,6 +73,7 @@ public class AdminOrganizationController {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(summary = "Create a new item")
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@RequestBody Map<String, Object> body, Authentication auth) {
         if (auth == null || auth.getName() == null) {
@@ -104,6 +111,7 @@ public class AdminOrganizationController {
         return ResponseEntity.ok(buildOrganizationMap(org));
     }
 
+    @Operation(summary = "Update an existing item")
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable String id, @RequestBody Map<String, Object> body,
             Authentication auth) {
@@ -166,6 +174,7 @@ public class AdminOrganizationController {
         return ResponseEntity.ok(buildOrganizationMap(org));
     }
 
+    @Operation(summary = "Delete an item")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, Authentication auth) {
         System.out.println("DEBUG: AdminOrganizationController.delete called for id: " + id);
@@ -189,6 +198,7 @@ public class AdminOrganizationController {
     /**
      * Привязать hardware киоски к организации (для автомоек)
      */
+    @Operation(summary = "Execute attachKiosks operation")
     @PostMapping("/{id}/attach-kiosks")
     public ResponseEntity<Map<String, Object>> attachKiosks(
             @PathVariable String id,

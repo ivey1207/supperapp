@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.HardwareKiosk;
@@ -19,6 +23,7 @@ import java.util.Map;
  *
  * POST /api/v1/controller/payment — регистрация платежа от устройства
  */
+@Tag(name = "Kiosk Payment API")
 @RestController
 @RequestMapping("/api/v1/controller")
 public class KioskPaymentController {
@@ -44,6 +49,7 @@ public class KioskPaymentController {
      * "description": "Купюра 10000 сум"
      * }
      */
+    @Operation(summary = "Execute registerPayment operation")
     @PostMapping("/payment")
     public ResponseEntity<?> registerPayment(@RequestBody Map<String, Object> body) {
         String macId = body.getOrDefault("macId", "").toString().trim().toUpperCase();

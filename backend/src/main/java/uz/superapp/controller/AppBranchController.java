@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Branch;
@@ -10,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Tag(name = "App Branch API")
 @RestController
 @RequestMapping("/api/v1/app/branches")
 public class AppBranchController {
@@ -20,6 +25,7 @@ public class AppBranchController {
         this.branchRepository = branchRepository;
     }
 
+    @Operation(summary = "Get list of items")
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> list(@RequestParam(required = false) String status) {
         List<Branch> branches = status != null && !status.isEmpty()

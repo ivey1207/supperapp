@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +24,7 @@ import java.util.stream.Collectors;
  * GET /api/v1/admin/payments/summary — сводка по типам и суммам
  * POST /api/v1/admin/payments — регистрация CASH/RFID платежа от киоска
  */
+@Tag(name = "Admin Payment Report API")
 @RestController
 @RequestMapping("/api/v1/admin/payments")
 public class AdminPaymentReportController {
@@ -37,6 +42,7 @@ public class AdminPaymentReportController {
      * ?kioskId=... (MAC ID)
      * ?date=2026-02-27 (фильтр по дате)
      */
+    @Operation(summary = "Get list of items")
     @GetMapping
     public ResponseEntity<?> list(
             @RequestParam(required = false) String type,
@@ -77,6 +83,7 @@ public class AdminPaymentReportController {
      * Возвращает: { CASH: {count: 5, total: 250000}, RFID: {...}, ONLINE: {...},
      * total: {...} }
      */
+    @Operation(summary = "Execute summary operation")
     @GetMapping("/summary")
     public ResponseEntity<?> summary(
             @RequestParam(required = false) String orgId,

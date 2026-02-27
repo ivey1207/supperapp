@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Tag(name = "App Booking API")
 @RestController
 @RequestMapping("/api/v1/app/bookings")
 public class AppBookingController {
@@ -45,6 +50,7 @@ public class AppBookingController {
      * Создать бронирование (добавить в очередь)
      * Доступно обычным пользователям мобильного приложения
      */
+    @Operation(summary = "Create a new item")
     @PostMapping
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> create(@RequestBody Map<String, Object> body, Authentication auth) {
@@ -139,6 +145,7 @@ public class AppBookingController {
      * Получить мои бронирования
      * Доступно обычным пользователям мобильного приложения
      */
+    @Operation(summary = "Execute myBookings operation")
     @GetMapping
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<List<Map<String, Object>>> myBookings(Authentication auth) {
@@ -158,6 +165,7 @@ public class AppBookingController {
      * Получить информацию о бронировании
      * Доступно обычным пользователям мобильного приложения (только свои бронирования)
      */
+    @Operation(summary = "Get item by ID")
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> get(@PathVariable String id, Authentication auth) {
@@ -190,6 +198,7 @@ public class AppBookingController {
      * Отменить моё бронирование
      * Доступно обычным пользователям мобильного приложения (только свои бронирования)
      */
+    @Operation(summary = "Execute cancel operation")
     @PostMapping("/{id}/cancel")
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> cancel(@PathVariable String id, Authentication auth) {
@@ -216,6 +225,7 @@ public class AppBookingController {
      * Получить доступные временные слоты для услуги
      * Доступно обычным пользователям мобильного приложения
      */
+    @Operation(summary = "Execute getAvailableSlots operation")
     @GetMapping("/available-slots")
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<List<Map<String, Object>>> getAvailableSlots(

@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -10,6 +14,7 @@ import uz.superapp.repository.AppUserRepository;
 
 import java.util.Map;
 
+@Tag(name = "App Wallet API")
 @RestController
 @RequestMapping("/api/v1/app/wallet")
 public class AppWalletController {
@@ -22,6 +27,7 @@ public class AppWalletController {
         this.appUserRepository = appUserRepository;
     }
 
+    @Operation(summary = "Get item by ID")
     @GetMapping
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> get(Authentication auth) {

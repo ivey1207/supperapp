@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -11,6 +15,7 @@ import uz.superapp.repository.AppUserRepository;
 
 import java.util.Map;
 
+@Tag(name = "App Me API")
 @RestController
 @RequestMapping("/api/v1/app/me")
 public class AppMeController {
@@ -21,6 +26,7 @@ public class AppMeController {
         this.appUserRepository = appUserRepository;
     }
 
+    @Operation(summary = "Execute me operation")
     @GetMapping
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> me(Authentication auth) {

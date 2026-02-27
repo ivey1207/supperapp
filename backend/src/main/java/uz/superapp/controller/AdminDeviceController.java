@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Tag(name = "Admin Device API")
 @RestController
 @RequestMapping("/api/v1/admin/devices")
 public class AdminDeviceController {
@@ -34,6 +39,7 @@ public class AdminDeviceController {
         this.accountRepository = accountRepository;
     }
 
+    @Operation(summary = "Get list of items")
     @GetMapping
     @SuppressWarnings("null")
     public ResponseEntity<List<Map<String, Object>>> list(@RequestParam(required = false) String orgId,
@@ -70,6 +76,7 @@ public class AdminDeviceController {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(summary = "Create a new item")
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@RequestBody Map<String, Object> body,
             Authentication auth) {
@@ -156,6 +163,7 @@ public class AdminDeviceController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Update an existing item")
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable String id,
             @RequestBody Map<String, Object> body,
@@ -258,6 +266,7 @@ public class AdminDeviceController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Delete an item")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, Authentication auth) {
         System.out.println("DEBUG: AdminDeviceController.delete called for id: " + id);

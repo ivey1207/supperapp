@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Tag(name = "Admin Booking API")
 @RestController
 @RequestMapping("/api/v1/admin/bookings")
 public class AdminBookingController {
@@ -40,6 +45,7 @@ public class AdminBookingController {
         this.bookingQueueService = bookingQueueService;
     }
     
+    @Operation(summary = "Get list of items")
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> list(
             @RequestParam(required = false) String orgId,
@@ -86,6 +92,7 @@ public class AdminBookingController {
         return ResponseEntity.ok(result);
     }
     
+    @Operation(summary = "Get item by ID")
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable String id, Authentication auth) {
         Optional<Booking> bookingOpt = bookingRepository.findById(id);
@@ -108,6 +115,7 @@ public class AdminBookingController {
         return ResponseEntity.ok(buildBookingMap(booking));
     }
     
+    @Operation(summary = "Execute confirm operation")
     @PostMapping("/{id}/confirm")
     public ResponseEntity<Map<String, Object>> confirm(@PathVariable String id, Authentication auth) {
         Optional<Booking> bookingOpt = bookingRepository.findById(id);
@@ -131,6 +139,7 @@ public class AdminBookingController {
         return ResponseEntity.ok(buildBookingMap(booking));
     }
     
+    @Operation(summary = "Execute start operation")
     @PostMapping("/{id}/start")
     public ResponseEntity<Map<String, Object>> start(@PathVariable String id, Authentication auth) {
         Optional<Booking> bookingOpt = bookingRepository.findById(id);
@@ -154,6 +163,7 @@ public class AdminBookingController {
         return ResponseEntity.ok(buildBookingMap(booking));
     }
     
+    @Operation(summary = "Execute complete operation")
     @PostMapping("/{id}/complete")
     public ResponseEntity<Map<String, Object>> complete(@PathVariable String id, Authentication auth) {
         Optional<Booking> bookingOpt = bookingRepository.findById(id);
@@ -177,6 +187,7 @@ public class AdminBookingController {
         return ResponseEntity.ok(buildBookingMap(booking));
     }
     
+    @Operation(summary = "Execute cancel operation")
     @PostMapping("/{id}/cancel")
     public ResponseEntity<Map<String, Object>> cancel(@PathVariable String id, Authentication auth) {
         Optional<Booking> bookingOpt = bookingRepository.findById(id);
@@ -200,6 +211,7 @@ public class AdminBookingController {
         return ResponseEntity.ok(buildBookingMap(booking));
     }
     
+    @Operation(summary = "Delete an item")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, Authentication auth) {
         Optional<Booking> bookingOpt = bookingRepository.findById(id);

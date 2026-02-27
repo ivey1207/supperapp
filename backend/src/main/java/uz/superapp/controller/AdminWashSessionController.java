@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.WashSession;
@@ -14,6 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Admin API для мониторинга сеансов мойки.
  */
+@Tag(name = "Admin Wash Session API")
 @RestController
 @RequestMapping("/api/v1/admin/wash-sessions")
 public class AdminWashSessionController {
@@ -30,6 +35,7 @@ public class AdminWashSessionController {
     /**
      * Список сессий с фильтром по статусу и/или kioskId.
      */
+    @Operation(summary = "Get list of items")
     @GetMapping
     public ResponseEntity<?> list(@RequestParam(required = false) String status,
             @RequestParam(required = false) String kioskId) {
@@ -51,6 +57,7 @@ public class AdminWashSessionController {
     /**
      * Принудительно остановить сессию из админки.
      */
+    @Operation(summary = "Execute forceStop operation")
     @PostMapping("/{sessionId}/stop")
     public ResponseEntity<?> forceStop(@PathVariable String sessionId) {
         try {

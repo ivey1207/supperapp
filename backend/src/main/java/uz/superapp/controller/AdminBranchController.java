@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Tag(name = "Admin Branch API")
 @RestController
 @RequestMapping("/api/v1/admin/branches")
 public class AdminBranchController {
@@ -36,6 +41,7 @@ public class AdminBranchController {
         this.hardwareKioskRepository = hardwareKioskRepository;
     }
 
+    @Operation(summary = "Get list of items")
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> list(@RequestParam(required = false) String orgId,
             Authentication auth) {
@@ -59,6 +65,7 @@ public class AdminBranchController {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(summary = "Create a new item")
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@RequestBody Map<String, Object> body, Authentication auth) {
         if (auth == null || auth.getName() == null) {
@@ -149,6 +156,7 @@ public class AdminBranchController {
         return ResponseEntity.ok(buildBranchMap(branch));
     }
 
+    @Operation(summary = "Update an existing item")
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable String id, @RequestBody Map<String, Object> body,
             Authentication auth) {
@@ -200,6 +208,7 @@ public class AdminBranchController {
         return ResponseEntity.ok(buildBranchMap(branch));
     }
 
+    @Operation(summary = "Delete an item")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, Authentication auth) {
         System.out.println("DEBUG: AdminBranchController.delete called for id: " + id);

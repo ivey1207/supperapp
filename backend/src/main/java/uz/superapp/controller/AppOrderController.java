@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Tag(name = "App Order API")
 @RestController
 @RequestMapping("/api/v1/app/orders")
 public class AppOrderController {
@@ -23,6 +28,7 @@ public class AppOrderController {
         this.orderRepository = orderRepository;
     }
 
+    @Operation(summary = "Get list of items")
     @GetMapping
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> list(Authentication auth,

@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Device;
@@ -14,6 +18,7 @@ import java.util.Optional;
  * Контроллер для регистрации hardware устройств (киосков)
  * Когда устройство отправляет свой MAC ID, оно автоматически регистрируется
  */
+@Tag(name = "Hardware Registration API")
 @RestController
 @RequestMapping("/api/v1/hardware")
 public class HardwareRegistrationController {
@@ -28,6 +33,7 @@ public class HardwareRegistrationController {
      * Регистрация hardware устройства по MAC ID
      * Вызывается самим устройством при первом подключении
      */
+    @Operation(summary = "Register a new device/item")
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, Object> body) {
         Object macIdObj = body.get("macId");
@@ -69,6 +75,7 @@ public class HardwareRegistrationController {
     /**
      * Heartbeat от hardware устройства
      */
+    @Operation(summary = "Send heartbeat signal")
     @PostMapping("/heartbeat/{macId}")
     public ResponseEntity<Map<String, Object>> heartbeat(@PathVariable String macId) {
         String normalizedMacId = macId.trim().toUpperCase();

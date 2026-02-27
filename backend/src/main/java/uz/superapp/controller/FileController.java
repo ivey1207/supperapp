@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Objects;
 
+@Tag(name = "File API")
 @RestController
 @RequestMapping("/api/v1/files")
 public class FileController {
@@ -33,6 +38,7 @@ public class FileController {
         }
     }
 
+    @Operation(summary = "Execute uploadFile operation")
     @PostMapping("/upload")
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
@@ -52,6 +58,7 @@ public class FileController {
         }
     }
 
+    @Operation(summary = "Execute getFile operation")
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         try {

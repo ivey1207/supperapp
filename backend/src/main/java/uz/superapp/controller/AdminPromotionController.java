@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +15,7 @@ import uz.superapp.repository.AccountRepository;
 import java.security.Principal;
 import java.util.List;
 
+@Tag(name = "Admin Promotion API")
 @RestController
 @RequestMapping("/api/v1/admin/promotions")
 public class AdminPromotionController {
@@ -21,6 +26,7 @@ public class AdminPromotionController {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Operation(summary = "Execute getAll operation")
     @GetMapping
     public List<Promotion> getAll(
             Principal principal,
@@ -44,6 +50,7 @@ public class AdminPromotionController {
         return promotionRepository.findAll();
     }
 
+    @Operation(summary = "Create a new item")
     @PostMapping
     public Promotion create(@RequestBody Promotion promotion, Principal principal) {
         Account account = accountRepository.findById(principal.getName()).orElseThrow();
@@ -53,6 +60,7 @@ public class AdminPromotionController {
         return promotionRepository.save(promotion);
     }
 
+    @Operation(summary = "Update an existing item")
     @PutMapping("/{id}")
     public Promotion update(@PathVariable String id, @RequestBody Promotion promotion, Principal principal) {
         Account account = accountRepository.findById(principal.getName()).orElseThrow();
@@ -70,6 +78,7 @@ public class AdminPromotionController {
         return promotionRepository.save(promotion);
     }
 
+    @Operation(summary = "Delete an item")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id, Principal principal) {
         System.out.println("DEBUG: AdminPromotionController.delete called for id: " + id);

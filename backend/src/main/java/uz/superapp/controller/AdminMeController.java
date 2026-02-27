@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +14,7 @@ import uz.superapp.repository.AccountRepository;
 
 import java.util.Map;
 
+@Tag(name = "Admin Me API")
 @RestController
 @RequestMapping("/api/v1/admin/me")
 public class AdminMeController {
@@ -20,6 +25,7 @@ public class AdminMeController {
         this.accountRepository = accountRepository;
     }
 
+    @Operation(summary = "Execute me operation")
     @GetMapping
     public ResponseEntity<Map<String, Object>> me(Authentication auth) {
         String accountId = auth.getName();

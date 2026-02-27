@@ -1,5 +1,9 @@
 package uz.superapp.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +16,7 @@ import uz.superapp.repository.WalletRepository;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Tag(name = "App Auth API")
 @RestController
 @RequestMapping("/api/v1/app-auth")
 public class AppAuthController {
@@ -32,6 +37,7 @@ public class AppAuthController {
         this.jwtUtil = jwtUtil;
     }
 
+    @Operation(summary = "Execute requestOtp operation")
     @PostMapping("/otp/request")
     public ResponseEntity<?> requestOtp(@RequestBody Map<String, String> body) {
         String phone = body.get("phone");
@@ -43,6 +49,7 @@ public class AppAuthController {
         return ResponseEntity.ok(Map.of("devOtp", code));
     }
 
+    @Operation(summary = "Execute verifyOtp operation")
     @PostMapping("/otp/verify")
     public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> body) {
         String phone = body.get("phone");
