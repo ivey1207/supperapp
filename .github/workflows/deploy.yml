@@ -38,7 +38,8 @@ jobs:
             sh get-docker.sh
           fi
           docker compose down || true
-          docker compose up -d --build --remove-orphans
+          docker compose build --no-cache
+          docker compose up -d --remove-orphans
           echo "Deploy completed!"
           docker ps
         ENDSSH
