@@ -23,12 +23,10 @@ services:
       timeout: 3s
       retries: 5
 
-  backend:
+  backend-1:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/superapp
       SPRING_DATA_REDIS_HOST: redis
@@ -46,6 +44,39 @@ services:
       retries: 5
       start_period: 40s
 
+  backend-2:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/superapp
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+      JWT_SECRET: superapp-jwt-secret-change-in-production-min-256-bits
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  nginx-lb:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx-lb.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      backend-1:
+        condition: service_healthy
+      backend-2:
+        condition: service_healthy
+
   admin-super:
     build:
       context: ./admin-super
@@ -57,7 +88,7 @@ services:
     environment:
       VITE_API_URL: http://161.97.118.117:8080
     depends_on:
-      - backend
+      - nginx-lb
 
 volumes:
   mongo_data:

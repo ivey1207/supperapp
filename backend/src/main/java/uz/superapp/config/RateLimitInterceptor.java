@@ -1,44 +1,52 @@
 package uz.superapp.config;
 
 import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
+import io.github.bucket4j.BucketConfiguration;
+import io.github.bucket4j.distributed.proxy.ProxyManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class RateLimitInterceptor implements HandlerInterceptor {
 
-    private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
+    private final ProxyManager<String> proxyManager;
 
-    private Bucket createNewBucket() {
+    public RateLimitInterceptor(ProxyManager<String> proxyManager) {
+        this.proxyManager = proxyManager;
+    }
+
+    private BucketConfiguration createNewBucketConfiguration() {
         // Limit: 50 requests per 1 second
-        Bandwidth limit = Bandwidth.classic(50, Refill.greedy(50, Duration.ofSeconds(1)));
-        return Bucket.builder()
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(50)
+                .refillGreedy(50, Duration.ofSeconds(1))
+                .build();
+        return BucketConfiguration.builder()
                 .addLimit(limit)
                 .build();
     }
 
     private String resolveClientIp(HttpServletRequest request) {
         String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null) {
+        if (xfHeader == null || xfHeader.isEmpty()) {
             return request.getRemoteAddr();
         }
         return xfHeader.split(",")[0];
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-            throws Exception {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+            @NonNull Object handler) throws Exception {
         String ip = resolveClientIp(request);
-        Bucket bucket = cache.computeIfAbsent(ip, k -> createNewBucket());
+
+        // Obtains the bucket from Redis for this specific IP address
+        var bucket = proxyManager.builder().build(ip, this::createNewBucketConfiguration);
 
         if (bucket.tryConsume(1)) {
             return true;
