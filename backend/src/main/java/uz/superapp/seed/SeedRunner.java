@@ -106,6 +106,10 @@ public class SeedRunner implements CommandLineRunner {
         org.setStatus("ACTIVE");
         org.setLogoUrl("/api/v1/files/" + logo);
         org.setEmail(email);
+        // Добавляем адрес, телефон и часы работы
+        org.setAddress("NIGORA 2 34");
+        org.setPhone("+998908192334");
+        org.setWorkingHours("09:00-20:00");
         org.setArchived(false);
         organizationRepository.save(org);
 
@@ -118,6 +122,10 @@ public class SeedRunner implements CommandLineRunner {
             b.setStatus("OPEN");
             b.setPartnerType(branchType);
             b.setPhotoUrl("/api/v1/files/car_wash_photo_1772204498401.png");
+            // Заполняем адрес, телефон и часы работы филиала
+            b.setAddress(org.getAddress());
+            b.setPhone(org.getPhone());
+            b.setWorkingHours(org.getWorkingHours());
             b.setArchived(false);
             branchRepository.save(b);
             seedServicesForBranch(org.getId(), b.getId());
@@ -135,6 +143,10 @@ public class SeedRunner implements CommandLineRunner {
         org.setStatus("ACTIVE");
         org.setLogoUrl("/api/v1/files/" + logo);
         org.setEmail(email);
+        // Добавляем адрес, телефон и часы работы
+        org.setAddress("NIGORA 2 34");
+        org.setPhone("+998908192334");
+        org.setWorkingHours("09:00-20:00");
         org.setArchived(false);
         organizationRepository.save(org);
 
