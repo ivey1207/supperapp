@@ -152,9 +152,9 @@ export default function HardwareKiosks() {
     if (kiosk.orgId) {
       loadBranches(kiosk.orgId);
     }
-    if (kiosk.branchId) {
+    if (kiosk.branchId && kiosk.orgId) {
       try {
-        const servs = await getServices(kiosk.branchId);
+        const servs = await getServices(kiosk.orgId, kiosk.branchId);
         setBranchServices(servs);
       } catch (e) { console.error(e); }
     } else {
@@ -583,9 +583,9 @@ export default function HardwareKiosks() {
                 onChange={async (e) => {
                   const bId = e.target.value;
                   setForm((f) => ({ ...f, branchId: bId }));
-                  if (bId) {
+                  if (bId && form.orgId) {
                     try {
-                      const servs = await getServices(bId);
+                      const servs = await getServices(form.orgId, bId);
                       setBranchServices(servs);
                     } catch (e) { }
                   } else {
