@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '',
+  baseURL: 'http://161.97.118.117:8080',
 });
 
 export const getFileUrl = (url?: string) => {
