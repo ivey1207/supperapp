@@ -509,6 +509,7 @@ export default function HardwareKiosks() {
         isOpen={modal && !!editing}
         onClose={closeModal}
         title="Редактировать hardware киоск"
+        size="xl"
         description={`MAC ID: ${editing?.macId}`}
         footer={
           <>
