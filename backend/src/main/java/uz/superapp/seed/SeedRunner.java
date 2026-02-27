@@ -4,6 +4,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import uz.superapp.domain.*;
+import java.util.List;
+import uz.superapp.domain.HardwareKiosk;
 import uz.superapp.repository.*;
 
 @Component
@@ -15,19 +17,22 @@ public class SeedRunner implements CommandLineRunner {
     private final BranchRepository branchRepository;
     private final DeviceRepository deviceRepository;
     private final ServiceRepository serviceRepository;
+    private final HardwareKioskRepository hardwareKioskRepository;
 
     public SeedRunner(AccountRepository accountRepository,
             PasswordEncoder passwordEncoder,
             OrganizationRepository organizationRepository,
             BranchRepository branchRepository,
             DeviceRepository deviceRepository,
-            ServiceRepository serviceRepository) {
+            ServiceRepository serviceRepository,
+            HardwareKioskRepository hardwareKioskRepository) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.organizationRepository = organizationRepository;
         this.branchRepository = branchRepository;
         this.deviceRepository = deviceRepository;
         this.serviceRepository = serviceRepository;
+        this.hardwareKioskRepository = hardwareKioskRepository;
     }
 
     @Override
@@ -129,6 +134,8 @@ public class SeedRunner implements CommandLineRunner {
             b.setArchived(false);
             branchRepository.save(b);
             seedServicesForBranch(org.getId(), b.getId());
+            // Создаём киоск для филиала
+            createKioskForBranch(org.getId(), b.getId());
         }
         System.out.println("Seeded Organization: " + name);
     }
@@ -233,6 +240,34 @@ public class SeedRunner implements CommandLineRunner {
                 }
             }
         }
+        // Создаём киоски для всех уже созданных филиалов
+        createKiosksForAllBranches();
+    }
+
+    private void createKiosksForAllBranches() {
+        // Получаем все активные филиалы
+        List<Branch> branches = branchRepository.findByArchivedFalse();
+        for (Branch branch : branches) {
+            // Если для филиала уже есть киоск, пропускаем
+            List<HardwareKiosk> existing = hardwareKioskRepository.findByBranchIdAndArchivedFalse(branch.getId());
+            if (!existing.isEmpty())
+                continue;
+            createKioskForBranch(branch.getOrgId(), branch.getId());
+        }
+    }
+
+    private void createKioskForBranch(String orgId, String branchId) {
+        HardwareKiosk kiosk = new HardwareKiosk();
+        kiosk.setName("Kiosk for branch " + branchId);
+        // Generate simple IDs based on branchId
+        String suffix = branchId.length() > 8 ? branchId.substring(0, 8) : branchId;
+        kiosk.setKioskId("KIOSK-" + suffix);
+        kiosk.setMacId("AA:BB:CC:DD:EE:" + suffix);
+        kiosk.setOrgId(orgId);
+        kiosk.setBranchId(branchId);
+        kiosk.setStatus("ACTIVE");
+        kiosk.setArchived(false);
+        hardwareKioskRepository.save(kiosk);
     }
 
 }
