@@ -40,6 +40,34 @@ export default function Services() {
     active: true,
   });
 
+  const SERVICE_TEMPLATES = [
+    { id: 'water', name: 'Вода', price: 2500, command: 'Hi WATER_ON', relayBits: '10000000', motorFreq: 40, flag: 'F', category: 'Основные' },
+    { id: 'turbo_water', name: 'Турбо-вода', price: 2600, command: 'TURBO_WATER_ON', relayBits: '10000000', motorFreq: 47, flag: 'F', category: 'Основные' },
+    { id: 'chemistry', name: 'Активная химия', price: 5000, command: 'CHEMISTRY_ON', relayBits: '00100000', motorFreq: 28, pump3: 13, flag: 'F', category: 'Химия' },
+    { id: 'shampoo', name: 'Нано-шампунь', price: 5300, command: 'SHAMPOO_ON', relayBits: '00010000', motorFreq: 28, pump2: 15, flag: 'F', category: 'Химия' },
+    { id: 'wax', name: 'Воск', price: 5000, command: 'WAX_ON', relayBits: '01000000', category: 'Защита' },
+    { id: 'osmosis', name: 'Осмос', price: 2750, command: 'OSMOSIS_ON', relayBits: '10000000', category: 'Ополаскивание' },
+    { id: 'warm_water', name: 'Мойка порогов', price: 2300, command: 'WARM_WATER_ON', relayBits: '10000000', category: 'Дополнительно' },
+    { id: 'foam', name: 'Пена', price: 5000, command: 'FOAM_ON', relayBits: '00100000', category: 'Химия' },
+  ];
+
+  const applyTemplate = (t: any) => {
+    setForm(prev => ({
+      ...prev,
+      name: t.name,
+      pricePerMinute: t.price,
+      command: t.command,
+      relayBits: t.relayBits,
+      motorFrequency: t.motorFreq || 0,
+      motorFlag: t.flag || '',
+      category: t.category || '',
+      pump1Power: 0,
+      pump2Power: t.pump2 || 0,
+      pump3Power: t.pump3 || 0,
+      pump4Power: 0,
+    }));
+  };
+
   const load = async () => {
     // playClick();
     // setLoading(true);
@@ -152,6 +180,8 @@ export default function Services() {
 
   const save = async () => {
     playClick();
+    if (!form.orgId) { alert('Выберите организацию'); return; }
+    if (!form.branchId) { alert('Для мойки филиал обязателен'); return; }
     if (!form.name.trim()) return;
     try {
       if (editing) {
@@ -265,6 +295,29 @@ export default function Services() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-0">
+              {/* ─── Шаблоны (Templates) ─── */}
+              {!editing && (
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <span className="h-px flex-1 bg-slate-700/60" />
+                    Быстрые шаблоны
+                    <span className="h-px flex-1 bg-slate-700/60" />
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {SERVICE_TEMPLATES.map(t => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => applyTemplate(t)}
+                        className="rounded-full bg-slate-800 border border-slate-700 px-3 py-1.5 text-xs font-medium text-blue-400 hover:bg-slate-700 hover:text-blue-300 transition-colors"
+                      >
+                        {t.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* ─── Основная информация ─── */}
               <div className="space-y-4">
                 <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
@@ -284,7 +337,7 @@ export default function Services() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Филиал (необязательно)</label>
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Филиал *</label>
                   <select value={form.branchId} onChange={e => setForm({ ...form, branchId: e.target.value })} className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors">
                     <option value="">Все филиалы</option>
                     {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
