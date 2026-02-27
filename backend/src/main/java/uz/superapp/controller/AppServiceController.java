@@ -30,14 +30,17 @@ public class AppServiceController {
     }
 
     private Map<String, Object> toMap(Service s) {
-        return Map.of(
-                "id", s.getId(),
-                "name", s.getName(),
-                "description", s.getDescription() != null ? s.getDescription() : "",
-                "category", s.getCategory() != null ? s.getCategory() : "",
-                "pricePerMinute", s.getPricePerMinute() != null ? s.getPricePerMinute() : 0,
-                "durationMinutes", s.getDurationMinutes() != null ? s.getDurationMinutes() : 0,
-                "bookable", s.isBookable(),
-                "workingHours", s.getWorkingHours() != null ? s.getWorkingHours() : "");
+        java.util.Map<String, Object> m = new java.util.LinkedHashMap<>();
+        m.put("id", s.getId());
+        m.put("name", s.getName());
+        m.put("description", s.getDescription() != null ? s.getDescription() : "");
+        m.put("category", s.getCategory() != null ? s.getCategory() : "");
+        m.put("pricePerMinute", s.getPricePerMinute() != null ? s.getPricePerMinute() : 0);
+        m.put("durationMinutes", s.getDurationMinutes() != null ? s.getDurationMinutes() : 0);
+        m.put("bookable", s.isBookable());
+        m.put("workingHours", s.getWorkingHours() != null ? s.getWorkingHours() : "");
+        m.put("command", s.getCommand() != null ? s.getCommand() : "");
+        m.put("relayBits", s.getRelayBits() != null ? s.getRelayBits() : "");
+        return m;
     }
 }
