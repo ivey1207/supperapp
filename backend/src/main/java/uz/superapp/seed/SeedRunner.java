@@ -14,85 +14,32 @@ public class SeedRunner implements CommandLineRunner {
     private final OrganizationRepository organizationRepository;
     private final BranchRepository branchRepository;
     private final DeviceRepository deviceRepository;
-    private final HardwareKioskRepository hardwareKioskRepository;
-    private final ServiceRepository serviceRepository;
-    private final OrderRepository orderRepository;
-    private final BookingRepository bookingRepository;
 
     public SeedRunner(AccountRepository accountRepository,
             PasswordEncoder passwordEncoder,
             OrganizationRepository organizationRepository,
             BranchRepository branchRepository,
-            DeviceRepository deviceRepository,
-            HardwareKioskRepository hardwareKioskRepository,
-            ServiceRepository serviceRepository,
-            OrderRepository orderRepository,
-            BookingRepository bookingRepository) {
+            DeviceRepository deviceRepository) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.organizationRepository = organizationRepository;
         this.branchRepository = branchRepository;
         this.deviceRepository = deviceRepository;
-        this.hardwareKioskRepository = hardwareKioskRepository;
-        this.serviceRepository = serviceRepository;
-        this.orderRepository = orderRepository;
-        this.bookingRepository = bookingRepository;
     }
 
     @Override
     public void run(String... args) {
         try {
             System.out.println("SeedRunner starting...");
-            // Create or reset super admin
-            accountRepository.findByEmail("admin@admin.com").ifPresentOrElse(
-                    admin -> {
-                        boolean changed = false;
-                        if (!passwordEncoder.matches("Admin1!", admin.getPasswordHash())) {
-                            admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
-                            changed = true;
-                        }
-                        if (!"SUPER_ADMIN".equals(admin.getRole())) {
-                            admin.setRole("SUPER_ADMIN");
-                            changed = true;
-                        }
-                        if (admin.isArchived()) {
-                            admin.setArchived(false);
-                            changed = true;
-                        }
-                        if (changed) {
-                            accountRepository.save(admin);
-                            System.out.println("Updated super admin: admin@admin.com");
-                        }
-                    },
-                    () -> {
-                        Account admin = new Account();
-                        admin.setEmail("admin@admin.com");
-                        admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
-                        admin.setFullName("Admin");
-                        admin.setRole("SUPER_ADMIN");
-                        accountRepository.save(admin);
-                        System.out.println("Created super admin: admin@admin.com");
-                    });
-
-            // 1. CLEAR DATABASE (Keep only Super Admin)
-            long totalOrgs = organizationRepository.count();
-            if (totalOrgs > 1) { // If more than 1, we reset
-                System.out.println("Cleaning database (more than 1 organization found)...");
-
-                organizationRepository.deleteAll();
-                branchRepository.deleteAll();
-                deviceRepository.deleteAll();
-                hardwareKioskRepository.deleteAll();
-                serviceRepository.deleteAll();
-                orderRepository.deleteAll();
-                bookingRepository.deleteAll();
-
-                // Remove all accounts except super admin
-                accountRepository.findAll().stream()
-                        .filter(a -> !"SUPER_ADMIN".equals(a.getRole()))
-                        .forEach(accountRepository::delete);
-
-                System.out.println("Database cleared.");
+            // Create super admin ONLY if not exists
+            if (accountRepository.findByEmail("admin@admin.com").isEmpty()) {
+                Account admin = new Account();
+                admin.setEmail("admin@admin.com");
+                admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
+                admin.setFullName("Admin");
+                admin.setRole("SUPER_ADMIN");
+                accountRepository.save(admin);
+                System.out.println("Created super admin: admin@admin.com");
             }
 
             // 2. Ensure ONE organization exists
