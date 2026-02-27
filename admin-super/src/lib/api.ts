@@ -100,11 +100,25 @@ export async function updateAccount(id: string, fullName: string, role: string, 
   return data;
 }
 
+export type Branch = {
+  id: string;
+  orgId: string;
+  name: string;
+  address: string;
+  phone: string;
+  status: string;
+  partnerType?: string;
+  boxCount?: number;
+  photoUrl?: string;
+  latitude?: number;
+  longitude?: number;
+};
+
 export async function deleteAccount(id: string) {
   await api.delete(`/api/v1/admin/accounts/${id}`);
 }
 
-export async function getBranches(orgId?: string): Promise<any[]> {
+export async function getBranches(orgId?: string): Promise<Branch[]> {
   const params = orgId ? { orgId } : {};
   const { data } = await api.get('/api/v1/admin/branches', { params });
   return data;
@@ -124,12 +138,12 @@ export async function deleteBranch(id: string) {
   await api.delete(`/api/v1/admin/branches/${id}`);
 }
 
-export async function createOrganization(payload: any) {
+export async function createOrganization(payload: Partial<Organization>) {
   const { data } = await api.post('/api/v1/admin/organizations', payload);
   return data;
 }
 
-export async function updateOrganization(id: string, payload: any) {
+export async function updateOrganization(id: string, payload: Partial<Organization>) {
   const { data } = await api.put(`/api/v1/admin/organizations/${id}`, payload);
   return data;
 }
@@ -225,12 +239,12 @@ export async function getDevices(orgId?: string) {
   return data;
 }
 
-export async function createDevice(payload: any) {
+export async function createDevice(payload: Record<string, unknown>) {
   const { data } = await api.post('/api/v1/admin/devices', payload);
   return data;
 }
 
-export async function updateDevice(id: string, payload: any) {
+export async function updateDevice(id: string, payload: Record<string, unknown>) {
   const { data } = await api.put(`/api/v1/admin/devices/${id}`, payload);
   return data;
 }
@@ -251,22 +265,23 @@ export type HardwareKiosk = {
   version?: string;
 };
 
-export async function getHardwareKiosks(params?: any): Promise<HardwareKiosk[]> {
+export async function getHardwareKiosks(params?: Record<string, unknown>): Promise<HardwareKiosk[]> {
   const { data } = await api.get('/api/v1/admin/hardware-kiosks', {
     params
   });
   return data;
 }
 
-export async function createHardwareKiosk(payload: any) {
+export async function createHardwareKiosk(payload: Record<string, unknown>) {
   const { data } = await api.post('/api/v1/admin/hardware-kiosks', payload);
   return data;
 }
 
-export async function updateHardwareKiosk(id: string, payload: any) {
+export async function updateHardwareKiosk(id: string, payload: Record<string, unknown>) {
   const { data } = await api.put(`/api/v1/admin/hardware-kiosks/${id}`, payload);
   return data;
 }
+
 
 export async function deleteHardwareKiosk(id: string) {
   await api.delete(`/api/v1/admin/hardware-kiosks/${id}`);

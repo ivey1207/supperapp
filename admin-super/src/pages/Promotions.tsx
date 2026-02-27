@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../lib/auth';
 import {
     getPromotions, createPromotion, updatePromotion, deletePromotion,
@@ -12,8 +12,8 @@ export default function Promotions() {
     const { isSuperAdmin, user } = useAuth();
     const [promotions, setPromotions] = useState<Promotion[]>([]);
     const [organizations, setOrganizations] = useState<Organization[]>([]);
-    const [branches, setBranches] = useState<any[]>([]);
-    const [filterBranches, setFilterBranches] = useState<any[]>([]);
+    const [branches, setBranches] = useState<{ id: string; name: string }[]>([]);
+    const [filterBranches, setFilterBranches] = useState<{ id: string; name: string }[]>([]);
     const [modal, setModal] = useState(false);
     const [editing, setEditing] = useState<Promotion | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -33,11 +33,7 @@ export default function Promotions() {
         active: true
     });
 
-    useEffect(() => {
-        loadData();
-    }, [filterOrg, filterBranch]);
-
-    async function loadData() {
+    const loadData = useCallback(async () => {
         try {
             const [promData, orgData] = await Promise.all([
                 getPromotions(filterOrg || undefined, filterBranch || undefined),
@@ -56,7 +52,12 @@ export default function Promotions() {
         } catch (err) {
             console.error('Failed to load promotions:', err);
         }
-    }
+    }, [filterOrg, filterBranch, isSuperAdmin, user]);
+
+    useEffect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        loadData();
+    }, [loadData]);
 
     const handleOpenCreate = async () => {
         playClick();
@@ -134,10 +135,11 @@ export default function Promotions() {
         playClick();
         try {
             await deletePromotion(id);
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             loadData();
-        } catch (err: any) {
-            const msg = err.response?.data?.message || 'Ошибка при удалении';
-            alert(msg);
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка при удалении');
         }
     };
 

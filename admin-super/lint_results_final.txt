@@ -1,0 +1,85 @@
+
+> admin-super@0.0.0 lint
+> eslint .
+
+
+/Users/avazov/uz-superapp/admin-super/src/lib/api.ts
+  238:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  243:72  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  264:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  271:67  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  276:79  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/avazov/uz-superapp/admin-super/src/lib/auth.tsx
+  38:5   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  71:17  error    Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/avazov/uz-superapp/admin-super/src/pages/HardwareKiosks.tsx
+   54:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  398:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Promotions.tsx
+   36:34  error  Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `user`, but the source dependencies were [filterOrg, filterBranch, isSuperAdmin, user?.orgId]. Inferred less specific property than source.
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Promotions.tsx:36:34
+  34 |     });
+  35 |
+> 36 |     const loadData = useCallback(async () => {
+     |                                  ^^^^^^^^^^^^^
+> 37 |         try {
+     | ^^^^^^^^^^^^^
+> 38 |             const [promData, orgData] = await Promise.all([
+     …
+     | ^^^^^^^^^^^^^
+> 54 |         }
+     | ^^^^^^^^^^^^^
+> 55 |     }, [filterOrg, filterBranch, isSuperAdmin, user?.orgId]);
+     | ^^^^^^ Could not preserve existing manual memoization
+  56 |
+  57 |     useEffect(() => {
+  58 |         loadData();  react-hooks/preserve-manual-memoization
+   58:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Promotions.tsx:58:9
+  56 |
+  57 |     useEffect(() => {
+> 58 |         loadData();
+     |         ^^^^^^^^ Avoid calling setState() directly within an effect
+  59 |     }, [loadData]);
+  60 |
+  61 |     const handleOpenCreate = async () => {                                                                                              react-hooks/set-state-in-effect
+  127:18  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Rfid.tsx
+  34:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Rfid.tsx:34:7
+  32 |   useEffect(() => {
+  33 |     if (currentPage > totalPages && totalPages > 0) {
+> 34 |       setCurrentPage(1);
+     |       ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  35 |     }
+  36 |   }, [totalPages, currentPage]);
+  37 |  react-hooks/set-state-in-effect
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Services.tsx
+   75:6   warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  408:56  error    Unexpected any. Specify a different type                                                                 @typescript-eslint/no-explicit-any
+
+✖ 15 problems (13 errors, 2 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

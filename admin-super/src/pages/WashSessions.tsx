@@ -51,7 +51,8 @@ export default function WashSessions() {
             const { data } = await api.get('/api/v1/admin/wash-sessions', { params });
             setSessions(data);
             setError('');
-        } catch (e: any) {
+        } catch (err) {
+            console.error(err);
             setError('Ошибка загрузки сеансов');
         } finally {
             setLoading(false);

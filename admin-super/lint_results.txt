@@ -1,0 +1,117 @@
+
+> admin-super@0.0.0 lint
+> eslint .
+
+
+/Users/avazov/uz-superapp/admin-super/src/lib/api.ts
+  107:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  127:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  132:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  228:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  233:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  254:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  261:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  266:64  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/avazov/uz-superapp/admin-super/src/lib/auth.tsx
+  26:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/avazov/uz-superapp/admin-super/src/lib/auth.tsx:26:7
+  24 |     if (t) {
+  25 |       setToken(t);
+> 26 |       setTokenState(t);
+     |       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  27 |       getMe(t)
+  28 |         .then((me) => setUser({ ...me, orgId: me.orgId ?? undefined }))
+  29 |         .catch(() => localStorage.removeItem(TOKEN_KEY))  react-hooks/set-state-in-effect
+  66:17  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-refresh/only-export-components
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Branches.tsx
+  102:6  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Companies.tsx
+  157:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Devices.tsx
+  63:6  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/avazov/uz-superapp/admin-super/src/pages/HardwareKiosks.tsx
+   52:21  error    Unexpected any. Specify a different type                                                                                      @typescript-eslint/no-explicit-any
+   87:6   warning  React Hook useEffect has missing dependencies: 'isSuperAdmin' and 'load'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  395:35  error    Unexpected any. Specify a different type                                                                                      @typescript-eslint/no-explicit-any
+  675:29  error    Unexpected any. Specify a different type                                                                                      @typescript-eslint/no-explicit-any
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Promotions.tsx
+   15:46  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+   16:58  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+   37:9   error    Error: Cannot access variable before it is declared
+
+`loadData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Promotions.tsx:37:9
+  35 |
+  36 |     useEffect(() => {
+> 37 |         loadData();
+     |         ^^^^^^^^ `loadData` accessed before it is declared
+  38 |     }, [filterOrg, filterBranch]);
+  39 |
+  40 |     async function loadData() {
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Promotions.tsx:40:5
+  38 |     }, [filterOrg, filterBranch]);
+  39 |
+> 40 |     async function loadData() {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 41 |         try {
+     | ^^^^^^^^^^^^^
+> 42 |             const [promData, orgData] = await Promise.all([
+     …
+     | ^^^^^^^^^^^^^
+> 58 |         }
+     | ^^^^^^^^^^^^^
+> 59 |     }
+     | ^^^^^^ `loadData` is declared here
+  60 |
+  61 |     const handleOpenCreate = async () => {
+  62 |         playClick();  react-hooks/immutability
+   38:8   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+  127:18  error    'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+  138:23  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Rfid.tsx
+  34:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Rfid.tsx:34:7
+  32 |   useEffect(() => {
+  33 |     if (currentPage > totalPages && totalPages > 0) {
+> 34 |       setCurrentPage(1);
+     |       ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  35 |     }
+  36 |   }, [totalPages, currentPage]);
+  37 |  react-hooks/set-state-in-effect
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Services.tsx
+   75:6   warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  408:56  error    Unexpected any. Specify a different type                                                                 @typescript-eslint/no-explicit-any
+
+/Users/avazov/uz-superapp/admin-super/src/pages/Users.tsx
+  57:6  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/avazov/uz-superapp/admin-super/src/pages/WashSessions.tsx
+  54:18  error  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  54:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 29 problems (23 errors, 6 warnings)
+

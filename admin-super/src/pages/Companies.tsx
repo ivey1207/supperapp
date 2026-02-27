@@ -154,7 +154,7 @@ export default function Companies() {
     playClick();
     if (!form.name.trim()) return;
     try {
-      const payload: any = {
+      const payload: Partial<Organization> = {
         name: form.name,
         inn: form.inn,
         status: form.status,

@@ -31,6 +31,7 @@ export default function Rfid() {
 
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       setCurrentPage(1);
     }
   }, [totalPages, currentPage]);
@@ -120,31 +121,30 @@ export default function Rfid() {
                 </tr>
               ) : (
                 paginated.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-b border-slate-800/60 bg-slate-900/40 hover:bg-slate-800/70 transition-colors"
-                >
-                  <td className="px-4 py-3 font-mono text-white">{c.number}</td>
-                  <td className="px-4 py-3 text-slate-200">{c.holder}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        c.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
-                      }`}
-                    >
-                      {c.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-slate-400">{c.linkedAt}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => toggleStatus(c.id)}
-                      className="rounded px-2 py-1 text-xs font-medium text-amber-400 hover:bg-amber-500/20"
-                    >
-                      {c.status === 'ACTIVE' ? 'Заблокировать' : 'Разблокировать'}
-                    </button>
-                  </td>
+                  <tr
+                    key={c.id}
+                    className="border-b border-slate-800/60 bg-slate-900/40 hover:bg-slate-800/70 transition-colors"
+                  >
+                    <td className="px-4 py-3 font-mono text-white">{c.number}</td>
+                    <td className="px-4 py-3 text-slate-200">{c.holder}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${c.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+                          }`}
+                      >
+                        {c.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-slate-400">{c.linkedAt}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => toggleStatus(c.id)}
+                        className="rounded px-2 py-1 text-xs font-medium text-amber-400 hover:bg-amber-500/20"
+                      >
+                        {c.status === 'ACTIVE' ? 'Заблокировать' : 'Разблокировать'}
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}

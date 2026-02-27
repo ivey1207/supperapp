@@ -10,8 +10,8 @@ export default function Services() {
   const { isSuperAdmin, user } = useAuth();
   const [list, setList] = useState<Service[]>([]);
   const [orgs, setOrgs] = useState<Organization[]>([]);
-  const [branches, setBranches] = useState<any[]>([]);
-  const [filterBranches, setFilterBranches] = useState<any[]>([]);
+  const [branches, setBranches] = useState<{ id: string; name: string }[]>([]);
+  const [filterBranches, setFilterBranches] = useState<{ id: string; name: string }[]>([]);
   const [orgId, setOrgId] = useState<string>('');
   const [branchId, setBranchId] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,7 +62,8 @@ export default function Services() {
       } else {
         setFilterBranches([]);
       }
-    } catch (e: any) {
+    } catch (e) {
+      console.error(e);
       // setError(e.response?.data?.message || e.message || 'Ошибка загрузки');
     } finally {
       // setLoading(false);
@@ -71,7 +72,7 @@ export default function Services() {
 
   useEffect(() => {
     load();
-  }, [orgId, branchId]);
+  }, [orgId, branchId, isSuperAdmin, user?.orgId]);
 
   const handleOrgChange = async (newOrgId: string) => {
     setOrgId(newOrgId);
@@ -160,7 +161,8 @@ export default function Services() {
       }
       setModal(false);
       load();
-    } catch (e: any) {
+    } catch (e) {
+      console.error(e);
       // setError(e.response?.data?.message || 'Ошибка сохранения');
     }
   };
@@ -403,7 +405,7 @@ export default function Services() {
                       <label className="block text-xs font-medium text-slate-400 mb-1.5">Насос {n} мощность</label>
                       <input
                         type="number"
-                        value={(form as any)[`pump${n}Power`]}
+                        value={(form as Record<string, any>)[`pump${n}Power`]}
                         onChange={e => setForm({ ...form, [`pump${n}Power`]: Number(e.target.value) })}
                         className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors"
                       />

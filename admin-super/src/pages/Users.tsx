@@ -54,6 +54,7 @@ export default function Users() {
 
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = list.filter(
@@ -112,9 +113,10 @@ export default function Users() {
       }
       closeModal();
       load();
-    } catch (e: unknown) {
-      if (axios.isAxiosError(e)) {
-        setError(e.response?.data?.message || 'Ошибка сохранения');
+    } catch (err) {
+      console.error(err);
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Ошибка сохранения');
       }
     }
   };
@@ -125,9 +127,10 @@ export default function Users() {
     try {
       await deleteAccount(id);
       load();
-    } catch (e: unknown) {
-      if (axios.isAxiosError(e)) {
-        setError(e.response?.data?.message || 'Ошибка удаления');
+    } catch (err) {
+      console.error(err);
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Ошибка удаления');
       }
     }
   };

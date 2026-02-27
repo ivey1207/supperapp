@@ -26,7 +26,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setTokenState(t);
       getMe(t)
         .then((me) => setUser({ ...me, orgId: me.orgId ?? undefined }))
-        .catch(() => localStorage.removeItem(TOKEN_KEY))
+        .catch(() => {
+          localStorage.removeItem(TOKEN_KEY);
+          setToken(null);
+          setTokenState(null);
+        })
         .finally(() => setIsLoading(false));
     } else {
       setIsLoading(false);

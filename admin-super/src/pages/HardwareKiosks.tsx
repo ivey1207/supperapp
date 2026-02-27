@@ -13,6 +13,8 @@ import {
   getOrganizations,
   getBranches,
   type HardwareKiosk,
+  type Organization,
+  type Branch,
 } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
@@ -21,8 +23,8 @@ import Pagination from '../components/Pagination';
 export default function HardwareKiosks() {
   const { isSuperAdmin } = useAuth();
   const [list, setList] = useState<HardwareKiosk[]>([]);
-  const [orgs, setOrgs] = useState<{ id: string; name: string }[]>([]);
-  const [branches, setBranches] = useState<{ id: string; name: string; orgId: string }[]>([]);
+  const [orgs, setOrgs] = useState<Organization[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -49,7 +51,7 @@ export default function HardwareKiosks() {
     setLoading(true);
     setError(null);
     try {
-      const params: any = {};
+      const params: Record<string, unknown> = {};
       if (statusFilter) params.status = statusFilter;
       if (orgFilter) params.orgId = orgFilter;
       if (branchFilter) params.branchId = branchFilter;
@@ -84,6 +86,7 @@ export default function HardwareKiosks() {
     } else {
       setError('Доступ запрещён. Только Super Admin может управлять hardware киосками.');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, orgFilter, branchFilter]);
 
   useEffect(() => {
@@ -392,7 +395,7 @@ export default function HardwareKiosks() {
                           className="flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-medium transition-colors group"
                         >
                           <Wallet className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
-                          {((k as any).cashBalance || 0).toLocaleString('ru-RU')}
+                          {((k as HardwareKiosk & { cashBalance: number }).cashBalance || 0).toLocaleString('ru-RU')}
                         </button>
                       </td>
                       <td className="px-4 py-3">
@@ -672,8 +675,9 @@ export default function HardwareKiosks() {
                   setTargetKiosk(null);
                   setTopUpAmount('');
                   load();
-                } catch (e: any) {
-                  setError(e.response?.data?.message || 'Ошибка пополнения');
+                } catch (err) {
+                  console.error(err);
+                  setError('Ошибка пополнения');
                 }
               }}
               className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-500 shadow-md shadow-emerald-900/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
