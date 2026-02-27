@@ -4,7 +4,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import uz.superapp.domain.*;
+import uz.superapp.domain.Branch.GeoLocation;
 import java.util.List;
+import java.util.Arrays;
 import uz.superapp.domain.HardwareKiosk;
 import uz.superapp.repository.*;
 
@@ -134,8 +136,15 @@ public class SeedRunner implements CommandLineRunner {
             b.setArchived(false);
             branchRepository.save(b);
             seedServicesForBranch(org.getId(), b.getId());
-            // Создаём киоск для филиала
-            createKioskForBranch(org.getId(), b.getId());
+            // Создаём нужное количество киосков для филиала
+            // Для "Garage Group" и "Lafz" количество киосков равно номеру филиала (i),
+            // для остальных организаций – 2 киоска на каждый филиал.
+            int kioskCount = 2;
+            if ("Garage Group".equals(name) || "Lafz".equals(name)) {
+                kioskCount = i; // i is 1‑based index of the branch
+            }
+            createKiosksForBranch(org.getId(), b.getId(), kioskCount);
+
         }
         System.out.println("Seeded Organization: " + name);
     }
@@ -169,6 +178,8 @@ public class SeedRunner implements CommandLineRunner {
         b1.setArchived(false);
         branchRepository.save(b1);
         seedServicesForBranch(org.getId(), b1.getId());
+        // Для смешанных организаций создаём по 2 киоска на каждый филиал
+        createKiosksForBranch(org.getId(), b1.getId(), 2);
 
         // Branch 2: GAS Station
         Branch b2 = new Branch();
@@ -179,6 +190,8 @@ public class SeedRunner implements CommandLineRunner {
         b2.setPhotoUrl("/api/v1/files/gas_station_photo_1772204527404.png");
         b2.setArchived(false);
         branchRepository.save(b2);
+        // Для смешанных организаций создаём по 2 киоска на каждый филиал
+        createKiosksForBranch(org.getId(), b2.getId(), 2);
 
         System.out.println("Seeded Mixed Organization: " + name);
     }
@@ -199,6 +212,22 @@ public class SeedRunner implements CommandLineRunner {
         createService(orgId, branchId, "Турбо-вода", "Основные", 6000, "T", "00000002", 50, 0, 0, 0, 0);
         createService(orgId, branchId, "Активная химия", "Химия", 5000, "C", "00000004", 40, 0, 0, 13, 0);
         createService(orgId, branchId, "Пена", "Химия", 7000, "F", "00000008", 45, 0, 0, 20, 0);
+    }
+
+    // Создаёт указанное количество устройств (Device) для филиала
+    private void createDevicesForBranch(String orgId, String branchId, int count) {
+        for (int i = 1; i <= count; i++) {
+            Device d = new Device();
+            d.setName("Device " + i + " for branch " + branchId);
+            d.setOrgId(orgId);
+            d.setBranchId(branchId);
+            // Генерируем простой MAC ID на основе branchId и индекса
+            String suffix = branchId.length() > 8 ? branchId.substring(0, 8) : branchId;
+            d.setMacId("00:00:00:00:" + suffix + String.format("%02d", i));
+            d.setStatus("ACTIVE");
+            d.setArchived(false);
+            deviceRepository.save(d);
+        }
     }
 
     private void createService(String orgId, String branchId, String name, String cat, int price, String cmd,
@@ -234,7 +263,7 @@ public class SeedRunner implements CommandLineRunner {
                     if (masterOrgId != null)
                         d.setOrgId(masterOrgId);
                     d.setMacId(macId);
-                    d.setStatus("INACTIVE");
+                    d.setStatus("ACTIVE");
                     d.setArchived(false);
                     deviceRepository.save(d);
                 }
@@ -257,9 +286,9 @@ public class SeedRunner implements CommandLineRunner {
     }
 
     private void createKioskForBranch(String orgId, String branchId) {
+        // Создаёт один киоск – вспомогательный метод для единичного создания
         HardwareKiosk kiosk = new HardwareKiosk();
         kiosk.setName("Kiosk for branch " + branchId);
-        // Generate simple IDs based on branchId
         String suffix = branchId.length() > 8 ? branchId.substring(0, 8) : branchId;
         kiosk.setKioskId("KIOSK-" + suffix);
         kiosk.setMacId("AA:BB:CC:DD:EE:" + suffix);
@@ -268,6 +297,23 @@ public class SeedRunner implements CommandLineRunner {
         kiosk.setStatus("ACTIVE");
         kiosk.setArchived(false);
         hardwareKioskRepository.save(kiosk);
+    }
+
+    // Создаёт указанное количество киосков для данного филиала
+    private void createKiosksForBranch(String orgId, String branchId, int count) {
+        for (int i = 1; i <= count; i++) {
+            HardwareKiosk kiosk = new HardwareKiosk();
+            kiosk.setName("Kiosk " + i + " for branch " + branchId);
+            String base = branchId.length() > 8 ? branchId.substring(0, 8) : branchId;
+            String suffix = base + String.format("%02d", i);
+            kiosk.setKioskId("KIOSK-" + suffix);
+            kiosk.setMacId("AA:BB:CC:DD:EE:" + suffix);
+            kiosk.setOrgId(orgId);
+            kiosk.setBranchId(branchId);
+            kiosk.setStatus("ACTIVE");
+            kiosk.setArchived(false);
+            hardwareKioskRepository.save(kiosk);
+        }
     }
 
 }
