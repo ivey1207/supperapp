@@ -144,6 +144,7 @@ public class SeedRunner implements CommandLineRunner {
                 kioskCount = i; // i is 1‑based index of the branch
             }
             createKiosksForBranch(org.getId(), b.getId(), kioskCount);
+            assignExistingDevicesForBranch(org.getId(), b.getId(), 2);
 
         }
         System.out.println("Seeded Organization: " + name);
@@ -214,19 +215,23 @@ public class SeedRunner implements CommandLineRunner {
         createService(orgId, branchId, "Пена", "Химия", 7000, "F", "00000008", 45, 0, 0, 20, 0);
     }
 
-    // Создаёт указанное количество устройств (Device) для филиала
-    private void createDevicesForBranch(String orgId, String branchId, int count) {
-        for (int i = 1; i <= count; i++) {
-            Device d = new Device();
-            d.setName("Device " + i + " for branch " + branchId);
-            d.setOrgId(orgId);
+    // Присваивает уже существующие не привязанные к филиалу устройства
+    private void assignExistingDevicesForBranch(String orgId, String branchId, int count) {
+        // Предполагаем, что в репозитории есть метод findAllByOrgIdAndBranchIdIsNull
+        List<Device> available = deviceRepository.findByOrgIdAndBranchIdIsNullAndArchivedFalse(orgId);
+        int assigned = 0;
+        for (Device d : available) {
+            if (assigned >= count)
+                break;
             d.setBranchId(branchId);
-            // Генерируем простой MAC ID на основе branchId и индекса
-            String suffix = branchId.length() > 8 ? branchId.substring(0, 8) : branchId;
-            d.setMacId("00:00:00:00:" + suffix + String.format("%02d", i));
             d.setStatus("ACTIVE");
-            d.setArchived(false);
             deviceRepository.save(d);
+            assigned++;
+        }
+        // Если недостаточно существующих устройств, можно логировать предупреждение
+        if (assigned < count) {
+            System.out.println("Warning: Not enough existing devices for org " + orgId + " branch " + branchId
+                    + ". Needed " + count + ", assigned " + assigned);
         }
     }
 
