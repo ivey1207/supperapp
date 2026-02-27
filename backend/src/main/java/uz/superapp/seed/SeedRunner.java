@@ -217,7 +217,7 @@ public class SeedRunner implements CommandLineRunner {
 
     // Присваивает уже существующие не привязанные к филиалу устройства
     private void assignExistingDevicesForBranch(String orgId, String branchId, int count) {
-        // Предполагаем, что в репозитории есть метод findAllByOrgIdAndBranchIdIsNull
+        // Используем существующий метод репозитория
         List<Device> available = deviceRepository.findByOrgIdAndBranchIdIsNullAndArchivedFalse(orgId);
         int assigned = 0;
         for (Device d : available) {
