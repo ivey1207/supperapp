@@ -41,14 +41,38 @@ public class SeedRunner implements CommandLineRunner {
     public void run(String... args) {
         try {
             System.out.println("SeedRunner starting...");
+            wipeDatabase();
             seedSuperAdmin();
-            seedOrganizations();
             seedInactiveDevices();
+            seedOrganizations();
             System.out.println("SeedRunner completed successfully!");
         } catch (Exception e) {
             System.err.println("ERROR IN SEED RUNNER: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void wipeDatabase() {
+        System.out.println("Wiping database...");
+        organizationRepository.deleteAll();
+        branchRepository.deleteAll();
+        hardwareKioskRepository.deleteAll();
+        serviceRepository.deleteAll();
+
+        List<Account> accounts = accountRepository.findAll();
+        for (Account acc : accounts) {
+            if (!"SUPER_ADMIN".equals(acc.getRole())) {
+                accountRepository.delete(acc);
+            }
+        }
+
+        List<Device> devices = deviceRepository.findAll();
+        for (Device d : devices) {
+            d.setOrgId(null);
+            d.setBranchId(null);
+            deviceRepository.save(d);
+        }
+        System.out.println("Database wiped.");
     }
 
     private void seedSuperAdmin() {
@@ -85,38 +109,41 @@ public class SeedRunner implements CommandLineRunner {
     }
 
     private void seedOrganizations() {
-        // 1. Garage Group
-        createPartnerOrg("Garage Group", "CAR_WASH", "garage_group_logo_1772204414116.png", "admin@garage.uz", 3,
-                "CAR_WASH");
+        createPartnerOrg("Garage Group", "305123456", "CAR_WASH", "garage_group_logo_1772204414116.png",
+                "admin@garage.uz", "Tashkent, Chilonzor 15", "+998901234567", "08:00-22:00",
+                "A premium car wash network in Tashkent.", 3, "CAR_WASH");
 
-        // 2. Lafz
-        createPartnerOrg("Lafz", "CAR_WASH", "lafz_logo_1772204429157.png", "admin@lafz.uz", 2, "CAR_WASH");
+        createPartnerOrg("Lafz", "306987654", "CAR_WASH", "lafz_logo_1772204429157.png",
+                "admin@lafz.uz", "Tashkent, Yunusobod 19", "+998909876543", "09:00-21:00",
+                "High quality car wash services.", 2, "CAR_WASH");
 
-        // 3. Humo Service
-        createMixedPartnerOrg("Humo Service", "humo_service_logo_1772204446649.png", "admin@humo.uz");
+        createMixedPartnerOrg("Humo Service", "308112233", "humo_service_logo_1772204446649.png",
+                "admin@humo.uz", "Tashkent, Mirobod 5", "+998931122334", "00:00-23:59",
+                "Reliable auto service and fuel station.");
 
-        // 4. Premium Auto
-        createMixedPartnerOrg("Premium Auto", "premium_auto_logo_1772204458981.png", "admin@premium.uz");
+        createMixedPartnerOrg("Premium Auto", "309554433", "premium_auto_logo_1772204458981.png",
+                "admin@premium.uz", "Tashkent, Yakkasaroy 10", "+998945544332", "09:00-20:00",
+                "Premium auto services and detailing.");
 
-        // 5. Fast Fuel
-        createMixedPartnerOrg("Fast Fuel", "fast_fuel_logo_1772204475500.png", "admin@fastfuel.uz");
+        createMixedPartnerOrg("Fast Fuel", "310998877", "fast_fuel_logo_1772204475500.png",
+                "admin@fastfuel.uz", "Tashkent, Sergeli 2", "+998979988776", "00:00-23:59",
+                "Fast and efficient fuel stations.");
     }
 
-    private void createPartnerOrg(String name, String type, String logo, String email, int branchCount,
-            String branchType) {
-        if (organizationRepository.findByNameAndArchivedFalse(name).isPresent())
-            return;
+    private void createPartnerOrg(String name, String inn, String type, String logo, String email,
+            String address, String phone, String workingHours, String desc, int branchCount, String branchType) {
 
         Organization org = new Organization();
         org.setName(name);
+        org.setInn(inn);
         org.setPartnerType(type);
         org.setStatus("ACTIVE");
         org.setLogoUrl("/api/v1/files/" + logo);
         org.setEmail(email);
-        // Добавляем адрес, телефон и часы работы
-        org.setAddress("NIGORA 2 34");
-        org.setPhone("+998908192334");
-        org.setWorkingHours("09:00-20:00");
+        org.setAddress(address);
+        org.setPhone(phone);
+        org.setWorkingHours(workingHours);
+        org.setDescription(desc);
         org.setArchived(false);
         organizationRepository.save(org);
 
@@ -129,41 +156,43 @@ public class SeedRunner implements CommandLineRunner {
             b.setStatus("OPEN");
             b.setPartnerType(branchType);
             b.setPhotoUrl("/api/v1/files/car_wash_photo_1772204498401.png");
-            // Заполняем адрес, телефон и часы работы филиала
-            b.setAddress(org.getAddress());
-            b.setPhone(org.getPhone());
-            b.setWorkingHours(org.getWorkingHours());
+            b.setAddress(address + ", Sector " + i);
+            b.setPhone(phone);
+            b.setWorkingHours(workingHours);
+
+            GeoLocation loc = new GeoLocation();
+            loc.setCoordinates(Arrays.asList(69.2797 + (i * 0.01), 41.2995 + (i * 0.01)));
+            b.setLocation(loc);
+
             b.setArchived(false);
             branchRepository.save(b);
+
             seedServicesForBranch(org.getId(), b.getId());
-            // Создаём нужное количество киосков для филиала
-            // Для "Garage Group" и "Lafz" количество киосков равно номеру филиала (i),
-            // для остальных организаций – 2 киоска на каждый филиал.
+
             int kioskCount = 2;
             if ("Garage Group".equals(name) || "Lafz".equals(name)) {
-                kioskCount = i; // i is 1‑based index of the branch
+                kioskCount = i;
             }
             createKiosksForBranch(org.getId(), b.getId(), kioskCount);
             assignExistingDevicesForBranch(org.getId(), b.getId(), 2);
-
         }
         System.out.println("Seeded Organization: " + name);
     }
 
-    private void createMixedPartnerOrg(String name, String logo, String email) {
-        if (organizationRepository.findByNameAndArchivedFalse(name).isPresent())
-            return;
+    private void createMixedPartnerOrg(String name, String inn, String logo, String email,
+            String address, String phone, String workingHours, String desc) {
 
         Organization org = new Organization();
         org.setName(name);
+        org.setInn(inn);
         org.setPartnerType("SERVICE");
         org.setStatus("ACTIVE");
         org.setLogoUrl("/api/v1/files/" + logo);
         org.setEmail(email);
-        // Добавляем адрес, телефон и часы работы
-        org.setAddress("NIGORA 2 34");
-        org.setPhone("+998908192334");
-        org.setWorkingHours("09:00-20:00");
+        org.setAddress(address);
+        org.setPhone(phone);
+        org.setWorkingHours(workingHours);
+        org.setDescription(desc);
         org.setArchived(false);
         organizationRepository.save(org);
 
@@ -176,11 +205,20 @@ public class SeedRunner implements CommandLineRunner {
         b1.setStatus("OPEN");
         b1.setPartnerType("SERVICE");
         b1.setPhotoUrl("/api/v1/files/auto_service_photo_1772204512588.png");
+        b1.setAddress(address + " (Service)");
+        b1.setPhone(phone);
+        b1.setWorkingHours(workingHours);
+
+        GeoLocation loc1 = new GeoLocation();
+        loc1.setCoordinates(Arrays.asList(69.28, 41.30));
+        b1.setLocation(loc1);
+
         b1.setArchived(false);
         branchRepository.save(b1);
+
         seedServicesForBranch(org.getId(), b1.getId());
-        // Для смешанных организаций создаём по 2 киоска на каждый филиал
         createKiosksForBranch(org.getId(), b1.getId(), 2);
+        assignExistingDevicesForBranch(org.getId(), b1.getId(), 2);
 
         // Branch 2: GAS Station
         Branch b2 = new Branch();
@@ -189,10 +227,19 @@ public class SeedRunner implements CommandLineRunner {
         b2.setStatus("OPEN");
         b2.setPartnerType("GAS_STATION");
         b2.setPhotoUrl("/api/v1/files/gas_station_photo_1772204527404.png");
+        b2.setAddress(address + " (Gas Station)");
+        b2.setPhone(phone);
+        b2.setWorkingHours(workingHours);
+
+        GeoLocation loc2 = new GeoLocation();
+        loc2.setCoordinates(Arrays.asList(69.29, 41.31));
+        b2.setLocation(loc2);
+
         b2.setArchived(false);
         branchRepository.save(b2);
-        // Для смешанных организаций создаём по 2 киоска на каждый филиал
+
         createKiosksForBranch(org.getId(), b2.getId(), 2);
+        assignExistingDevicesForBranch(org.getId(), b2.getId(), 2);
 
         System.out.println("Seeded Mixed Organization: " + name);
     }
@@ -217,18 +264,22 @@ public class SeedRunner implements CommandLineRunner {
 
     // Присваивает уже существующие не привязанные к филиалу устройства
     private void assignExistingDevicesForBranch(String orgId, String branchId, int count) {
-        // Используем существующий метод репозитория
-        List<Device> available = deviceRepository.findByOrgIdAndBranchIdIsNullAndArchivedFalse(orgId);
+        // Найдем любые активные устройства, не привязанные ни к каким филиалам
+        List<Device> available = deviceRepository.findByBranchIdIsNullAndArchivedFalse();
         int assigned = 0;
         for (Device d : available) {
             if (assigned >= count)
                 break;
+            // Убедимся, что устройство свободно (сброшено)
+            if (d.getOrgId() != null) {
+                continue; // пропускаем, если оно занято кем-то другим
+            }
+            d.setOrgId(orgId);
             d.setBranchId(branchId);
             d.setStatus("ACTIVE");
             deviceRepository.save(d);
             assigned++;
         }
-        // Если недостаточно существующих устройств, можно логировать предупреждение
         if (assigned < count) {
             System.out.println("Warning: Not enough existing devices for org " + orgId + " branch " + branchId
                     + ". Needed " + count + ", assigned " + assigned);
