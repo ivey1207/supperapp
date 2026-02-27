@@ -65,12 +65,14 @@ export default function HardwareKiosks() {
       if (statusFilter) params.status = statusFilter;
       if (orgFilter) params.orgId = orgFilter;
       if (branchFilter) params.branchId = branchFilter;
-      const [kiosks, organizations] = await Promise.all([
+      const [kiosks, organizations, allBranches] = await Promise.all([
         getHardwareKiosks(params),
         getOrganizations(),
+        getBranches(),
       ]);
       setList(kiosks);
       setOrgs(organizations);
+      setBranches(allBranches);
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         const status = e.response?.status;
@@ -100,10 +102,7 @@ export default function HardwareKiosks() {
   }, [statusFilter, orgFilter, branchFilter]);
 
   useEffect(() => {
-    if (orgFilter) {
-      loadBranches(orgFilter);
-    } else {
-      setBranches([]);
+    if (!orgFilter) {
       setBranchFilter('');
     }
   }, [orgFilter]);
@@ -257,7 +256,10 @@ export default function HardwareKiosks() {
   };
 
   const orgName = (id: string | null) => orgs.find((o) => o.id === id)?.name ?? '';
-  const branchName = (id: string | null) => branches.find((b) => b.id === id)?.name ?? '';
+  const branchName = (id: string | null) => {
+    if (!id) return '';
+    return branches.find((b) => b.id === id)?.name ?? '';
+  };
 
   const statusLabel = (status: string) => {
     switch (status) {
@@ -319,11 +321,13 @@ export default function HardwareKiosks() {
             className="rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none disabled:opacity-50"
           >
             <option value="">Все филиалы</option>
-            {branches.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name}
-              </option>
-            ))}
+            {branches
+              .filter(b => b.orgId === orgFilter)
+              .map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
           </select>
           <select
             value={statusFilter}
