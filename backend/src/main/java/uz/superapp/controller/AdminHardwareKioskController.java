@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Account;
+import uz.superapp.domain.Device;
 import uz.superapp.domain.HardwareKiosk;
 import uz.superapp.domain.KioskServiceIotConfig;
 import uz.superapp.domain.Organization;
@@ -278,7 +279,9 @@ public class AdminHardwareKioskController {
         if (kiosk.getMacId() == null)
             return;
 
-        deviceRepository.findByMacIdAndArchivedFalse(kiosk.getMacId()).ifPresent(device -> {
+        List<Device> devices = deviceRepository.findByMacIdAndArchivedFalse(kiosk.getMacId());
+        if (!devices.isEmpty()) {
+            Device device = devices.get(0);
             boolean changed = false;
 
             if (kiosk.isArchived() || kiosk.getBranchId() == null) {
@@ -303,7 +306,7 @@ public class AdminHardwareKioskController {
             if (changed) {
                 deviceRepository.save(device);
             }
-        });
+        }
     }
 
     /**
@@ -389,12 +392,12 @@ public class AdminHardwareKioskController {
             return ResponseEntity.badRequest().body(Map.of("message", "Kiosk has no MAC ID"));
         }
 
-        Optional<uz.superapp.domain.Device> deviceOpt = deviceRepository.findByMacIdAndArchivedFalse(kiosk.getMacId());
-        if (deviceOpt.isEmpty()) {
+        List<uz.superapp.domain.Device> devices = deviceRepository.findByMacIdAndArchivedFalse(kiosk.getMacId());
+        if (devices.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Associated device not found"));
         }
 
-        uz.superapp.domain.Device device = deviceOpt.get();
+        uz.superapp.domain.Device device = devices.get(0);
         java.math.BigDecimal currentBalance = device.getCashBalance() != null ? device.getCashBalance()
                 : java.math.BigDecimal.ZERO;
         device.setCashBalance(currentBalance.add(java.math.BigDecimal.valueOf(amount)));
@@ -432,9 +435,10 @@ public class AdminHardwareKioskController {
 
         // Include cash balance from Device
         if (kiosk.getMacId() != null) {
-            deviceRepository.findByMacIdAndArchivedFalse(kiosk.getMacId()).ifPresent(device -> {
-                m.put("cashBalance", device.getCashBalance() != null ? device.getCashBalance() : 0);
-            });
+            List<uz.superapp.domain.Device> devices = deviceRepository.findByMacIdAndArchivedFalse(kiosk.getMacId());
+            if (!devices.isEmpty()) {
+                m.put("cashBalance", devices.get(0).getCashBalance() != null ? devices.get(0).getCashBalance() : 0);
+            }
         }
         if (!m.containsKey("cashBalance")) {
             m.put("cashBalance", 0);

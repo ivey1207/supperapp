@@ -6,6 +6,7 @@ import uz.superapp.domain.Device;
 import uz.superapp.repository.DeviceRepository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -21,7 +22,7 @@ public class DeviceSeeder implements CommandLineRunner {
     public void run(String... args) throws Exception {
         for (int i = 1; i <= 20; i++) {
             String macId = String.format("00:00:00:00:00:%02X", i);
-            Optional<Device> existing = deviceRepository.findByMacIdAndArchivedFalse(macId);
+            List<Device> existing = deviceRepository.findByMacIdAndArchivedFalse(macId);
             if (existing.isEmpty()) {
                 Device device = new Device();
                 device.setMacId(macId);

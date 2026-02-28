@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface OrganizationRepository extends MongoRepository<Organization, String> {
     List<Organization> findByArchivedFalse();
 
-    Optional<Organization> findByNameAndArchivedFalse(String name);
+    Optional<Organization> findFirstByNameAndArchivedFalse(String name);
 }

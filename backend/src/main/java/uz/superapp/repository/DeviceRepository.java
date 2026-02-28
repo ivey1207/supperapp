@@ -4,7 +4,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import uz.superapp.domain.Device;
 
 import java.util.List;
-import java.util.Optional;
+
 
 public interface DeviceRepository extends MongoRepository<Device, String> {
 
@@ -12,7 +12,7 @@ public interface DeviceRepository extends MongoRepository<Device, String> {
 
     List<Device> findByOrgIdAndArchivedFalse(String orgId);
 
-    Optional<Device> findByMacIdAndArchivedFalse(String macId);
+    List<Device> findByMacIdAndArchivedFalse(String macId);
 
     // Для авто-назначения: найти активные устройства организации
     List<Device> findByStatusAndOrgIdAndBranchIdIsNullAndArchivedFalse(String status, String orgId);

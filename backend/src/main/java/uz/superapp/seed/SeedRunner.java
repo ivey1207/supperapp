@@ -76,7 +76,7 @@ public class SeedRunner implements CommandLineRunner {
     }
 
     private void seedSuperAdmin() {
-        accountRepository.findByEmail("admin@admin.com").ifPresentOrElse(
+        accountRepository.findFirstByEmail("admin@admin.com").ifPresentOrElse(
                 admin -> {
                     boolean changed = false;
                     if (admin.isArchived()) {
@@ -315,7 +315,7 @@ public class SeedRunner implements CommandLineRunner {
 
     private void seedInactiveDevices() {
         if (deviceRepository.count() < 15) {
-            String masterOrgId = organizationRepository.findByNameAndArchivedFalse("SuperApp Master Partner")
+            String masterOrgId = organizationRepository.findFirstByNameAndArchivedFalse("SuperApp Master Partner")
                     .map(Organization::getId).orElse(null);
 
             for (int i = 1; i <= 15; i++) {

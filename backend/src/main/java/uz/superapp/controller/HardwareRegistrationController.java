@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Device;
@@ -11,6 +10,7 @@ import uz.superapp.repository.DeviceRepository;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,11 +43,11 @@ public class HardwareRegistrationController {
         String macId = ((String) macIdObj).trim().toUpperCase();
 
         // Проверить, не зарегистрировано ли уже устройство
-        Optional<Device> existingOpt = deviceRepository.findByMacIdAndArchivedFalse(macId);
+        List<Device> existingOpt = deviceRepository.findByMacIdAndArchivedFalse(macId);
         Device device;
 
-        if (existingOpt.isPresent()) {
-            device = existingOpt.get();
+        if (!existingOpt.isEmpty()) {
+            device = existingOpt.get(0);
             // Обновить последний heartbeat
             device.setLastHeartbeat(Instant.now());
         } else {
@@ -79,7 +79,7 @@ public class HardwareRegistrationController {
     @PostMapping("/heartbeat/{macId}")
     public ResponseEntity<Map<String, Object>> heartbeat(@PathVariable String macId) {
         String normalizedMacId = macId.trim().toUpperCase();
-        Optional<Device> deviceOpt = deviceRepository.findByMacIdAndArchivedFalse(normalizedMacId);
+        List<Device> deviceOpt = deviceRepository.findByMacIdAndArchivedFalse(normalizedMacId);
 
         if (deviceOpt.isEmpty()) {
             // Если устройство не зарегистрировано, зарегистрировать его
@@ -98,7 +98,7 @@ public class HardwareRegistrationController {
             return ResponseEntity.ok(response);
         }
 
-        Device device = deviceOpt.get();
+        Device device = deviceOpt.get(0);
         device.setLastHeartbeat(Instant.now());
         deviceRepository.save(device);
 
