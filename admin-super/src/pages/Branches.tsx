@@ -476,7 +476,7 @@ export default function Branches() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-800/70 bg-gradient-to-r from-slate-900 to-slate-800">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Название</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Филиал</th>
                   {isSuperAdmin && (
                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Организация</th>
                   )}
@@ -502,9 +502,18 @@ export default function Branches() {
                       className="border-b border-slate-800/60 bg-slate-900/40 hover:bg-slate-800/70 transition-colors"
                     >
                       <td className="px-4 py-3">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-white">{b.name}</span>
-                          <span className="text-[11px] text-slate-500">ID: {(b.id || '').slice(0, 8)}…</span>
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-800 border border-slate-700/50 flex items-center justify-center">
+                            {b.photoUrl ? (
+                              <img src={getFileUrl(b.photoUrl)} alt={b.name} className="h-full w-full object-cover" />
+                            ) : (
+                              <MapPin className="h-5 w-5 text-slate-500" />
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-medium text-white">{b.name}</span>
+                            <span className="text-[11px] text-slate-500">ID: {(b.id || '').slice(0, 8)}…</span>
+                          </div>
                         </div>
                       </td>
                       {isSuperAdmin && (
