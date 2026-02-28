@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Settings, Plus, Pencil, Trash2, GitBranch, Building2 } from 'lucide-react';
-import { getServices, createService, updateService, deleteService, getOrganizations, getBranches, type Service, type Organization } from '../lib/api';
+import { getServices, createService, updateService, deleteService, getOrganizations, getBranches, type Service, type Organization, type Branch } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
@@ -10,8 +10,8 @@ export default function Services() {
   const { isSuperAdmin, user } = useAuth();
   const [list, setList] = useState<Service[]>([]);
   const [orgs, setOrgs] = useState<Organization[]>([]);
-  const [branches, setBranches] = useState<{ id: string; name: string }[]>([]);
-  const [filterBranches, setFilterBranches] = useState<{ id: string; name: string }[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [filterBranches, setFilterBranches] = useState<Branch[]>([]);
   const [orgId, setOrgId] = useState<string>('');
   const [branchId, setBranchId] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -362,7 +362,9 @@ export default function Services() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Цена за минуту (сум)</label>
+                    <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                      {branches.find(b => b.id === form.branchId)?.partnerType === 'SERVICE' ? 'Стоимость (сум)' : 'Цена за минуту (сум)'}
+                    </label>
                     <input type="number" value={form.pricePerMinute} onChange={e => setForm({ ...form, pricePerMinute: Number(e.target.value) })} className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
                   </div>
                   <div>
@@ -423,53 +425,55 @@ export default function Services() {
               </div>
 
               {/* ─── Настройки оборудования (IoT) ─── */}
-              <div className="space-y-4">
-                <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                  <span className="h-px flex-1 bg-slate-700/60" />
-                  Базовые Настройки Оборудования (IoT)
-                  <span className="h-px flex-1 bg-slate-700/60" />
-                </h4>
-                <p className="text-xs text-slate-400 -mt-2 mb-2 px-1">
-                  Это базовые значения. Они будут применяться ко всем киоскам по умолчанию.
-                  Вы можете переопределить эти параметры для конкретного бокса в разделе "Hardware Киоски".
-                </p>
+              {branches.find(b => b.id === form.branchId)?.partnerType !== 'SERVICE' && (
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <span className="h-px flex-1 bg-slate-700/60" />
+                    Базовые Настройки Оборудования (IoT)
+                    <span className="h-px flex-1 bg-slate-700/60" />
+                  </h4>
+                  <p className="text-xs text-slate-400 -mt-2 mb-2 px-1">
+                    Это базовые значения. Они будут применяться ко всем киоскам по умолчанию.
+                    Вы можете переопределить эти параметры для конкретного бокса в разделе "Hardware Киоски".
+                  </p>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Команда</label>
-                    <input value={form.command} onChange={e => setForm({ ...form, command: e.target.value })} placeholder="START_WASH" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Relay Bits</label>
-                    <input value={form.relayBits} onChange={e => setForm({ ...form, relayBits: e.target.value })} placeholder="0xFF" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Частота мотора (Hz)</label>
-                    <input type="number" value={form.motorFrequency} onChange={e => setForm({ ...form, motorFrequency: Number(e.target.value) })} className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">Флаг мотора</label>
-                    <input value={form.motorFlag} onChange={e => setForm({ ...form, motorFlag: e.target.value })} placeholder="ON/OFF" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-4 gap-3">
-                  {[1, 2, 3, 4].map(n => (
-                    <div key={n}>
-                      <label className="block text-xs font-medium text-slate-400 mb-1.5">Насос {n} мощность</label>
-                      <input
-                        type="number"
-                        value={(form as Record<string, any>)[`pump${n}Power`]}
-                        onChange={e => setForm({ ...form, [`pump${n}Power`]: Number(e.target.value) })}
-                        className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors"
-                      />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1.5">Команда</label>
+                      <input value={form.command} onChange={e => setForm({ ...form, command: e.target.value })} placeholder="START_WASH" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
                     </div>
-                  ))}
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1.5">Relay Bits</label>
+                      <input value={form.relayBits} onChange={e => setForm({ ...form, relayBits: e.target.value })} placeholder="0xFF" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1.5">Частота мотора (Hz)</label>
+                      <input type="number" value={form.motorFrequency} onChange={e => setForm({ ...form, motorFrequency: Number(e.target.value) })} className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1.5">Флаг мотора</label>
+                      <input value={form.motorFlag} onChange={e => setForm({ ...form, motorFlag: e.target.value })} placeholder="ON/OFF" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-3">
+                    {[1, 2, 3, 4].map(n => (
+                      <div key={n}>
+                        <label className="block text-xs font-medium text-slate-400 mb-1.5">Насос {n} мощность</label>
+                        <input
+                          type="number"
+                          value={(form as Record<string, any>)[`pump${n}Power`]}
+                          onChange={e => setForm({ ...form, [`pump${n}Power`]: Number(e.target.value) })}
+                          className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* ─── Кнопки ─── */}

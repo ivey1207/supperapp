@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../lib/auth';
 import {
     getPromotions, createPromotion, updatePromotion, deletePromotion,
-    getOrganizations, getBranches, uploadFile, getFileUrl
+    getOrganizations, getBranches, getServices, uploadFile, getFileUrl
 } from '../lib/api';
-import type { Promotion, Organization } from '../lib/api';
+import type { Promotion, Organization, Branch, Service } from '../lib/api';
 import { Search, Plus, Trash2, Filter, GitBranch, CheckCircle, XCircle, Calendar, Edit2, Pencil, Image as ImageIcon } from 'lucide-react';
 import { playClick } from '../lib/sound';
 
@@ -12,8 +12,9 @@ export default function Promotions() {
     const { isSuperAdmin, user } = useAuth();
     const [promotions, setPromotions] = useState<Promotion[]>([]);
     const [organizations, setOrganizations] = useState<Organization[]>([]);
-    const [branches, setBranches] = useState<{ id: string; name: string }[]>([]);
-    const [filterBranches, setFilterBranches] = useState<{ id: string; name: string }[]>([]);
+    const [branches, setBranches] = useState<Branch[]>([]);
+    const [filterBranches, setFilterBranches] = useState<Branch[]>([]);
+    const [services, setServices] = useState<Service[]>([]);
     const [modal, setModal] = useState(false);
     const [editing, setEditing] = useState<Promotion | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -30,6 +31,7 @@ export default function Promotions() {
         endDate: '',
         orgId: '',
         branchId: '',
+        serviceId: '',
         active: true
     });
 
@@ -72,11 +74,16 @@ export default function Promotions() {
             endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             orgId: initialOrgId,
             branchId: filterBranch || '',
+            serviceId: '',
             active: true
         });
         if (initialOrgId) {
-            const b = await getBranches(initialOrgId);
+            const [b, s] = await Promise.all([
+                getBranches(initialOrgId),
+                getServices(initialOrgId, filterBranch || undefined)
+            ]);
             setBranches(b);
+            setServices(s);
         }
         setModal(true);
     };
@@ -93,25 +100,41 @@ export default function Promotions() {
             endDate: promo.endDate.split('T')[0],
             orgId: promo.orgId,
             branchId: promo.branchId || '',
+            serviceId: promo.serviceId || '',
             active: promo.active
         });
 
         if (promo.orgId) {
-            const branchData = await getBranches(promo.orgId);
+            const [branchData, serviceData] = await Promise.all([
+                getBranches(promo.orgId),
+                getServices(promo.orgId, promo.branchId || undefined)
+            ]);
             setBranches(branchData);
+            setServices(serviceData);
         }
 
         setModal(true);
     };
 
     const handleOrgChange = async (orgId: string) => {
-        setFormData({ ...formData, orgId, branchId: '' });
+        setFormData({ ...formData, orgId, branchId: '', serviceId: '' });
         if (orgId) {
-            const branchData = await getBranches(orgId);
+            const [branchData, serviceData] = await Promise.all([
+                getBranches(orgId),
+                getServices(orgId)
+            ]);
             setBranches(branchData);
+            setServices(serviceData);
         } else {
             setBranches([]);
+            setServices([]);
         }
+    };
+
+    const handleBranchChange = async (branchId: string) => {
+        setFormData({ ...formData, branchId, serviceId: '' });
+        const serviceData = await getServices(formData.orgId, branchId || undefined);
+        setServices(serviceData);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -404,11 +427,25 @@ export default function Promotions() {
                                     <select
                                         className="w-full rounded-2xl border border-slate-700 bg-slate-800/30 px-5 py-3.5 text-white outline-none focus:border-blue-500/50 focus:bg-slate-800/50 transition-all font-medium cursor-pointer"
                                         value={formData.branchId}
-                                        onChange={(e) => setFormData({ ...formData, branchId: e.target.value })}
+                                        onChange={(e) => handleBranchChange(e.target.value)}
                                     >
                                         <option value="">Во всех филиалах</option>
                                         {branches.map(b => (
                                             <option key={b.id} value={b.id}>{b.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Применить к услуге</label>
+                                    <select
+                                        className="w-full rounded-2xl border border-slate-700 bg-slate-800/30 px-5 py-3.5 text-white outline-none focus:border-blue-500/50 focus:bg-slate-800/50 transition-all font-medium cursor-pointer"
+                                        value={formData.serviceId}
+                                        onChange={(e) => setFormData({ ...formData, serviceId: e.target.value })}
+                                    >
+                                        <option value="">Ко всем услугам</option>
+                                        {services.map(s => (
+                                            <option key={s.id} value={s.id}>{s.name} ({s.pricePerMinute} сум)</option>
                                         ))}
                                     </select>
                                 </div>

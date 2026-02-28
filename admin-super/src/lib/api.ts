@@ -206,6 +206,7 @@ export type Promotion = {
   id: string;
   orgId: string;
   branchId?: string;
+  serviceId?: string;
   title: string;
   description: string;
   imageUrl?: string;

@@ -10,6 +10,7 @@ public class Promotion {
     private String id;
     private String orgId;
     private String branchId;
+    private String serviceId;
     private String title;
     private String description;
     private String imageUrl;
@@ -41,6 +42,14 @@ public class Promotion {
 
     public void setBranchId(String branchId) {
         this.branchId = branchId;
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
     }
 
     public String getTitle() {

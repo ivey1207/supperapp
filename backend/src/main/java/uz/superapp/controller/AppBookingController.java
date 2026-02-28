@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,8 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.AppUser;
 import uz.superapp.domain.Booking;
 import uz.superapp.domain.Service;
+import uz.superapp.domain.Branch;
 import uz.superapp.repository.AppUserRepository;
 import uz.superapp.repository.BookingRepository;
+import uz.superapp.repository.BranchRepository;
 import uz.superapp.repository.ServiceRepository;
 import uz.superapp.service.BookingQueueService;
 
@@ -30,22 +31,25 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/app/bookings")
 public class AppBookingController {
-    
+
     private final BookingRepository bookingRepository;
     private final ServiceRepository serviceRepository;
     private final AppUserRepository appUserRepository;
+    private final BranchRepository branchRepository;
     private final BookingQueueService bookingQueueService;
-    
+
     public AppBookingController(BookingRepository bookingRepository,
-                               ServiceRepository serviceRepository,
-                               AppUserRepository appUserRepository,
-                               BookingQueueService bookingQueueService) {
+            ServiceRepository serviceRepository,
+            AppUserRepository appUserRepository,
+            BranchRepository branchRepository,
+            BookingQueueService bookingQueueService) {
         this.bookingRepository = bookingRepository;
         this.serviceRepository = serviceRepository;
         this.appUserRepository = appUserRepository;
+        this.branchRepository = branchRepository;
         this.bookingQueueService = bookingQueueService;
     }
-    
+
     /**
      * Создать бронирование (добавить в очередь)
      * Доступно обычным пользователям мобильного приложения
@@ -57,29 +61,47 @@ public class AppBookingController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
+
         Optional<AppUser> userOpt = appUserRepository.findById(auth.getName());
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         AppUser user = userOpt.get();
-        
+
         Object serviceIdObj = body.get("serviceId");
         if (!(serviceIdObj instanceof String) || ((String) serviceIdObj).isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("message", "serviceId is required"));
         }
         String serviceId = (String) serviceIdObj;
-        
+
         Optional<Service> serviceOpt = serviceRepository.findById(serviceId);
         if (serviceOpt.isEmpty() || serviceOpt.get().isArchived() || !serviceOpt.get().isActive()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Service not found or inactive"));
         }
         Service service = serviceOpt.get();
-        
+
+        // Проверить тип филиала
+        String branchId = service.getBranchId() != null
+                ? service.getBranchId()
+                : (String) body.get("branchId");
+
+        if (branchId == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "branchId is required"));
+        }
+
+        Optional<Branch> branchOpt = branchRepository.findById(branchId);
+        if (branchOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Branch not found"));
+        }
+
+        if (!"SERVICE".equals(branchOpt.get().getPartnerType())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Booking is only available for Auto Services"));
+        }
+
         if (!service.isBookable()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Service is not bookable"));
         }
-        
+
         Object startTimeObj = body.get("startTime");
         if (!(startTimeObj instanceof String)) {
             return ResponseEntity.badRequest().body(Map.of("message", "startTime is required (ISO format)"));
@@ -90,10 +112,10 @@ public class AppBookingController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid startTime format"));
         }
-        
+
         Integer durationMinutes = service.getDurationMinutes() != null ? service.getDurationMinutes() : 30;
         Instant endTime = startTime.plusSeconds(durationMinutes * 60L);
-        
+
         // Проверить, нет ли конфликтующих бронирований
         List<String> activeStatuses = List.of("PENDING", "CONFIRMED", "IN_PROGRESS");
         List<Booking> conflicting = bookingRepository.findByServiceIdAndStartTimeBetweenAndStatusInAndArchivedFalse(
@@ -102,45 +124,42 @@ public class AppBookingController {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("message", "Time slot is already booked"));
         }
-        
+
         Booking booking = new Booking();
         booking.setUserId(user.getId());
         booking.setOrgId(service.getOrgId());
-        Object branchIdObj = body.get("branchId");
-        if (branchIdObj instanceof String) {
-            booking.setBranchId((String) branchIdObj);
-        }
+        booking.setBranchId(branchId);
         booking.setServiceId(serviceId);
         booking.setStartTime(startTime);
         booking.setEndTime(endTime);
         booking.setStatus("PENDING");
-        
+
         Object commentObj = body.get("comment");
         if (commentObj instanceof String) {
             booking.setComment((String) commentObj);
         }
-        
+
         Object phoneObj = body.get("phone");
         if (phoneObj instanceof String) {
             booking.setPhone((String) phoneObj);
         } else {
             booking.setPhone(user.getPhone());
         }
-        
+
         Object clientNameObj = body.get("clientName");
         if (clientNameObj instanceof String) {
             booking.setClientName((String) clientNameObj);
         } else {
             booking.setClientName(user.getFullName());
         }
-        
+
         bookingQueueService.addToQueue(booking);
-        
+
         Map<String, Object> response = buildBookingMap(booking);
         response.put("queuePosition", booking.getQueuePosition());
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * Получить мои бронирования
      * Доступно обычным пользователям мобильного приложения
@@ -152,18 +171,19 @@ public class AppBookingController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
+
         List<Booking> bookings = bookingRepository.findByUserIdAndArchivedFalse(auth.getName());
         List<Map<String, Object>> result = bookings.stream()
                 .map(this::buildBookingMap)
                 .collect(Collectors.toList());
-        
+
         return ResponseEntity.ok(result);
     }
-    
+
     /**
      * Получить информацию о бронировании
-     * Доступно обычным пользователям мобильного приложения (только свои бронирования)
+     * Доступно обычным пользователям мобильного приложения (только свои
+     * бронирования)
      */
     @Operation(summary = "Get item by ID")
     @GetMapping("/{id}")
@@ -172,17 +192,17 @@ public class AppBookingController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
+
         Optional<Booking> bookingOpt = bookingRepository.findById(id);
         if (bookingOpt.isEmpty() || bookingOpt.get().isArchived()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         Booking booking = bookingOpt.get();
         if (!booking.getUserId().equals(auth.getName())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
+
         Map<String, Object> response = buildBookingMap(booking);
         if ("PENDING".equals(booking.getStatus())) {
             response.put("queuePosition", booking.getQueuePosition());
@@ -190,13 +210,14 @@ public class AppBookingController {
                     booking.getServiceId(), "PENDING");
             response.put("totalInQueue", totalInQueue);
         }
-        
+
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * Отменить моё бронирование
-     * Доступно обычным пользователям мобильного приложения (только свои бронирования)
+     * Доступно обычным пользователям мобильного приложения (только свои
+     * бронирования)
      */
     @Operation(summary = "Execute cancel operation")
     @PostMapping("/{id}/cancel")
@@ -205,22 +226,22 @@ public class AppBookingController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
+
         Optional<Booking> bookingOpt = bookingRepository.findById(id);
         if (bookingOpt.isEmpty() || bookingOpt.get().isArchived()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         Booking booking = bookingOpt.get();
         if (!booking.getUserId().equals(auth.getName())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        
+
         bookingQueueService.cancelBooking(id);
         booking = bookingRepository.findById(id).orElse(booking);
         return ResponseEntity.ok(buildBookingMap(booking));
     }
-    
+
     /**
      * Получить доступные временные слоты для услуги
      * Доступно обычным пользователям мобильного приложения
@@ -232,57 +253,66 @@ public class AppBookingController {
             @RequestParam String serviceId,
             @RequestParam String date, // YYYY-MM-DD
             Authentication auth) {
-        
+
         Optional<Service> serviceOpt = serviceRepository.findById(serviceId);
         if (serviceOpt.isEmpty() || serviceOpt.get().isArchived() || !serviceOpt.get().isActive()) {
             return ResponseEntity.badRequest().body(List.of());
         }
         Service service = serviceOpt.get();
-        
+
+        if (service.getBranchId() != null) {
+            Optional<Branch> branchOpt = branchRepository.findById(service.getBranchId());
+            if (branchOpt.isEmpty() || !"SERVICE".equals(branchOpt.get().getPartnerType())) {
+                return ResponseEntity.badRequest().body(List.of());
+            }
+        }
+
         if (!service.isBookable()) {
             return ResponseEntity.badRequest().body(List.of());
         }
-        
-        Integer intervalMinutes = service.getBookingIntervalMinutes() != null 
-                ? service.getBookingIntervalMinutes() : 30;
-        Integer durationMinutes = service.getDurationMinutes() != null 
-                ? service.getDurationMinutes() : 30;
-        
+
+        Integer intervalMinutes = service.getBookingIntervalMinutes() != null
+                ? service.getBookingIntervalMinutes()
+                : 30;
+        Integer durationMinutes = service.getDurationMinutes() != null
+                ? service.getDurationMinutes()
+                : 30;
+
         LocalDateTime dayStart = LocalDateTime.parse(date + "T00:00:00");
         LocalDateTime dayEnd = dayStart.plusDays(1);
         Instant startInstant = dayStart.toInstant(ZoneOffset.UTC);
         Instant endInstant = dayEnd.toInstant(ZoneOffset.UTC);
-        
+
         List<String> activeStatuses = List.of("PENDING", "CONFIRMED", "IN_PROGRESS");
         List<Booking> existingBookings = bookingRepository
                 .findByServiceIdAndStartTimeBetweenAndStatusInAndArchivedFalse(
                         serviceId, startInstant, endInstant, activeStatuses);
-        
+
         List<Map<String, Object>> slots = new java.util.ArrayList<>();
         LocalDateTime current = dayStart;
         while (current.isBefore(dayEnd)) {
             Instant slotStart = current.toInstant(ZoneOffset.UTC);
             Instant slotEnd = slotStart.plusSeconds(durationMinutes * 60L);
-            
+
             boolean isAvailable = existingBookings.stream()
                     .noneMatch(b -> {
                         Instant bStart = b.getStartTime();
                         Instant bEnd = b.getEndTime();
                         return (slotStart.isBefore(bEnd) && slotEnd.isAfter(bStart));
                     });
-            
+
             Map<String, Object> slot = new LinkedHashMap<>();
             slot.put("startTime", slotStart.toString());
             slot.put("endTime", slotEnd.toString());
             slot.put("available", isAvailable);
             slots.add(slot);
-            
+
             current = current.plusMinutes(intervalMinutes);
         }
-        
+
         return ResponseEntity.ok(slots);
     }
-    
+
     private Map<String, Object> buildBookingMap(Booking booking) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", booking.getId());
