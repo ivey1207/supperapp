@@ -57,7 +57,13 @@ jobs:
           docker compose build admin-super
           
           echo "Starting containers..."
-          docker compose up -d --remove-orphans
+          if ! docker compose up -d --remove-orphans; then
+            echo "Deploy failed! Printing logs of backend-2-1:"
+            docker logs uz-superapp-backend-2-1 || true
+            echo "Printing logs of backend-1-1:"
+            docker logs uz-superapp-backend-1-1 || true
+            exit 1
+          fi
           echo "Deploy completed!"
           docker ps
         ENDSSH
