@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/hardware/**").permitAll()
                         .requestMatchers("/api/v1/controller/**").permitAll()
                         .requestMatchers("/api/v1/files/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/v1/app/kiosk/**").permitAll() // QR-скан: инфо киоска без авторизации
                         .requestMatchers("/api/v1/admin/hardware-kiosks/*/top-up").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAnyRole("SUPER_ADMIN", "PARTNER_ADMIN", "MANAGER")
