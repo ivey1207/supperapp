@@ -11,7 +11,7 @@ public interface AccountRepository extends MongoRepository<Account, String> {
 
     Optional<Account> findFirstByEmail(String email);
 
-    Optional<Account> findByEmailAndArchivedFalse(String email);
+    Optional<Account> findFirstByEmailAndArchivedFalse(String email);
 
     List<Account> findByArchivedFalse();
 

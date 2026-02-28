@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -84,7 +83,7 @@ public class AdminAccountController {
         if (email == null || email.isBlank() || password == null || password.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("message", "email and password are required"));
         }
-        if (accountRepository.findByEmailAndArchivedFalse(email).isPresent()) {
+        if (accountRepository.findFirstByEmailAndArchivedFalse(email).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "email already exists"));
         }
         Account account = new Account();

@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -32,11 +31,13 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
         String email = body.get("email");
+        if (email != null)
+            email = email.trim().toLowerCase();
         String password = body.get("password");
         if (email == null || password == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "email and password required"));
         }
-        Account account = accountRepository.findByEmailAndArchivedFalse(email).orElse(null);
+        Account account = accountRepository.findFirstByEmailAndArchivedFalse(email).orElse(null);
         if (account == null || !passwordEncoder.matches(password, account.getPasswordHash())) {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
         }
@@ -46,7 +47,6 @@ public class AuthController {
                 "email", account.getEmail(),
                 "fullName", account.getFullName() != null ? account.getFullName() : "",
                 "role", account.getRole(),
-                "orgId", account.getOrgId() != null ? account.getOrgId() : ""
-        ));
+                "orgId", account.getOrgId() != null ? account.getOrgId() : ""));
     }
 }
