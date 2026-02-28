@@ -225,18 +225,33 @@ export default function Branches() {
               ))}
             </select>
           )}
-          <select
-            value={partnerType}
-            onChange={(e) => setPartnerType(e.target.value)}
-            className="rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-white focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">Все типы</option>
-            {PARTNER_TYPES.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.label}
-              </option>
-            ))}
-          </select>
+          <div className="flex bg-slate-800/80 rounded-lg border border-slate-600 p-1 overflow-hidden">
+            <button
+              onClick={() => setPartnerType('')}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${partnerType === ''
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                }`}
+            >
+              Все
+            </button>
+            {PARTNER_TYPES.map((t) => {
+              const Icon = t.icon;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setPartnerType(t.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${partnerType === t.id
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                    }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
