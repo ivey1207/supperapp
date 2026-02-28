@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -43,7 +42,9 @@ public class AdminBranchController {
 
     @Operation(summary = "Get list of items")
     @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> list(@RequestParam(required = false) String orgId,
+    public ResponseEntity<List<Map<String, Object>>> list(
+            @RequestParam(required = false) String orgId,
+            @RequestParam(required = false) String partnerType,
             Authentication auth) {
         String effectiveOrgId = orgId;
         String username = auth != null ? auth.getName() : null;
@@ -56,9 +57,20 @@ public class AdminBranchController {
                 }
             }
         }
-        List<Branch> all = effectiveOrgId != null && !effectiveOrgId.isBlank()
-                ? branchRepository.findByOrgIdAndArchivedFalse(effectiveOrgId)
-                : branchRepository.findByArchivedFalse();
+        List<Branch> all;
+        if (effectiveOrgId != null && !effectiveOrgId.isBlank()) {
+            if (partnerType != null && !partnerType.isBlank()) {
+                all = branchRepository.findByOrgIdAndPartnerTypeAndArchivedFalse(effectiveOrgId, partnerType);
+            } else {
+                all = branchRepository.findByOrgIdAndArchivedFalse(effectiveOrgId);
+            }
+        } else {
+            if (partnerType != null && !partnerType.isBlank()) {
+                all = branchRepository.findByPartnerTypeAndArchivedFalse(partnerType);
+            } else {
+                all = branchRepository.findByArchivedFalse();
+            }
+        }
         List<Map<String, Object>> result = all.stream()
                 .map(this::buildBranchMap)
                 .collect(Collectors.toList());

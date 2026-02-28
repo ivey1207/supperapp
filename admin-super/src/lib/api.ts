@@ -118,8 +118,10 @@ export async function deleteAccount(id: string) {
   await api.delete(`/api/v1/admin/accounts/${id}`);
 }
 
-export async function getBranches(orgId?: string): Promise<Branch[]> {
-  const params = orgId ? { orgId } : {};
+export async function getBranches(orgId?: string, partnerType?: string): Promise<Branch[]> {
+  const params: Record<string, string> = {};
+  if (orgId) params.orgId = orgId;
+  if (partnerType) params.partnerType = partnerType;
   const { data } = await api.get('/api/v1/admin/branches', { params });
   return data;
 }

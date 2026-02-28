@@ -28,6 +28,7 @@ export default function Branches() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [orgId, setOrgId] = useState<string>('');
+  const [partnerType, setPartnerType] = useState<string>('');
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
@@ -69,7 +70,7 @@ export default function Branches() {
     setError(null);
     try {
       const [branches, organizations] = await Promise.all([
-        getBranches(orgId || undefined),
+        getBranches(orgId || undefined, partnerType || undefined),
         isSuperAdmin ? getOrganizations() : Promise.resolve([]),
       ]);
       setList(branches);
@@ -100,7 +101,7 @@ export default function Branches() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orgId]);
+  }, [orgId, partnerType]);
 
   const filtered = list.filter(
     (b) =>
@@ -224,6 +225,18 @@ export default function Branches() {
               ))}
             </select>
           )}
+          <select
+            value={partnerType}
+            onChange={(e) => setPartnerType(e.target.value)}
+            className="rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-white focus:border-blue-500 focus:outline-none"
+          >
+            <option value="">Все типы</option>
+            {PARTNER_TYPES.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label}
+              </option>
+            ))}
+          </select>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
