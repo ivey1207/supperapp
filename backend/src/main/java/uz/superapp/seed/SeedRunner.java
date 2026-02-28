@@ -1,5 +1,6 @@
 package uz.superapp.seed;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,9 @@ import uz.superapp.repository.*;
 
 @Component
 public class SeedRunner implements CommandLineRunner {
+
+    @Value("${SEED_DATABASE:false}")
+    private boolean seedDatabase;
 
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
@@ -40,11 +44,33 @@ public class SeedRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
+            if (!seedDatabase) {
+                System.out.println("SeedRunner: SEED_DATABASE is false. Skipping seed processes.");
+                return;
+            }
+
             System.out.println("SeedRunner starting...");
-            wipeDatabase();
             seedSuperAdmin();
-            seedInactiveDevices();
-            seedOrganizations();
+
+            long garageCount = organizationRepository.findAll().stream()
+                    .filter(org -> "Garage Group".equals(org.getName()))
+                    .count();
+
+            if (garageCount > 1) {
+                System.out.println("SeedRunner found duplicate initial data (" + garageCount
+                        + "x Garage Group). Wiping to reset.");
+                wipeDatabase();
+                seedInactiveDevices();
+                seedOrganizations();
+            } else if (organizationRepository.count() == 0) {
+                System.out.println("SeedRunner: Database empty. Seeding initial data.");
+                wipeDatabase(); // Ensure clean slate
+                seedInactiveDevices();
+                seedOrganizations();
+            } else {
+                System.out.println("SeedRunner: Database already seeded correctly. Skipping mock data creation.");
+            }
+
             System.out.println("SeedRunner completed successfully!");
         } catch (Exception e) {
             System.err.println("ERROR IN SEED RUNNER: " + e.getMessage());

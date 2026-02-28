@@ -28,6 +28,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
+      SEED_DATABASE: "true"
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/superapp
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: "6379"
@@ -49,6 +50,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
+      SEED_DATABASE: "false"
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/superapp
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: "6379"
