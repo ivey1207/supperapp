@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.HardwareKiosk;
@@ -32,14 +31,25 @@ public class AppServiceController {
 
     @Operation(summary = "Get list of items")
     @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> list(@RequestParam String branchId,
+    public ResponseEntity<List<Map<String, Object>>> list(
+            @RequestParam(required = false) String branchId,
             @RequestParam(required = false) String macId) {
-        List<Service> services = serviceRepository.findByBranchIdAndArchivedFalse(branchId);
 
         Optional<HardwareKiosk> kioskOpt = Optional.empty();
         if (macId != null && !macId.isBlank()) {
             kioskOpt = hardwareKioskRepository.findByMacIdAndArchivedFalse(macId);
         }
+
+        String effectiveBranchId = branchId;
+        if ((effectiveBranchId == null || effectiveBranchId.isBlank()) && kioskOpt.isPresent()) {
+            effectiveBranchId = kioskOpt.get().getBranchId();
+        }
+
+        if (effectiveBranchId == null || effectiveBranchId.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<Service> services = serviceRepository.findByBranchIdAndArchivedFalse(effectiveBranchId);
 
         final Optional<HardwareKiosk> finalKioskOpt = kioskOpt;
 
