@@ -38,10 +38,21 @@ jobs:
             curl -fsSL https://get.docker.com -o get-docker.sh
             sh get-docker.sh
           fi
+
+          echo "Setting up 2GB swap file to prevent Out-Of-Memory during build..."
+          sudo fallocate -l 2G /swapfile || true
+          sudo chmod 600 /swapfile || true
+          sudo mkswap /swapfile || true
+          sudo swapon /swapfile || true
+
           docker compose down || true
           
-          echo "Building backend services..."
-          docker compose build backend-1 backend-2
+          echo "Building backend-1..."
+          docker compose build backend-1
+          
+          echo "Building backend-2..."
+          docker compose build backend-2
+          
           echo "Building frontend admin..."
           docker compose build admin-super
           
