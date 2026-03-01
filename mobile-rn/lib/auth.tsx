@@ -7,7 +7,7 @@ const TOKEN_KEY = 'app_token';
 type AuthContextType = {
   token: string | null;
   isLoading: boolean;
-  login: (phone: string, otp: string) => Promise<void>;
+  login: (phone: string, otp: string) => Promise<{ isNewUser: boolean }>;
   requestOtp: (phone: string) => Promise<string | undefined>;
   logout: () => Promise<void>;
 };
@@ -34,10 +34,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (phone: string, otp: string) => {
-    const { accessToken } = await apiVerifyOtp(phone, otp);
+    const { accessToken, isNewUser } = await apiVerifyOtp(phone, otp);
     await AsyncStorage.setItem(TOKEN_KEY, accessToken);
     setAuthToken(accessToken);
     setToken(accessToken);
+    return { isNewUser };
   }, []);
 
   const logout = useCallback(async () => {

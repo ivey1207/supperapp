@@ -27,12 +27,27 @@ export async function requestOtp(phone: string) {
 
 export async function verifyOtp(phone: string, otp: string) {
   const { data } = await api.post('/api/v1/app-auth/otp/verify', { phone, otp });
-  return data as { accessToken: string; refreshToken: string };
+  return data as { accessToken: string; refreshToken: string; isNewUser: boolean };
+}
+
+export type User = {
+  id: string;
+  phone: string;
+  fullName: string;
+  carModel?: string;
+  carNumber?: string;
+};
+
+export async function updateProfile(token: string, profile: Partial<User>) {
+  const { data } = await api.put('/api/v1/app/user/profile', profile, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return data as User;
 }
 
 export async function getMe(token: string) {
   const { data } = await api.get('/api/v1/app/me', { headers: { Authorization: `Bearer ${token}` } });
-  return data as { id: string; phone: string; fullName: string };
+  return data as User;
 }
 
 export type Branch = {

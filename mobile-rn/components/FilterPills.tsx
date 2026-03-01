@@ -5,10 +5,12 @@ import Colors from '@/constants/Colors';
 
 const FILTERS = [
     { id: 'all', label: 'Все', icon: 'apps' },
-    { id: 'delivery', label: 'Доставка 0 сум', icon: 'bicycle' },
-    { id: 'time', label: 'До 30 мин', icon: 'time' },
-    { id: 'rating', label: 'Рейтинг 4.5+', icon: 'star' },
-    { id: 'price', label: 'Недорогие', icon: 'wallet' },
+    { id: 'free_now', label: 'Свободно сейчас', icon: 'flash' },
+    { id: '24_7', label: 'Круглосуточно 24/7', icon: 'moon' },
+    { id: 'cafe', label: 'Есть кафе / Wi-Fi', icon: 'cafe' },
+    { id: 'in_app_pay', label: 'Оплата в приложении', icon: 'card' },
+    { id: 'top_rating', label: 'Топ рейтинг 4.5+', icon: 'star' },
+    { id: 'my_car', label: 'Для моего авто', icon: 'car-sport' },
 ];
 
 export default function FilterPills() {

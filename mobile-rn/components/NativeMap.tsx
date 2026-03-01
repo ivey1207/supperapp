@@ -8,6 +8,8 @@ import { View } from 'react-native';
 
 interface NativeMapProps {
     branches: Branch[];
+    selectedBranchId?: string | null;
+    onBranchSelect?: (branch: Branch) => void;
 }
 
 const INITIAL_REGION = {
@@ -43,7 +45,7 @@ const getMarkerColor = (type: string) => {
     }
 };
 
-export default function NativeMap({ branches }: NativeMapProps) {
+export default function NativeMap({ branches, selectedBranchId, onBranchSelect }: NativeMapProps) {
     return (
         <MapView
             style={styles.map}
@@ -54,29 +56,51 @@ export default function NativeMap({ branches }: NativeMapProps) {
         >
             {branches
                 .filter((b) => b.location?.coordinates?.length === 2)
-                .map((branch) => (
-                    <Marker
-                        key={branch.id}
-                        coordinate={{
-                            latitude: branch.location!.coordinates[1],
-                            longitude: branch.location!.coordinates[0],
-                        }}
-                        title={branch.name}
-                        description={branch.address}
-                    >
-                        <View style={{ backgroundColor: 'white', padding: 4, borderRadius: 20, borderWidth: 2, borderColor: getMarkerColor(branch.partnerType) }}>
-                            <MaterialCommunityIcons
-                                name={getMarkerIcon(branch.partnerType) as any}
-                                size={24}
-                                color={getMarkerColor(branch.partnerType)}
-                            />
-                        </View>
-                    </Marker>
-                ))}
+                .map((branch) => {
+                    const isSelected = selectedBranchId === branch.id;
+                    return (
+                        <Marker
+                            key={branch.id}
+                            coordinate={{
+                                latitude: branch.location!.coordinates[1],
+                                longitude: branch.location!.coordinates[0],
+                            }}
+                            onPress={() => onBranchSelect?.(branch)}
+                        >
+                            <View style={[
+                                styles.markerContainer,
+                                { borderColor: getMarkerColor(branch.partnerType) },
+                                isSelected && styles.selectedMarker
+                            ]}>
+                                <MaterialCommunityIcons
+                                    name={getMarkerIcon(branch.partnerType) as any}
+                                    size={isSelected ? 28 : 22}
+                                    color={getMarkerColor(branch.partnerType)}
+                                />
+                            </View>
+                        </Marker>
+                    );
+                })}
         </MapView>
     );
 }
 
 const styles = StyleSheet.create({
     map: { width: '100%', height: '100%' },
+    markerContainer: {
+        backgroundColor: 'white',
+        padding: 6,
+        borderRadius: 20,
+        borderWidth: 2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    selectedMarker: {
+        transform: [{ scale: 1.2 }],
+        borderWidth: 3,
+        padding: 8,
+    }
 });

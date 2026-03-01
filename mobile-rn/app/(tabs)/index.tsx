@@ -9,8 +9,11 @@ import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import QuickActions from '@/components/QuickActions';
 import FilterPills from '@/components/FilterPills';
+import BranchCard from '@/components/BranchCard';
+import StoryCircle from '@/components/StoryCircle';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
+import { getMe } from '@/lib/api';
 
 const { width } = Dimensions.get('window');
 const dark = Colors.dark;
@@ -22,6 +25,36 @@ const CATEGORIES = [
   { id: 4, name: 'Шины', icon: 'settings-input-component', color: '#8b5cf6', image: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?w=400' },
 ];
 
+const STORIES = [
+  { id: 1, name: 'Счастливые', image: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=200' },
+  { id: 2, name: 'Новая точка', image: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=200' },
+  { id: 3, name: 'Розыгрыш', image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200' },
+];
+
+const MOCK_PROMOS: any[] = [
+  {
+    id: 'm1',
+    title: 'Комплекс (Комбо)',
+    description: 'Мойка Люкс + покрытие воском со скидкой 40.000 UZS',
+    discountValue: '-40 000 UZS',
+    imageUrl: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600'
+  },
+  {
+    id: 'm2',
+    title: '5% Кешбэк на АЗС',
+    description: 'Оплати через SuperApp на АЗС Mustang и получи кешбэк на баланс!',
+    discountValue: '5% Cashback',
+    imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600'
+  },
+  {
+    id: 'm3',
+    title: 'Сезонное предложение',
+    description: 'Пора переобуваться! Скидки на шиномонтаж до 1 декабря.',
+    discountValue: 'Шиномонтаж',
+    imageUrl: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?w=600'
+  }
+];
+
 export default function HomeScreen() {
   const colorScheme = useColorScheme() ?? 'dark';
   const colors = Colors[colorScheme];
@@ -31,7 +64,12 @@ export default function HomeScreen() {
   const [activeTab, setActiveTab] = useState('all');
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
   const [selectedMacId, setSelectedMacId] = useState<string | null>(null);
-  const user = { fullName: 'Пользователь' };
+
+  const { data: user } = useQuery({
+    queryKey: ['me', token],
+    queryFn: () => getMe(token!),
+    enabled: !!token,
+  });
 
   useEffect(() => {
     if (params.branchId) {
@@ -48,6 +86,8 @@ export default function HomeScreen() {
     enabled: !!token,
   });
 
+  const displayPromos = promotions.length > 0 ? promotions : MOCK_PROMOS;
+
   const { data: branches = [], refetch: refetchBranches, isRefetching: isRefetchingBranches } = useQuery({
     queryKey: ['branches', token],
     queryFn: () => getBranches(token!, 'OPEN'),
@@ -61,7 +101,6 @@ export default function HomeScreen() {
   });
 
   const onRefresh = () => { };
-
   const isRefreshing = false;
 
   return (
@@ -78,7 +117,7 @@ export default function HomeScreen() {
               <Ionicons name="chevron-down" size={14} color={colors.textSecondary} />
             </View>
           </View>
-          <TouchableOpacity style={[styles.profileBadge, { borderColor: colors.border }]}>
+          <TouchableOpacity style={[styles.profileBadge, { borderColor: colors.border }]} onPress={() => router.push('/(tabs)/profile' as any)}>
             <Image
               source={{ uri: `https://ui-avatars.com/api/?name=${user?.fullName || 'U'}&background=3b82f6&color=fff` }}
               style={styles.avatar}
@@ -102,16 +141,24 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={styles.qrButton}
               activeOpacity={0.8}
-              onPress={() => router.push('/scanner')}
+              onPress={() => router.push('/scanner' as any)}
             >
               <Ionicons name="qr-code-outline" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
 
+          {/* Stories Section */}
+          <View style={styles.storiesContainer}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
+              {STORIES.map(item => (
+                <StoryCircle key={item.id} item={item} onPress={() => { }} />
+              ))}
+            </ScrollView>
+          </View>
+
           {/* Hero Promo Banner */}
-          {promotions.length > 0 && (
+          {displayPromos.length > 0 && (
             <View style={styles.promoSection}>
-              {/* Main Hero Banner */}
               <TouchableOpacity style={styles.heroBanner} activeOpacity={0.9}>
                 <LinearGradient
                   colors={['#ef4444', '#fbbf24']}
@@ -121,19 +168,18 @@ export default function HomeScreen() {
                 >
                   <View style={styles.heroContent}>
                     <View style={styles.heroTextBlock}>
-                      <Text style={styles.heroTitle}>GET 14000 SUM OFF</Text>
-                      <Text style={styles.heroSubtitle}>WEMISSYOU</Text>
+                      <Text style={styles.heroTitle} numberOfLines={2}>{displayPromos[0]?.title}</Text>
+                      <Text style={styles.heroSubtitle}>{displayPromos[0]?.discountValue || 'PROMO'}</Text>
                     </View>
                     <Image
-                      source={{ uri: promotions[0]?.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400' }}
+                      source={{ uri: displayPromos[0]?.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400' }}
                       style={styles.heroImage}
                     />
                   </View>
                 </LinearGradient>
               </TouchableOpacity>
 
-              {/* Secondary Promos */}
-              {promotions.length > 1 && (
+              {displayPromos.length > 1 && (
                 <>
                   <View style={styles.sectionHeading}>
                     <Text style={styles.sectionTitle}>Специально для вас</Text>
@@ -143,7 +189,7 @@ export default function HomeScreen() {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.promoList}
                   >
-                    {promotions.slice(1).map((promo) => (
+                    {displayPromos.slice(1).map((promo: any) => (
                       <TouchableOpacity key={promo.id} style={styles.promoCard} activeOpacity={0.9}>
                         <Image source={{ uri: promo.imageUrl || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=600' }} style={styles.promoImage} />
                         <LinearGradient
@@ -155,7 +201,7 @@ export default function HomeScreen() {
                             <Text style={styles.promoBadgeText}>{promo.discountValue}</Text>
                           </View>
                           <Text style={styles.promoTitle}>{promo.title}</Text>
-                          <Text style={styles.promoDesc} numberOfLines={1}>{promo.description}</Text>
+                          <Text style={styles.promoDesc} numberOfLines={2}>{promo.description}</Text>
                         </View>
                       </TouchableOpacity>
                     ))}
@@ -168,7 +214,7 @@ export default function HomeScreen() {
           {/* Quick Actions */}
           <QuickActions />
 
-          {/* Categories Horizontal Scroll */}
+          {/* Categories */}
           <View style={styles.categoriesSection}>
             <View style={styles.sectionHeading}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>Категории</Text>
@@ -194,48 +240,17 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-
-            {/* Filters */}
             <FilterPills />
 
             <View style={styles.placesList}>
               {branches.map((branch: any, idx: number) => (
-                <TouchableOpacity key={branch.id} style={[styles.branchCard, { backgroundColor: colors.card }]} activeOpacity={0.9}>
-                  <View style={styles.branchImageContainer}>
-                    <Image
-                      source={{ uri: branch.images?.[0] || CATEGORIES[idx % 4].image }}
-                      style={styles.branchImage}
-                    />
-                    <LinearGradient
-                      colors={['transparent', 'rgba(0,0,0,0.7)']}
-                      style={styles.branchGradient}
-                    />
-                    <View style={styles.branchBadgesTop}>
-                      {idx % 3 === 0 && (
-                        <View style={styles.discountBadgeLarge}>
-                          <Text style={styles.discountBadgeText}>-50%</Text>
-                        </View>
-                      )}
-                      <View style={styles.deliveryBadgeLarge}>
-                        <Ionicons name="time" size={12} color="#fff" />
-                        <Text style={styles.deliveryText}>20-30 мин</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={styles.branchContent}>
-                    <View style={styles.branchHeader}>
-                      <Text style={[styles.branchName, { color: colors.text }]}>{branch.name}</Text>
-                      <View style={[styles.ratingContainer, { backgroundColor: colorScheme === 'dark' ? '#334155' : '#f1f5f9' }]}>
-                        <FontAwesome name="star" size={12} color="#fbbf24" />
-                        <Text style={[styles.ratingText, { color: colors.text }]}>4.{8 - (idx % 3)} (200+)</Text>
-                      </View>
-                    </View>
-                    <Text style={[styles.branchMeta, { color: colors.textSecondary }]}>
-                      {idx % 2 === 0 ? '$$ • Автомойка • 1.2 км' : '$$$ • Детейлинг • 3.5 км'}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
+                <BranchCard
+                  key={branch.id}
+                  branch={branch}
+                  index={idx}
+                  isSponsored={idx === 0} // Mocking the first item as an In-feed Ad
+                  onPress={() => router.push({ pathname: '/(tabs)/map', params: { branchId: branch.id } } as any)}
+                />
               ))}
             </View>
           </View>
@@ -249,6 +264,8 @@ const styles = StyleSheet.create({
   mainContainer: { flex: 1, backgroundColor: '#0f172a' },
   safeArea: { flex: 1 },
   scrollContent: { paddingBottom: 100 },
+  storiesContainer: { marginTop: 20 },
+  storiesScroll: { paddingHorizontal: 20, gap: 12 },
 
   header: {
     flexDirection: 'row',

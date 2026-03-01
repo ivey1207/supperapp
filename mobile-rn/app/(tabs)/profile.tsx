@@ -30,8 +30,31 @@ export default function ProfileScreen() {
           </View>
           <Text style={[styles.name, { color: colors.text }]}>{user?.fullName || 'Пользователь'}</Text>
           <Text style={[styles.phone, { color: colors.textSecondary }]}>{user?.phone || '—'}</Text>
+
+          {user?.carModel && (
+            <View style={styles.carInfo}>
+              <FontAwesome name="car" size={14} color={colors.primary} />
+              <Text style={[styles.carText, { color: colors.textSecondary }]}>
+                {user?.carModel}
+              </Text>
+            </View>
+          )}
         </View>
-        <TouchableOpacity style={[styles.menuItem, { backgroundColor: colors.card }]} activeOpacity={0.8}>
+
+        <TouchableOpacity
+          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          onPress={() => router.push('/profile-edit' as never)}
+          activeOpacity={0.8}
+        >
+          <FontAwesome name="user-o" size={20} color={colors.primary} style={{ marginRight: 14 }} />
+          <Text style={[styles.menuText, { color: colors.text }]}>Редактировать профиль</Text>
+          <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          onPress={() => router.push('/wallet' as never)}
+          activeOpacity={0.8}
+        >
           <FontAwesome name="credit-card" size={20} color={colors.primary} style={{ marginRight: 14 }} />
           <Text style={[styles.menuText, { color: colors.text }]}>Кошелёк</Text>
           <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
@@ -41,7 +64,17 @@ export default function ProfileScreen() {
           <Text style={[styles.menuText, { color: colors.text }]}>Уведомления</Text>
           <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.logoutBtn, { borderColor: colors.error }]} onPress={() => logout().then(() => router.replace('/login'))} activeOpacity={0.8}>
+
+        <TouchableOpacity
+          style={[styles.menuItem, { backgroundColor: colors.card }]}
+          onPress={() => router.push('/support' as never)}
+          activeOpacity={0.8}
+        >
+          <FontAwesome name="question-circle-o" size={20} color={colors.primary} style={{ marginRight: 14 }} />
+          <Text style={[styles.menuText, { color: colors.text }]}>Поддержка</Text>
+          <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.logoutBtn, { borderColor: colors.error }]} onPress={() => logout().then(() => router.replace('/login' as any))} activeOpacity={0.8}>
           <Text style={[styles.logoutText, { color: colors.error }]}>Выйти</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -57,6 +90,8 @@ const styles = StyleSheet.create({
   avatarText: { fontSize: 36, fontWeight: '800' },
   name: { fontSize: 22, fontWeight: '800', marginTop: 18 },
   phone: { fontSize: 15, marginTop: 6 },
+  carInfo: { flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 8, backgroundColor: 'rgba(59, 130, 246, 0.1)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
+  carText: { fontSize: 13, fontWeight: '600' },
   menuItem: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 20, marginTop: 10, padding: 18, borderRadius: 16 },
   menuText: { flex: 1, fontSize: 17, fontWeight: '600' },
   logoutBtn: { marginHorizontal: 20, marginTop: 28, padding: 18, alignItems: 'center', borderRadius: 16, borderWidth: 2 },

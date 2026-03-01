@@ -37,8 +37,12 @@ export default function LoginScreen() {
     setError('');
     setLoading(true);
     try {
-      await login(phone.trim(), otp.trim());
-      router.replace('/(tabs)');
+      const { isNewUser } = await login(phone.trim(), otp.trim());
+      if (isNewUser) {
+        router.push('/register' as any);
+      } else {
+        router.replace('/(tabs)' as any);
+      }
     } catch (e: unknown) {
       const msg = (e as { message?: string })?.message ?? '';
       setError(msg.includes('Network') || msg.includes('REFUSED') ? 'Сервер недоступен.' : msg || 'Неверный код');
@@ -70,6 +74,9 @@ export default function LoginScreen() {
             />
             <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={handleSendOtp} disabled={loading}>
               {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Отправить код</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/forgot-password')} style={{ marginTop: 20 }}>
+              <Text style={{ color: colors.textSecondary, textAlign: 'center', fontSize: 14 }}>Забыли пароль или нужна помощь?</Text>
             </TouchableOpacity>
           </>
         ) : (

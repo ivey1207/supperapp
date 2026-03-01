@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,7 @@ public class AppAuthController {
     private final JwtUtil jwtUtil;
 
     public AppAuthController(StringRedisTemplate redis, AppUserRepository appUserRepository,
-                            WalletRepository walletRepository, JwtUtil jwtUtil) {
+            WalletRepository walletRepository, JwtUtil jwtUtil) {
         this.redis = redis;
         this.appUserRepository = appUserRepository;
         this.walletRepository = walletRepository;
@@ -61,7 +60,7 @@ public class AppAuthController {
         if (stored == null || !stored.equals(otp)) {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid or expired code"));
         }
-        redis.delete(OTP_PREFIX + phone);
+        boolean isNewUser = appUserRepository.findByPhone(phone).isEmpty();
 
         AppUser user = appUserRepository.findByPhone(phone).orElseGet(() -> {
             AppUser u = new AppUser();
@@ -79,7 +78,7 @@ public class AppAuthController {
         String refreshToken = jwtUtil.generate(user.getId() + ":refresh", "APP_USER");
         return ResponseEntity.ok(Map.of(
                 "accessToken", accessToken,
-                "refreshToken", refreshToken
-        ));
+                "refreshToken", refreshToken,
+                "isNewUser", isNewUser));
     }
 }
