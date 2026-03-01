@@ -37,8 +37,7 @@ public class AdminAuthController {
         if (email == null || password == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "email and password required"));
         }
-        Account account = accountRepository.findFirstByEmail(email)
-                .filter(a -> !a.isArchived())
+        Account account = accountRepository.findFirstByEmailAndArchivedFalse(email)
                 .orElse(null);
         if (account == null || !passwordEncoder.matches(password, account.getPasswordHash())) {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
