@@ -2,6 +2,10 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 
 export const getBaseUrl = () => {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
   // @ts-expect-error expo extra
   const extra = global.expo?.extra ?? {};
   if (extra.apiUrl) return extra.apiUrl;
