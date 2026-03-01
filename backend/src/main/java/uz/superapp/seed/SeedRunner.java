@@ -291,14 +291,18 @@ public class SeedRunner implements CommandLineRunner {
     // Присваивает уже существующие устройства и создаёт для них киоски с ТЕМ ЖЕ MAC
     // адресом
     private void assignExistingDevicesForBranch(String orgId, String branchId, int count) {
-        List<Device> available = deviceRepository.findByBranchIdIsNullAndArchivedFalse();
+        // Fetch only those devices that truly have NO branchId assigned yet in DB.
+        // Because Spring Data save() might be delayed if not in a transaction,
+        // we use a loop with manual DB refetching and limit 1.
         int assigned = 0;
-        for (Device d : available) {
-            if (assigned >= count)
+        for (int i = 0; i < count; i++) {
+            List<Device> available = deviceRepository.findByBranchIdIsNullAndArchivedFalse();
+            if (available.isEmpty()) {
                 break;
-            if (d.getOrgId() != null) {
-                continue;
             }
+
+            Device d = available.get(0); // take the first available
+
             d.setOrgId(orgId);
             d.setBranchId(branchId);
             d.setStatus("ACTIVE");
@@ -316,6 +320,7 @@ public class SeedRunner implements CommandLineRunner {
 
             assigned++;
         }
+
         if (assigned < count) {
             System.out.println("Warning: Not enough existing devices for org " + orgId + " branch " + branchId
                     + ". Needed " + count + ", assigned " + assigned);
