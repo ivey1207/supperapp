@@ -102,6 +102,7 @@ public class SeedRunner implements CommandLineRunner {
     }
 
     private void seedSuperAdmin() {
+        boolean forceReset = "true".equalsIgnoreCase(System.getenv("FORCE_RESET_ADMIN"));
         accountRepository.findFirstByEmail("admin@admin.com").ifPresentOrElse(
                 admin -> {
                     boolean changed = false;
@@ -113,9 +114,12 @@ public class SeedRunner implements CommandLineRunner {
                         admin.setRole("SUPER_ADMIN");
                         changed = true;
                     }
-                    if (admin.getPasswordHash() == null || admin.getPasswordHash().isEmpty()) {
+                    if (admin.getPasswordHash() == null || admin.getPasswordHash().isEmpty() || forceReset) {
                         admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
                         changed = true;
+                        if (forceReset) {
+                            System.out.println("Force-resetting super admin password to default.");
+                        }
                     }
                     if (changed) {
                         accountRepository.save(admin);
