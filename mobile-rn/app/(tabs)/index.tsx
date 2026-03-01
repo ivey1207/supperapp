@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar, useColorScheme, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
@@ -62,6 +62,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const [activeTab, setActiveTab] = useState('all');
+  const [activeFilter, setActiveFilter] = useState('all');
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
   const [selectedMacId, setSelectedMacId] = useState<string | null>(null);
 
@@ -89,8 +90,8 @@ export default function HomeScreen() {
   const displayPromos = promotions.length > 0 ? promotions : MOCK_PROMOS;
 
   const { data: branches = [], refetch: refetchBranches, isRefetching: isRefetchingBranches } = useQuery({
-    queryKey: ['branches', token],
-    queryFn: () => getBranches(token!, 'OPEN'),
+    queryKey: ['branches', token, activeFilter],
+    queryFn: () => getBranches(token!, 'OPEN', activeFilter),
     enabled: !!token,
   });
 
@@ -102,6 +103,8 @@ export default function HomeScreen() {
 
   const onRefresh = () => { };
   const isRefreshing = false;
+
+  const handleComingSoon = () => Alert.alert('В разработке', 'Этот раздел скоро появится!');
 
   return (
     <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
@@ -134,7 +137,7 @@ export default function HomeScreen() {
         >
           {/* Search Bar */}
           <View style={styles.searchRow}>
-            <TouchableOpacity style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.border }]} activeOpacity={0.9}>
+            <TouchableOpacity style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.border }]} activeOpacity={0.9} onPress={handleComingSoon}>
               <Ionicons name="search" size={20} color={colors.textSecondary} />
               <Text style={[styles.searchPlaceholder, { color: colors.textSecondary }]}>Поиск услуг</Text>
             </TouchableOpacity>
@@ -151,7 +154,7 @@ export default function HomeScreen() {
           <View style={styles.storiesContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
               {STORIES.map(item => (
-                <StoryCircle key={item.id} item={item} onPress={() => { }} />
+                <StoryCircle key={item.id} item={item} onPress={handleComingSoon} />
               ))}
             </ScrollView>
           </View>
@@ -159,7 +162,7 @@ export default function HomeScreen() {
           {/* Hero Promo Banner */}
           {displayPromos.length > 0 && (
             <View style={styles.promoSection}>
-              <TouchableOpacity style={styles.heroBanner} activeOpacity={0.9}>
+              <TouchableOpacity style={styles.heroBanner} activeOpacity={0.9} onPress={handleComingSoon}>
                 <LinearGradient
                   colors={['#ef4444', '#fbbf24']}
                   start={{ x: 0, y: 0 }}
@@ -190,7 +193,7 @@ export default function HomeScreen() {
                     contentContainerStyle={styles.promoList}
                   >
                     {displayPromos.slice(1).map((promo: any) => (
-                      <TouchableOpacity key={promo.id} style={styles.promoCard} activeOpacity={0.9}>
+                      <TouchableOpacity key={promo.id} style={styles.promoCard} activeOpacity={0.9} onPress={handleComingSoon}>
                         <Image source={{ uri: promo.imageUrl || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=600' }} style={styles.promoImage} />
                         <LinearGradient
                           colors={['transparent', 'rgba(0,0,0,0.85)']}
@@ -221,7 +224,7 @@ export default function HomeScreen() {
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesScroll}>
               {CATEGORIES.map((cat) => (
-                <TouchableOpacity key={cat.id} style={styles.categoryItem} activeOpacity={0.8}>
+                <TouchableOpacity key={cat.id} style={styles.categoryItem} activeOpacity={0.8} onPress={handleComingSoon}>
                   <View style={[styles.categoryCircle, { backgroundColor: cat.color }]}>
                     <MaterialIcons name={cat.icon as any} size={28} color="#fff" />
                   </View>
@@ -235,12 +238,12 @@ export default function HomeScreen() {
           <View style={styles.placesSection}>
             <View style={styles.sectionHeading}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>Рядом с вами</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handleComingSoon}>
                 <Text style={[styles.seeAll, { color: colors.primary }]}>Все</Text>
               </TouchableOpacity>
             </View>
 
-            <FilterPills />
+            <FilterPills activeFilter={activeFilter} onChangeFilter={setActiveFilter} />
 
             <View style={styles.placesList}>
               {branches.map((branch: any, idx: number) => (

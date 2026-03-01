@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 
-const getBaseUrl = () => {
+export const getBaseUrl = () => {
   // @ts-expect-error expo extra
   const extra = global.expo?.extra ?? {};
   if (extra.apiUrl) return extra.apiUrl;
@@ -14,6 +14,12 @@ export const api = axios.create({
   baseURL: getBaseUrl(),
   headers: { 'Content-Type': 'application/json' },
 });
+
+export function getFileUrl(filename?: string): string | null {
+  if (!filename) return null;
+  if (filename.startsWith('http')) return filename;
+  return `${getBaseUrl()}/api/v1/files/download/${filename}`;
+}
 
 export function setAuthToken(token: string | null) {
   if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -69,10 +75,14 @@ export type Branch = {
   };
 };
 
-export async function getBranches(token: string, status?: string) {
+export async function getBranches(token: string, status?: string, filter?: string) {
+  const params: Record<string, string> = {};
+  if (status) params.status = status;
+  if (filter && filter !== 'all') params.filter = filter;
+
   const { data } = await api.get('/api/v1/app/branches', {
     headers: { Authorization: `Bearer ${token}` },
-    params: status ? { status } : {},
+    params,
   });
   return Array.isArray(data) ? (data as Branch[]) : [];
 }

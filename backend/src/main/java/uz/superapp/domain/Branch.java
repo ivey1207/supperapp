@@ -21,6 +21,13 @@ public class Branch {
     private String photoUrl;
     private boolean archived;
 
+    // Smart Filter Properties
+    private boolean is24x7 = false;
+    private boolean hasCafe = false;
+    private boolean hasInAppPayment = false;
+    private double rating = 0.0;
+    private int reviewCount = 0;
+
     public String getId() {
         return id;
     }
@@ -115,6 +122,46 @@ public class Branch {
 
     public void setArchived(boolean archived) {
         this.archived = archived;
+    }
+
+    public boolean isIs24x7() {
+        return is24x7;
+    }
+
+    public void setIs24x7(boolean is24x7) {
+        this.is24x7 = is24x7;
+    }
+
+    public boolean isHasCafe() {
+        return hasCafe;
+    }
+
+    public void setHasCafe(boolean hasCafe) {
+        this.hasCafe = hasCafe;
+    }
+
+    public boolean isHasInAppPayment() {
+        return hasInAppPayment;
+    }
+
+    public void setHasInAppPayment(boolean hasInAppPayment) {
+        this.hasInAppPayment = hasInAppPayment;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
     }
 
     public static class GeoLocation {

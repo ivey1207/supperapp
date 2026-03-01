@@ -19,6 +19,11 @@ type Branch = {
   photoUrl?: string;
   latitude?: number;
   longitude?: number;
+  is24x7?: boolean;
+  hasCafe?: boolean;
+  hasInAppPayment?: boolean;
+  rating?: number;
+  reviewCount?: number;
 };
 
 export default function Branches() {
@@ -45,6 +50,11 @@ export default function Branches() {
     photoUrl: string;
     latitude: string | number;
     longitude: string | number;
+    is24x7: boolean;
+    hasCafe: boolean;
+    hasInAppPayment: boolean;
+    rating: number | string;
+    reviewCount: number | string;
   }>({
     orgId: '',
     name: '',
@@ -56,6 +66,11 @@ export default function Branches() {
     photoUrl: '',
     latitude: '',
     longitude: '',
+    is24x7: false,
+    hasCafe: false,
+    hasInAppPayment: false,
+    rating: 0,
+    reviewCount: 0,
   });
 
   const PARTNER_TYPES = [
@@ -135,6 +150,11 @@ export default function Branches() {
       photoUrl: '',
       latitude: '',
       longitude: '',
+      is24x7: false,
+      hasCafe: false,
+      hasInAppPayment: false,
+      rating: 0,
+      reviewCount: 0,
     });
     setModal(true);
   };
@@ -153,6 +173,11 @@ export default function Branches() {
       photoUrl: branch.photoUrl || '',
       latitude: branch.latitude || '',
       longitude: branch.longitude || '',
+      is24x7: branch.is24x7 || false,
+      hasCafe: branch.hasCafe || false,
+      hasInAppPayment: branch.hasInAppPayment || false,
+      rating: branch.rating || 0,
+      reviewCount: branch.reviewCount || 0,
     });
     setModal(true);
   };
@@ -417,6 +442,62 @@ export default function Branches() {
               />
             </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Рейтинг (0-5)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="5"
+                value={form.rating}
+                onChange={(e) => setForm((f) => ({ ...f, rating: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
+                placeholder="4.8"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Количество отзывов</label>
+              <input
+                type="number"
+                min="0"
+                value={form.reviewCount}
+                onChange={(e) => setForm((f) => ({ ...f, reviewCount: e.target.value === '' ? '' : parseInt(e.target.value, 10) }))}
+                placeholder="150"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Smart Filters Toggles */}
+          <div className="bg-slate-800/50 p-4 rounded-xl space-y-3 border border-slate-700/50">
+            <h3 className="text-sm font-semibold text-slate-300 mb-2">Умные фильтры</h3>
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${form.is24x7 ? 'bg-blue-500' : 'bg-slate-700'}`}>
+                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${form.is24x7 ? 'translate-x-4' : 'translate-x-0'}`} />
+              </div>
+              <input type="checkbox" className="hidden" checked={form.is24x7} onChange={(e) => setForm((f) => ({ ...f, is24x7: e.target.checked }))} />
+              <span className="text-sm text-slate-300 group-hover:text-white transition-colors">Работает 24/7 (Без выходных)</span>
+            </label>
+
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${form.hasCafe ? 'bg-blue-500' : 'bg-slate-700'}`}>
+                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${form.hasCafe ? 'translate-x-4' : 'translate-x-0'}`} />
+              </div>
+              <input type="checkbox" className="hidden" checked={form.hasCafe} onChange={(e) => setForm((f) => ({ ...f, hasCafe: e.target.checked }))} />
+              <span className="text-sm text-slate-300 group-hover:text-white transition-colors">Есть Кафе / Зона ожидания / Wi-Fi</span>
+            </label>
+
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${form.hasInAppPayment ? 'bg-blue-500' : 'bg-slate-700'}`}>
+                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${form.hasInAppPayment ? 'translate-x-4' : 'translate-x-0'}`} />
+              </div>
+              <input type="checkbox" className="hidden" checked={form.hasInAppPayment} onChange={(e) => setForm((f) => ({ ...f, hasInAppPayment: e.target.checked }))} />
+              <span className="text-sm text-slate-300 group-hover:text-white transition-colors">Оплата через приложение (Wallet)</span>
+            </label>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
             <select

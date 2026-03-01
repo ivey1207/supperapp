@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, useColorScheme } from 
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
-import type { Branch } from '@/lib/api';
+import { Branch, getFileUrl } from '@/lib/api';
 
 interface BranchCardProps {
     branch: Branch;
@@ -30,7 +30,7 @@ export default function BranchCard({ branch, onPress, index, isSponsored }: Bran
         >
             <View style={styles.imageWrapper}>
                 <Image
-                    source={{ uri: branch.photoUrl || 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&q=80' }}
+                    source={{ uri: getFileUrl(branch.photoUrl) || 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&q=80' }}
                     style={styles.image}
                 />
                 <LinearGradient

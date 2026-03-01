@@ -113,7 +113,7 @@ public class SeedRunner implements CommandLineRunner {
                         admin.setRole("SUPER_ADMIN");
                         changed = true;
                     }
-                    if (!passwordEncoder.matches("Admin1!", admin.getPasswordHash())) {
+                    if (admin.getPasswordHash() == null || admin.getPasswordHash().isEmpty()) {
                         admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
                         changed = true;
                     }

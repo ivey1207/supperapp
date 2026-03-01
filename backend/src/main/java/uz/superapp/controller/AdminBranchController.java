@@ -110,6 +110,14 @@ public class AdminBranchController {
         branch.setPartnerType(partnerType);
         branch.setPhotoUrl(getString(body, "photoUrl", ""));
 
+        branch.setPhotoUrl(getString(body, "photoUrl", ""));
+
+        branch.setIs24x7(getBoolean(body, "is24x7", false));
+        branch.setHasCafe(getBoolean(body, "hasCafe", false));
+        branch.setHasInAppPayment(getBoolean(body, "hasInAppPayment", false));
+        branch.setRating(getDouble(body, "rating", 0.0));
+        branch.setReviewCount(getInt(body, "reviewCount", 0));
+
         Double lat = getDouble(body, "latitude");
         Double lon = getDouble(body, "longitude");
         if (lat != null && lon != null) {
@@ -207,6 +215,21 @@ public class AdminBranchController {
         if (body.containsKey("photoUrl")) {
             branch.setPhotoUrl(getString(body, "photoUrl", ""));
         }
+        if (body.containsKey("is24x7")) {
+            branch.setIs24x7(getBoolean(body, "is24x7", false));
+        }
+        if (body.containsKey("hasCafe")) {
+            branch.setHasCafe(getBoolean(body, "hasCafe", false));
+        }
+        if (body.containsKey("hasInAppPayment")) {
+            branch.setHasInAppPayment(getBoolean(body, "hasInAppPayment", false));
+        }
+        if (body.containsKey("rating")) {
+            branch.setRating(getDouble(body, "rating", branch.getRating()));
+        }
+        if (body.containsKey("reviewCount")) {
+            branch.setReviewCount(getInt(body, "reviewCount", branch.getReviewCount()));
+        }
         if (body.containsKey("latitude") && body.containsKey("longitude")) {
             Double lat = getDouble(body, "latitude");
             Double lon = getDouble(body, "longitude");
@@ -258,6 +281,12 @@ public class AdminBranchController {
         m.put("partnerType", branch.getPartnerType() != null ? branch.getPartnerType() : "");
         m.put("photoUrl", branch.getPhotoUrl() != null ? branch.getPhotoUrl() : "");
 
+        m.put("is24x7", branch.isIs24x7());
+        m.put("hasCafe", branch.isHasCafe());
+        m.put("hasInAppPayment", branch.isHasInAppPayment());
+        m.put("rating", branch.getRating());
+        m.put("reviewCount", branch.getReviewCount());
+
         Double lat = null;
         Double lon = null;
         if (branch.getLocation() != null && branch.getLocation().getCoordinates() != null
@@ -279,6 +308,17 @@ public class AdminBranchController {
         return defaultValue;
     }
 
+    private boolean getBoolean(Map<String, Object> map, String key, boolean defaultValue) {
+        Object value = map.get(key);
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        if (value instanceof String) {
+            return Boolean.parseBoolean((String) value);
+        }
+        return defaultValue;
+    }
+
     private Double getDouble(Map<String, Object> map, String key) {
         Object value = map.get(key);
         if (value instanceof Number) {
@@ -292,5 +332,25 @@ public class AdminBranchController {
             }
         }
         return null;
+    }
+
+    private Double getDouble(Map<String, Object> map, String key, Double defaultValue) {
+        Double val = getDouble(map, key);
+        return val != null ? val : defaultValue;
+    }
+
+    private int getInt(Map<String, Object> map, String key, int defaultValue) {
+        Object value = map.get(key);
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        if (value instanceof String) {
+            try {
+                return Integer.parseInt((String) value);
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
+        }
+        return defaultValue;
     }
 }

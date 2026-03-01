@@ -13,8 +13,12 @@ const FILTERS = [
     { id: 'my_car', label: 'Для моего авто', icon: 'car-sport' },
 ];
 
-export default function FilterPills() {
-    const [activeFilter, setActiveFilter] = React.useState('all');
+interface FilterPillsProps {
+    activeFilter: string;
+    onChangeFilter: (filterId: string) => void;
+}
+
+export default function FilterPills({ activeFilter, onChangeFilter }: FilterPillsProps) {
     const scheme = useColorScheme() ?? 'dark';
     const colors = Colors[scheme];
 
@@ -31,7 +35,7 @@ export default function FilterPills() {
                                 { backgroundColor: colors.card, borderColor: colors.border },
                                 isActive && { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
                             ]}
-                            onPress={() => setActiveFilter(filter.id)}
+                            onPress={() => onChangeFilter(filter.id)}
                             activeOpacity={0.8}
                         >
                             {filter.icon && (
