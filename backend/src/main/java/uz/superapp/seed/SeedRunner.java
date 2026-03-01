@@ -62,9 +62,8 @@ public class SeedRunner implements CommandLineRunner {
                 wipeDatabase();
                 seedInactiveDevices();
                 seedOrganizations();
-            } else if (organizationRepository.count() == 0) {
-                System.out.println("SeedRunner: Database empty. Seeding initial data.");
-                wipeDatabase(); // Ensure clean slate
+            } else if (organizationRepository.count() == 0 || branchRepository.count() == 0) {
+                System.out.println("SeedRunner: Database empty or missing branches. Seeding initial data.");
                 seedInactiveDevices();
                 seedOrganizations();
             } else {
