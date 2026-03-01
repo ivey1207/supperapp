@@ -22,10 +22,10 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     }
 
     private BucketConfiguration createNewBucketConfiguration() {
-        // Limit: 50 requests per 1 second
+        // Limit: 50000 requests per 1 second (Disabled for Locust testing)
         Bandwidth limit = Bandwidth.builder()
-                .capacity(50)
-                .refillGreedy(50, Duration.ofSeconds(1))
+                .capacity(50000)
+                .refillGreedy(50000, Duration.ofSeconds(1))
                 .build();
         return BucketConfiguration.builder()
                 .addLimit(limit)
