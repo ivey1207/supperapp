@@ -19,9 +19,9 @@ export default function QuickActions() {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {ACTIONS.map((action) => (
           <TouchableOpacity key={action.id} style={styles.actionItem} activeOpacity={0.7}>
-            <View style={[styles.iconCircle, { backgroundColor: scheme === 'dark' ? action.color + '20' : action.bg }]}>
+            <View style={[styles.iconCircle, { backgroundColor: action.bg }]}>
               {action.lib === 'Feather' && <Ionicons name="pricetag" size={24} color={action.color} />}
-              {action.lib === 'FontAwesome5' && <FontAwesome5 name="truck" size={20} color={action.color} />}
+              {action.lib === 'FontAwesome5' && <FontAwesome5 name="truck" size={18} color={action.color} />}
               {action.lib === 'Ionicons' && <Ionicons name="heart" size={24} color={action.color} />}
               {action.lib === 'MaterialIcons' && <MaterialIcons name="headset-mic" size={24} color={action.color} />}
             </View>
@@ -46,15 +46,15 @@ const styles = StyleSheet.create({
     width: 70,
   },
   iconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
   },
   actionLabel: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     textAlign: 'center',
   },
