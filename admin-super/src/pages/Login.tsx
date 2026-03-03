@@ -26,31 +26,31 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0f172a]">
-      <div className="w-full max-w-sm rounded-xl border border-slate-700/50 bg-slate-800/50 p-8 shadow-xl animate-fade-in">
-        <h1 className="mb-6 text-xl font-bold text-white">CarWash Admin</h1>
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 p-6 transition-colors duration-300">
+      <div className="w-full max-w-sm rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/50 p-8 shadow-xl dark:shadow-none animate-fade-in">
+        <h1 className="mb-6 text-xl font-bold text-slate-900 dark:text-white">CarWash Admin</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300">Email</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-700/50 px-3 py-2 text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700/50 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300">Пароль</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Пароль</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-600 bg-slate-700/50 px-3 py-2 text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700/50 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
               required
             />
           </div>
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm text-red-500 dark:text-red-400">{error}</p>}
           <button
             type="submit"
             className="w-full rounded-lg bg-blue-600 py-2.5 font-medium text-white transition-colors hover:bg-blue-500"

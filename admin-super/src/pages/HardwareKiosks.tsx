@@ -287,8 +287,8 @@ export default function HardwareKiosks() {
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Cpu className="h-7 w-7 text-blue-400" />
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Cpu className="h-7 w-7 text-blue-500 dark:text-blue-400" />
           Hardware Киоски
         </h1>
         <div className="flex items-center gap-3">
@@ -299,13 +299,13 @@ export default function HardwareKiosks() {
               placeholder="Поиск..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-56 rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
+              className="w-56 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
           <select
             value={orgFilter}
             onChange={(e) => setOrgFilter(e.target.value)}
-            className="rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+            className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
           >
             <option value="">Все компании</option>
             {orgs.map((o) => (
@@ -318,7 +318,7 @@ export default function HardwareKiosks() {
             value={branchFilter}
             onChange={(e) => setBranchFilter(e.target.value)}
             disabled={!orgFilter}
-            className="rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none disabled:opacity-50"
+            className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none disabled:opacity-50"
           >
             <option value="">Все филиалы</option>
             {branches
@@ -332,7 +332,7 @@ export default function HardwareKiosks() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+            className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
           >
             <option value="">Все статусы</option>
             <option value="REGISTERED">Зарегистрирован</option>
@@ -342,7 +342,7 @@ export default function HardwareKiosks() {
           <select
             value={assignmentFilter}
             onChange={(e) => setAssignmentFilter(e.target.value)}
-            className="rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none"
+            className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
           >
             <option value="all">Все устройства</option>
             <option value="assigned">Привязанные</option>
@@ -366,14 +366,14 @@ export default function HardwareKiosks() {
         </div>
       )}
 
-      <div className="rounded-xl border border-slate-800/60 bg-slate-900/60 shadow-lg shadow-slate-900/40 overflow-hidden">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm dark:shadow-none overflow-hidden">
         {loading && list.length === 0 ? (
           <div className="flex items-center justify-center py-16 text-slate-400">Загрузка...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-slate-800/70 bg-gradient-to-r from-slate-900 to-slate-800">
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Название</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">MAC ID</th>
                   <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Организация</th>
@@ -397,17 +397,17 @@ export default function HardwareKiosks() {
                   paginated.map((k) => (
                     <tr
                       key={k.id}
-                      className="border-b border-slate-800/60 bg-slate-900/40 hover:bg-slate-800/70 transition-colors"
+                      className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-white">{k.name}</span>
+                          <span className="font-medium text-slate-900 dark:text-white">{k.name}</span>
                           <span className="text-[11px] text-slate-500">ID: {k.id.slice(0, 8)}…</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-300 font-mono">{k.macId}</td>
-                      <td className="px-4 py-3 text-sm text-slate-300">{orgName(k.orgId)}</td>
-                      <td className="px-4 py-3 text-sm text-slate-300">{branchName(k.branchId)}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300 font-mono">{k.macId}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{orgName(k.orgId)}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{branchName(k.branchId)}</td>
                       <td className="px-4 py-3 text-sm">
                         <button
                           type="button"
@@ -447,7 +447,7 @@ export default function HardwareKiosks() {
                             setSelectedQrKiosk(k);
                             setQrModal(true);
                           }}
-                          className="rounded p-1.5 text-slate-400 hover:bg-blue-500/20 hover:text-blue-400"
+                          className="rounded p-1.5 text-slate-400 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 hover:text-blue-600 dark:hover:text-blue-400"
                           title="Показать QR-код"
                         >
                           <QrCode className="h-4 w-4" />
@@ -455,7 +455,7 @@ export default function HardwareKiosks() {
                         <button
                           type="button"
                           onClick={() => openAssign(k)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-slate-600 hover:text-white"
+                          className="rounded p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                           title={k.orgId ? 'Изменить привязку' : 'Привязать'}
                         >
                           {k.orgId ? <Link2 className="h-4 w-4" /> : <Unlink className="h-4 w-4" />}
@@ -463,7 +463,7 @@ export default function HardwareKiosks() {
                         <button
                           type="button"
                           onClick={() => openEdit(k)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-slate-600 hover:text-white"
+                          className="rounded p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                           title="Редактировать"
                         >
                           <Pencil className="h-4 w-4" />
@@ -536,21 +536,21 @@ export default function HardwareKiosks() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Название</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Название</label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Название киоска"
-              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Статус</label>
             <select
               value={form.status}
               onChange={(e) => setForm({ ...form, status: e.target.value })}
-              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
             >
               <option value="REGISTERED">Зарегистрирован</option>
               <option value="ACTIVE">Активен</option>
@@ -558,7 +558,7 @@ export default function HardwareKiosks() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Организация</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Организация</label>
             <select
               value={form.orgId}
               onChange={(e) => {
@@ -570,7 +570,7 @@ export default function HardwareKiosks() {
                   setBranches([]);
                 }
               }}
-              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
             >
               <option value="">Не привязан</option>
               {orgs.map((org) => (
@@ -582,7 +582,7 @@ export default function HardwareKiosks() {
           </div>
           {form.orgId && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Филиал (необязательно)</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Филиал (необязательно)</label>
               <select
                 value={form.branchId}
                 onChange={async (e) => {
@@ -597,7 +597,7 @@ export default function HardwareKiosks() {
                     setBranchServices([]);
                   }
                 }}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
               >
                 <option value="">Не указан</option>
                 {branches.map((branch) => (

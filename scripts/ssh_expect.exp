@@ -1,0 +1,17 @@
+#!/usr/bin/expect -f
+set timeout -1
+set password "mE4B6w9sTtc6"
+
+puts "Attempting SSH..."
+spawn ssh -o StrictHostKeyChecking=no root@161.97.118.117 "echo \$env(B64_CONTENT) | base64 -d > /root/uz-superapp/backend/src/main/java/uz/superapp/seed/SeedRunner.java && cd /root/uz-superapp && sed -i '/JWT_SECRET/a\\      FORCE_RESET_ADMIN: \\"true\\"' docker-compose.yml && docker compose down backend-1 backend-2 admin-super && docker compose up -d --build backend-1 backend-2 admin-super && sed -i '/FORCE_RESET_ADMIN/d' docker-compose.yml && echo 'Reset successful'"
+
+expect {
+    "*yes/no*" {
+        send "yes\r"
+        exp_continue
+    }
+    "*?assword:*" {
+        send "$password\r"
+    }
+}
+expect eof

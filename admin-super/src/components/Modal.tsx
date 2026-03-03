@@ -53,14 +53,14 @@ export default function Modal({
                 }}
             />
             <div
-                className={`relative flex flex-col w-full ${sizeClasses[size]} max-h-[90vh] rounded-2xl border border-slate-700/80 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 shadow-2xl shadow-black/80 animate-in zoom-in-95 duration-200`}
+                className={`relative flex flex-col w-full ${sizeClasses[size]} max-h-[90vh] rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl dark:shadow-none animate-in zoom-in-95 duration-200`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800/60 shrink-0">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
                     <div>
-                        <h3 className="text-lg font-semibold text-white">{title}</h3>
-                        {description && <p className="mt-0.5 text-xs text-slate-400">{description}</p>}
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+                        {description && <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{description}</p>}
                     </div>
                     <button
                         type="button"
@@ -68,7 +68,7 @@ export default function Modal({
                             playClick();
                             onClose();
                         }}
-                        className="rounded p-1 text-slate-400 hover:bg-slate-700/50 hover:text-white transition-colors"
+                        className="rounded-lg p-1.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     >
                         <X className="h-5 w-5" />
                     </button>
@@ -81,7 +81,7 @@ export default function Modal({
 
                 {/* Footer */}
                 {footer && (
-                    <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-800/60 bg-slate-900/40 shrink-0 rounded-b-2xl">
+                    <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 shrink-0 rounded-b-2xl">
                         {footer}
                     </div>
                 )}

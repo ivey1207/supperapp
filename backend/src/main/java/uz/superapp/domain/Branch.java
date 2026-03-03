@@ -1,6 +1,8 @@
 package uz.superapp.domain;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -15,10 +17,12 @@ public class Branch {
     private String phone;
     private String status = "OPEN";
     private String partnerType;
+    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
     private GeoLocation location;
     private String workingHours;
     private List<String> images;
     private String photoUrl;
+    private String description;
     private boolean archived;
 
     // Smart Filter Properties
@@ -114,6 +118,14 @@ public class Branch {
 
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public boolean isArchived() {

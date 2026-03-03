@@ -167,7 +167,7 @@ public class SeedRunner implements CommandLineRunner {
         org.setInn(inn);
         org.setPartnerType(type);
         org.setStatus("ACTIVE");
-        org.setLogoUrl("/api/v1/files/" + logo);
+        org.setLogoUrl(logo);
         org.setEmail(email);
         org.setAddress(address);
         org.setPhone(phone);
@@ -184,7 +184,7 @@ public class SeedRunner implements CommandLineRunner {
             b.setName(name + " Branch " + i);
             b.setStatus("OPEN");
             b.setPartnerType(branchType);
-            b.setPhotoUrl("/api/v1/files/car_wash_photo_1772204498401.png");
+            b.setPhotoUrl("car_wash_photo_1772204498401.png");
             b.setAddress(address + ", Sector " + i);
             b.setPhone(phone);
             b.setWorkingHours(workingHours);
@@ -215,7 +215,7 @@ public class SeedRunner implements CommandLineRunner {
         org.setInn(inn);
         org.setPartnerType("SERVICE");
         org.setStatus("ACTIVE");
-        org.setLogoUrl("/api/v1/files/" + logo);
+        org.setLogoUrl(logo);
         org.setEmail(email);
         org.setAddress(address);
         org.setPhone(phone);
@@ -232,7 +232,7 @@ public class SeedRunner implements CommandLineRunner {
         b1.setName(name + " Service Center");
         b1.setStatus("OPEN");
         b1.setPartnerType("SERVICE");
-        b1.setPhotoUrl("/api/v1/files/auto_service_photo_1772204512588.png");
+        b1.setPhotoUrl("auto_service_photo_1772204512588.png");
         b1.setAddress(address + " (Service)");
         b1.setPhone(phone);
         b1.setWorkingHours(workingHours);
@@ -253,7 +253,7 @@ public class SeedRunner implements CommandLineRunner {
         b2.setName(name + " Gas Station");
         b2.setStatus("OPEN");
         b2.setPartnerType("GAS_STATION");
-        b2.setPhotoUrl("/api/v1/files/gas_station_photo_1772204527404.png");
+        b2.setPhotoUrl("gas_station_photo_1772204527404.png");
         b2.setAddress(address + " (Gas Station)");
         b2.setPhone(phone);
         b2.setWorkingHours(workingHours);

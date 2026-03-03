@@ -231,8 +231,8 @@ export default function Branches() {
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <MapPin className="h-7 w-7 text-blue-400" />
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <MapPin className="h-7 w-7 text-blue-500 dark:text-blue-400" />
           {isSuperAdmin ? 'Филиалы (локации)' : 'Мои филиалы'}
         </h1>
         <div className="flex items-center gap-3">
@@ -240,7 +240,7 @@ export default function Branches() {
             <select
               value={orgId}
               onChange={(e) => setOrgId(e.target.value)}
-              className="rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-white focus:border-blue-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
             >
               <option value="">Все организации</option>
               {orgs.map((o) => (
@@ -250,12 +250,12 @@ export default function Branches() {
               ))}
             </select>
           )}
-          <div className="flex bg-slate-800/80 rounded-lg border border-slate-600 p-1 overflow-hidden">
+          <div className="flex bg-slate-100 dark:bg-slate-800/80 rounded-lg border border-slate-300 dark:border-slate-700 p-1 overflow-hidden">
             <button
               onClick={() => setPartnerType('')}
               className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${partnerType === ''
                 ? 'bg-blue-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-700/50'
                 }`}
             >
               Все
@@ -268,7 +268,7 @@ export default function Branches() {
                   onClick={() => setPartnerType(t.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${partnerType === t.id
                     ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-700/50'
                     }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
@@ -284,7 +284,7 @@ export default function Branches() {
               placeholder="Поиск..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-56 rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
+              className="w-56 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
           <button
@@ -323,7 +323,7 @@ export default function Branches() {
             <button
               type="button"
               onClick={closeModal}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80 transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition-colors"
             >
               Отмена
             </button>
@@ -340,11 +340,11 @@ export default function Branches() {
         <div className="space-y-4">
           {isSuperAdmin && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Организация *</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Организация *</label>
               <select
                 value={form.orgId}
                 onChange={(e) => setForm((f) => ({ ...f, orgId: e.target.value }))}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
               >
                 <option value="">Выберите организацию</option>
                 {orgs.map((o) => (
@@ -358,11 +358,11 @@ export default function Branches() {
 
           <div className="flex items-center justify-center mb-4">
             <div className="relative group">
-              <div className="w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center overflow-hidden">
+              <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center overflow-hidden">
                 {form.photoUrl ? (
                   <img src={getFileUrl(form.photoUrl)} alt="Branch" className="w-full h-full object-cover" />
                 ) : (
-                  <MapPin className="w-10 h-10 text-slate-500" />
+                  <MapPin className="w-10 h-10 text-slate-400 dark:text-slate-500" />
                 )}
               </div>
               <label className="absolute bottom-0 right-0 bg-blue-600 p-1.5 rounded-full cursor-pointer hover:bg-blue-500 transition-colors shadow-lg">
@@ -389,13 +389,13 @@ export default function Branches() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Название филиала *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Название филиала *</label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               placeholder="Название филиала"
-              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
           <div>
@@ -405,7 +405,7 @@ export default function Branches() {
               value={form.address}
               onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
               placeholder="Адрес филиала"
-              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
           <div>
@@ -415,7 +415,7 @@ export default function Branches() {
               value={form.phone}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
               placeholder="+998901234567"
-              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -427,7 +427,7 @@ export default function Branches() {
                 value={form.latitude}
                 onChange={(e) => setForm((f) => ({ ...f, latitude: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
                 placeholder="41.311081"
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
               />
             </div>
             <div>
@@ -438,7 +438,7 @@ export default function Branches() {
                 value={form.longitude}
                 onChange={(e) => setForm((f) => ({ ...f, longitude: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
                 placeholder="69.240562"
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
               />
             </div>
           </div>
@@ -454,7 +454,7 @@ export default function Branches() {
                 value={form.rating}
                 onChange={(e) => setForm((f) => ({ ...f, rating: e.target.value === '' ? '' : parseFloat(e.target.value) }))}
                 placeholder="4.8"
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
               />
             </div>
             <div>
@@ -465,45 +465,45 @@ export default function Branches() {
                 value={form.reviewCount}
                 onChange={(e) => setForm((f) => ({ ...f, reviewCount: e.target.value === '' ? '' : parseInt(e.target.value, 10) }))}
                 placeholder="150"
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
               />
             </div>
           </div>
 
           {/* Smart Filters Toggles */}
-          <div className="bg-slate-800/50 p-4 rounded-xl space-y-3 border border-slate-700/50">
-            <h3 className="text-sm font-semibold text-slate-300 mb-2">Умные фильтры</h3>
+          <div className="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl space-y-3 border border-slate-200 dark:border-slate-700/50">
+            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Умные фильтры</h3>
             <label className="flex items-center gap-3 cursor-pointer group">
-              <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${form.is24x7 ? 'bg-blue-500' : 'bg-slate-700'}`}>
+              <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${form.is24x7 ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-700'}`}>
                 <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${form.is24x7 ? 'translate-x-4' : 'translate-x-0'}`} />
               </div>
               <input type="checkbox" className="hidden" checked={form.is24x7} onChange={(e) => setForm((f) => ({ ...f, is24x7: e.target.checked }))} />
-              <span className="text-sm text-slate-300 group-hover:text-white transition-colors">Работает 24/7 (Без выходных)</span>
+              <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Работает 24/7 (Без выходных)</span>
             </label>
 
             <label className="flex items-center gap-3 cursor-pointer group">
-              <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${form.hasCafe ? 'bg-blue-500' : 'bg-slate-700'}`}>
+              <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${form.hasCafe ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-700'}`}>
                 <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${form.hasCafe ? 'translate-x-4' : 'translate-x-0'}`} />
               </div>
               <input type="checkbox" className="hidden" checked={form.hasCafe} onChange={(e) => setForm((f) => ({ ...f, hasCafe: e.target.checked }))} />
-              <span className="text-sm text-slate-300 group-hover:text-white transition-colors">Есть Кафе / Зона ожидания / Wi-Fi</span>
+              <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Есть Кафе / Зона ожидания / Wi-Fi</span>
             </label>
 
             <label className="flex items-center gap-3 cursor-pointer group">
-              <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${form.hasInAppPayment ? 'bg-blue-500' : 'bg-slate-700'}`}>
+              <div className={`w-10 h-6 flex items-center rounded-full p-1 transition-colors ${form.hasInAppPayment ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-700'}`}>
                 <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${form.hasInAppPayment ? 'translate-x-4' : 'translate-x-0'}`} />
               </div>
               <input type="checkbox" className="hidden" checked={form.hasInAppPayment} onChange={(e) => setForm((f) => ({ ...f, hasInAppPayment: e.target.checked }))} />
-              <span className="text-sm text-slate-300 group-hover:text-white transition-colors">Оплата через приложение (Wallet)</span>
+              <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Оплата через приложение (Wallet)</span>
             </label>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Статус</label>
             <select
               value={form.status}
               onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
             >
               <option value="OPEN">Открыт</option>
               <option value="CLOSED">Закрыт</option>
@@ -511,7 +511,7 @@ export default function Branches() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Тип филиала</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Тип филиала</label>
             <div className="grid grid-cols-3 gap-3">
               {PARTNER_TYPES.map((type) => (
                 <button
@@ -519,11 +519,11 @@ export default function Branches() {
                   type="button"
                   onClick={() => setForm((f) => ({ ...f, partnerType: type.id }))}
                   className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${form.partnerType === type.id
-                    ? 'border-blue-500 bg-blue-500/20 text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
-                    : 'border-slate-700 bg-slate-900/50 text-slate-400 hover:bg-slate-800 hover:border-slate-600'
+                    ? 'border-blue-500 bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-200 shadow-[0_0_15px_rgba(59,130,246,0.1)]'
+                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 text-slate-400 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600'
                     }`}
                 >
-                  <type.icon className={`h-6 w-6 mb-2 ${form.partnerType === type.id ? 'text-blue-400' : 'text-slate-500'}`} />
+                  <type.icon className={`h-6 w-6 mb-2 ${form.partnerType === type.id ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
                   <span className="text-xs font-medium">{type.label}</span>
                 </button>
               ))}
@@ -531,7 +531,7 @@ export default function Branches() {
           </div>
           {form.partnerType === 'CAR_WASH' && !editing && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Количество боксов</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Количество боксов</label>
               <input
                 type="number"
                 min="0"
@@ -539,7 +539,7 @@ export default function Branches() {
                 value={form.boxCount || ''}
                 onChange={(e) => setForm((f) => ({ ...f, boxCount: Number.parseInt(e.target.value) || 0 }))}
                 placeholder="Например: 4"
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
               />
               <p className="mt-1 text-xs text-slate-500">
                 Автоматически создаст указанное количество устройств
@@ -549,22 +549,22 @@ export default function Branches() {
         </div>
       </Modal>
 
-      <div className="rounded-xl border border-slate-800/60 bg-slate-900/60 shadow-lg shadow-slate-900/40 overflow-hidden">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm dark:shadow-none overflow-hidden">
         {loading && list.length === 0 ? (
           <div className="flex items-center justify-center py-16 text-slate-400">Загрузка...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-slate-800/70 bg-gradient-to-r from-slate-900 to-slate-800">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Филиал</th>
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Филиал</th>
                   {isSuperAdmin && (
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Организация</th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Организация</th>
                   )}
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Адрес</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Телефон</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Статус</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 text-right">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Адрес</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Телефон</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Статус</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right">
                     Действия
                   </th>
                 </tr>
@@ -580,32 +580,32 @@ export default function Branches() {
                   paginated.map((b) => (
                     <tr
                       key={b.id}
-                      className="border-b border-slate-800/60 bg-slate-900/40 hover:bg-slate-800/70 transition-colors"
+                      className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-800 border border-slate-700/50 flex items-center justify-center">
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 flex items-center justify-center">
                             {b.photoUrl ? (
                               <img src={getFileUrl(b.photoUrl)} alt={b.name} className="h-full w-full object-cover" />
                             ) : (
-                              <MapPin className="h-5 w-5 text-slate-500" />
+                              <MapPin className="h-5 w-5 text-slate-400 dark:text-slate-500" />
                             )}
                           </div>
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-medium text-white">{b.name}</span>
+                            <span className="font-medium text-slate-900 dark:text-white">{b.name}</span>
                             <span className="text-[11px] text-slate-500">ID: {(b.id || '').slice(0, 8)}…</span>
                           </div>
                         </div>
                       </td>
                       {isSuperAdmin && (
-                        <td className="px-4 py-3 text-sm text-slate-300">
-                          <span className="inline-flex rounded-full bg-slate-800/80 px-2 py-0.5 text-xs text-slate-200">
+                        <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
+                          <span className="inline-flex rounded-full bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 text-xs text-slate-700 dark:text-slate-200">
                             {orgName(b.orgId)}
                           </span>
                         </td>
                       )}
-                      <td className="px-4 py-3 text-slate-300">{b.address || '—'}</td>
-                      <td className="px-4 py-3 text-slate-300">{b.phone || '—'}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{b.address || '—'}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{b.phone || '—'}</td>
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${b.status === 'OPEN'
@@ -622,7 +622,7 @@ export default function Branches() {
                         <button
                           type="button"
                           onClick={() => openEdit(b)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-slate-600 hover:text-white"
+                          className="rounded p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                           title="Редактировать"
                         >
                           <Pencil className="h-4 w-4" />

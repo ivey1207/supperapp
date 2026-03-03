@@ -47,9 +47,9 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
-      <aside className="flex w-64 flex-col border-r border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/90 backdrop-blur">
-        <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/80">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
+      <aside className="flex w-64 flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl dark:shadow-none z-10">
+        <div className="flex h-16 items-center gap-2 px-5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isSuperAdmin ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400'}`}>
             {isSuperAdmin ? <Shield className="h-5 w-5" /> : <span className="text-lg font-bold">C</span>}
           </div>
@@ -81,7 +81,7 @@ export default function Layout() {
             );
           })}
         </nav>
-        <div className="border-t border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-950/80 p-3">
+        <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3">
           <button
             type="button"
             onClick={() => { playClick(); logout(); navigate('/login'); }}
@@ -96,7 +96,7 @@ export default function Layout() {
         </div>
       </aside>
       <div className="flex flex-1 flex-col min-w-0">
-        <header className="flex h-14 shrink-0 items-center justify-end gap-2 border-b border-slate-200 dark:border-slate-800/60 bg-white/60 dark:bg-slate-950/60 px-6 backdrop-blur transition-colors duration-300">
+        <header className="flex h-14 shrink-0 items-center justify-end gap-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 shadow-sm dark:shadow-none transition-colors duration-300">
           <button
             type="button"
             onClick={() => { playClick(); toggleTheme(); }}

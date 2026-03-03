@@ -11,6 +11,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import jakarta.servlet.DispatcherType;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -26,14 +30,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(c -> {
-                })
+                .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .csrf(c -> c.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-                        // Swagger / OpenAPI UI & docs - открываем без авторизации,
-                        // чтобы ты мог спокойно смотреть и тестировать эндпоинты.
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
@@ -48,15 +49,25 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/controller/**").permitAll()
                         .requestMatchers("/api/v1/files/**").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/api/v1/app/kiosk/**").permitAll() // QR-скан: инфо киоска без авторизации
+                        .requestMatchers("/api/v1/app/kiosk/**").permitAll()
                         .requestMatchers("/api/v1/admin/hardware-kiosks/*/top-up").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAnyRole("SUPER_ADMIN", "PARTNER_ADMIN", "MANAGER")
-                        .requestMatchers("/api/v1/app/**").permitAll() // TEMPORARY: Allow public access for UI
-                                                                       // verification
-                        // .requestMatchers("/api/v1/app/**").hasAnyRole("APP_USER", "USER")
+                        .requestMatchers("/api/v1/app/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

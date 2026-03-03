@@ -17,17 +17,20 @@ export default function QuickActions() {
   return (
     <View style={styles.container}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {ACTIONS.map((action) => (
-          <TouchableOpacity key={action.id} style={styles.actionItem} activeOpacity={0.7}>
-            <View style={[styles.iconCircle, { backgroundColor: action.bg }]}>
-              {action.lib === 'Feather' && <Ionicons name="pricetag" size={24} color={action.color} />}
-              {action.lib === 'FontAwesome5' && <FontAwesome5 name="truck" size={18} color={action.color} />}
-              {action.lib === 'Ionicons' && <Ionicons name="heart" size={24} color={action.color} />}
-              {action.lib === 'MaterialIcons' && <MaterialIcons name="headset-mic" size={24} color={action.color} />}
-            </View>
-            <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>{action.name}</Text>
-          </TouchableOpacity>
-        ))}
+        {ACTIONS.map((action) => {
+          const circleBg = scheme === 'dark' ? action.color + '20' : action.bg;
+          return (
+            <TouchableOpacity key={action.id} style={styles.actionItem} activeOpacity={0.7}>
+              <View style={[styles.iconCircle, { backgroundColor: circleBg }]}>
+                {action.lib === 'Feather' && <Ionicons name="pricetag" size={24} color={action.color} />}
+                {action.lib === 'FontAwesome5' && <FontAwesome5 name="truck" size={18} color={action.color} />}
+                {action.lib === 'Ionicons' && <Ionicons name="heart" size={24} color={action.color} />}
+                {action.lib === 'MaterialIcons' && <MaterialIcons name="headset-mic" size={24} color={action.color} />}
+              </View>
+              <Text style={[styles.actionLabel, { color: colors.textSecondary }]}>{action.name}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     </View>
   );

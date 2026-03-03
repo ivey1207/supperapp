@@ -210,19 +210,19 @@ export default function Companies() {
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Building2 className="h-7 w-7 text-blue-400" />
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Building2 className="h-7 w-7 text-blue-500 dark:text-blue-400" />
           {isSuperAdmin ? 'Партнёры (организации)' : 'Моя компания'}
         </h1>
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
               placeholder="Поиск..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-56 rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
+              className="w-56 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
           {isSuperAdmin && (
@@ -269,7 +269,7 @@ export default function Companies() {
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80 transition-colors"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition-colors"
               >
                 Отмена
               </button>
@@ -286,7 +286,7 @@ export default function Companies() {
           <div className="space-y-4">
             <div className="flex items-center justify-center mb-4">
               <div className="relative group">
-                <div className="w-24 h-24 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center overflow-hidden">
+                <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 flex items-center justify-center overflow-hidden">
                   {form.logoUrl ? (
                     <img src={getFileUrl(form.logoUrl)} alt="Logo" className="w-full h-full object-cover" />
                   ) : (
@@ -317,7 +317,7 @@ export default function Companies() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Название <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -325,7 +325,7 @@ export default function Companies() {
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="Название организации"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
                 />
               </div>
               <div>
@@ -335,7 +335,7 @@ export default function Companies() {
                   value={form.inn}
                   onChange={(e) => setForm((f) => ({ ...f, inn: e.target.value }))}
                   placeholder="123456789"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
                 />
               </div>
             </div>
@@ -349,7 +349,7 @@ export default function Companies() {
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 placeholder="Описание организации"
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all resize-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all resize-none"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -360,7 +360,7 @@ export default function Companies() {
                   value={form.address}
                   onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
                   placeholder="Главный офис"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
                 />
               </div>
               <div>
@@ -370,7 +370,7 @@ export default function Companies() {
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                   placeholder="+998..."
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
                 />
               </div>
             </div>
@@ -382,7 +382,7 @@ export default function Companies() {
                   value={form.email}
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                   placeholder="corp@example.com"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
                 />
               </div>
               <div>
@@ -392,7 +392,7 @@ export default function Companies() {
                   value={form.workingHours}
                   onChange={(e) => setForm((f) => ({ ...f, workingHours: e.target.value }))}
                   placeholder="09:00 - 18:00"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all/50"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
                 />
               </div>
             </div>
@@ -401,7 +401,7 @@ export default function Companies() {
               <select
                 value={form.status}
                 onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 transition-all"
               >
                 <option value="ACTIVE">ACTIVE (Активен)</option>
                 <option value="INACTIVE">INACTIVE (Неактивен)</option>
@@ -413,22 +413,22 @@ export default function Companies() {
         </Modal>
       )}
 
-      <div className="rounded-xl border border-slate-700/50 bg-slate-800/30 shadow-lg shadow-slate-900/40 overflow-hidden">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/30 shadow-sm dark:shadow-lg overflow-hidden">
         {loading && list.length === 0 ? (
           <div className="flex items-center justify-center py-16 text-slate-400">Загрузка...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-slate-700/60 bg-gradient-to-r from-slate-800/80 to-slate-700/80">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300">Название</th>
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Название</th>
 
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300">Адрес</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300">Телефон</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300">Рейтинг</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300">Статус</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Адрес</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Телефон</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Рейтинг</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Статус</th>
                   {isSuperAdmin && (
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-300 text-right">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right">
                       Действия
                     </th>
                   )}
@@ -445,7 +445,7 @@ export default function Companies() {
                   paginated.map((o) => (
                     <tr
                       key={o.id}
-                      className="border-b border-slate-700/50 bg-slate-800/50 hover:bg-slate-700/60 transition-colors"
+                      className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-0.5">

@@ -4,6 +4,7 @@ import { Zap, Users, Building2, DollarSign } from 'lucide-react';
 import { playSuccess } from '../lib/sound';
 import { getOrganizations, getBranches, getAccounts } from '../lib/api';
 import { useAuth } from '../lib/auth';
+import { useTheme } from '../lib/theme';
 
 const kpiCardConfig = [
   { key: 'kiosks', label: 'Киоски', icon: Zap, color: 'text-blue-400', bg: 'bg-blue-500/10' },
@@ -31,7 +32,15 @@ const paymentMethods = [
 
 export default function Dashboard() {
   const { isSuperAdmin } = useAuth();
+  const { theme } = useTheme();
   const [kpi, setKpi] = useState({ kiosks: 0, users: 0, companies: 0, revenue: '0 сум' });
+
+  const isDark = theme === 'dark';
+  const gridColor = isDark ? '#334155' : '#e2e8f0';
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  const tooltipBg = isDark ? '#1e293b' : '#ffffff';
+  const tooltipBorder = isDark ? '#334155' : '#e2e8f0';
+  const tooltipText = isDark ? '#e2e8f0' : '#1e293b';
 
   useEffect(() => {
     playSuccess();
@@ -47,7 +56,7 @@ export default function Dashboard() {
           revenue: '—',
         });
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const kpiValues: Record<string, string | number> = {
@@ -60,8 +69,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold text-white">Панель управления</h1>
-        <p className="text-sm text-slate-400">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Панель управления</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           {isSuperAdmin ? 'Обзор всей сети партнёров и киосков' : 'Обзор показателей вашей автомойки'}
         </p>
       </div>
@@ -72,17 +81,17 @@ export default function Dashboard() {
           return (
             <div
               key={card.key}
-              className="rounded-2xl border border-slate-800/70 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-5 shadow-lg shadow-black/40 transition-all duration-300 hover:border-slate-600 hover:shadow-xl hover:scale-[1.02]"
+              className="rounded-2xl border border-slate-200 dark:border-slate-800/70 bg-white dark:bg-slate-900 p-5 shadow-sm dark:shadow-lg transition-all duration-300 hover:border-blue-500/50 hover:shadow-md hover:scale-[1.02]"
               style={{ animationDelay: `${i * 80}ms` }}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">{card.label}</span>
-                <span className={`rounded-xl p-2.5 shadow-inner shadow-slate-900/50 ${card.bg} ${card.color}`}>
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{card.label}</span>
+                <span className={`rounded-xl p-2.5 shadow-sm ${card.bg} ${card.color}`}>
                   <Icon className="h-6 w-6" />
                 </span>
               </div>
-              <div className="mt-3 text-2xl font-bold text-white">{kpiValues[card.key]}</div>
-              <div className="mt-1 text-[11px] text-slate-500">
+              <div className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">{kpiValues[card.key]}</div>
+              <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-500">
                 {card.key === 'kiosks' && 'Активных постов в сети'}
                 {card.key === 'users' && 'Администраторов и менеджеров'}
                 {card.key === 'companies' && 'Подключённых партнёрских организаций'}
@@ -94,24 +103,24 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-slate-800/70 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-5 shadow-lg shadow-black/40 transition-all duration-300 hover:border-slate-600">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800/70 bg-white dark:bg-slate-900 p-5 shadow-sm dark:shadow-lg transition-all duration-300">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-200">Динамика выручки за неделю</h3>
+            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Динамика выручки за неделю</h3>
             <span className="text-[11px] text-slate-500">Все посты мойки</span>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={weeklyRevenue} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tick={{ fill: '#94a3b8' }} />
-              <YAxis stroke="#94a3b8" fontSize={12} tick={{ fill: '#94a3b8' }} />
-              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#e2e8f0' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+              <XAxis dataKey="name" stroke={textColor} fontSize={12} tick={{ fill: textColor }} />
+              <YAxis stroke={textColor} fontSize={12} tick={{ fill: textColor }} />
+              <Tooltip contentStyle={{ backgroundColor: tooltipBg, border: `1px solid ${tooltipBorder}`, borderRadius: '8px', color: tooltipText }} />
               <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6', r: 4 }} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <div className="rounded-2xl border border-slate-800/70 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-5 shadow-lg shadow-black/40 transition-all duration-300 hover:border-slate-600">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800/70 bg-white dark:bg-slate-900 p-5 shadow-sm dark:shadow-lg transition-all duration-300">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-200">Способы оплаты</h3>
+            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Способы оплаты</h3>
             <span className="text-[11px] text-slate-500">Доля по типам платежей</span>
           </div>
           <ResponsiveContainer width="100%" height={300}>
@@ -131,8 +140,8 @@ export default function Dashboard() {
                   <Cell key={index} fill={paymentMethods[index].color} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#e2e8f0' }} />
-              <Legend wrapperStyle={{ color: '#94a3b8' }} />
+              <Tooltip contentStyle={{ backgroundColor: tooltipBg, border: `1px solid ${tooltipBorder}`, borderRadius: '8px', color: tooltipText }} />
+              <Legend wrapperStyle={{ color: textColor }} />
             </PieChart>
           </ResponsiveContainer>
         </div>

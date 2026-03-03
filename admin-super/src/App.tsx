@@ -18,7 +18,7 @@ import PaymentReports from './pages/PaymentReports';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token, isLoading } = useAuth();
-  if (isLoading) return <div className="flex min-h-screen items-center justify-center bg-[#0f172a] text-white">Загрузка...</div>;
+  if (isLoading) return <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">Загрузка...</div>;
   if (!token) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }

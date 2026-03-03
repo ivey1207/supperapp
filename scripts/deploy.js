@@ -8,7 +8,7 @@ const config = {
     host: '161.97.118.117',
     port: 22,
     username: 'root',
-    password: 'root1234', // Hardcoded for immediate manual run
+    password: 'mE4B6w9sTtc6', // Hardcoded for immediate manual run
     remoteDir: '/root/uz-superapp',
     tarName: 'deploy.tar.gz'
 };
@@ -110,8 +110,10 @@ async function deploy() {
           curl -fsSL https://get.docker.com -o get-docker.sh
           sh get-docker.sh
       fi &&
+      sed -i '/JWT_SECRET/a\\      FORCE_RESET_ADMIN: "true"' docker-compose.yml &&
       docker compose down || true &&
-      docker compose up -d --build --remove-orphans
+      docker compose up -d --build --remove-orphans &&
+      sed -i '/FORCE_RESET_ADMIN/d' docker-compose.yml
     `;
         await executeRemoteCommand(deployCmd); // This might take a while
 

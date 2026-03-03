@@ -203,18 +203,18 @@ export default function Services() {
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Settings className="h-7 w-7 text-blue-400" />
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Settings className="h-7 w-7 text-blue-500 dark:text-blue-400" />
           {isSuperAdmin ? 'Услуги (шаблоны)' : 'Услуги'}
         </h1>
         <div className="flex items-center gap-3">
           {isSuperAdmin && (
             <div className="flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-slate-400" />
+              <Building2 className="h-4 w-4 text-slate-400 dark:text-slate-500" />
               <select
                 value={orgId}
                 onChange={(e) => handleOrgChange(e.target.value)}
-                className="rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-white focus:border-blue-500 focus:outline-none"
+                className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
               >
                 <option value="">Все организации</option>
                 {orgs.map((o) => (<option key={o.id} value={o.id}>{o.name}</option>))}
@@ -222,11 +222,11 @@ export default function Services() {
             </div>
           )}
           <div className="flex items-center gap-2">
-            <GitBranch className="h-4 w-4 text-slate-400" />
+            <GitBranch className="h-4 w-4 text-slate-400 dark:text-slate-500" />
             <select
               value={branchId}
               onChange={(e) => setBranchId(e.target.value)}
-              className="rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-white focus:border-blue-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
             >
               <option value="">Все филиалы</option>
               {filterBranches.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
@@ -238,15 +238,15 @@ export default function Services() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-700/60 bg-slate-900/60 shadow-lg overflow-hidden">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm dark:shadow-none overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-slate-700 bg-slate-900/80">
-                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-400">Название</th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-400">Филиал</th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-400">Цена/мин</th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-400 text-right">Действия</th>
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Название</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Филиал</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Цена/мин</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 text-right">Действия</th>
               </tr>
             </thead>
             <tbody>
@@ -254,20 +254,20 @@ export default function Services() {
                 <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-400">Нет данных</td></tr>
               ) : (
                 paginated.map((s) => (
-                  <tr key={s.id} className="border-b border-slate-800 hover:bg-slate-800/40 transition-colors">
+                  <tr key={s.id} className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-white">{s.name}</div>
-                      <div className="text-xs text-slate-400">{s.category}</div>
+                      <div className="font-medium text-slate-900 dark:text-white">{s.name}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">{s.category}</div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-300">
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
                       {filterBranches.find(b => b.id === s.branchId)?.name || 'Общий'}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-emerald-400 font-mono">{s.pricePerMinute.toLocaleString()}</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-mono">{s.pricePerMinute.toLocaleString()}</span>
                     </td>
                     <td className="px-4 py-3 text-right space-x-2">
-                      <button onClick={() => openEdit(s)} className="p-1 text-slate-400 hover:text-white"><Pencil className="h-4 w-4" /></button>
-                      <button onClick={() => { if (confirm('Удалить?')) deleteService(s.id).then(load) }} className="p-1 text-slate-400 hover:text-red-400"><Trash2 className="h-4 w-4" /></button>
+                      <button onClick={() => openEdit(s)} className="p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors rounded"><Pencil className="h-4 w-4" /></button>
+                      <button onClick={() => { if (confirm('Удалить?')) deleteService(s.id).then(load) }} className="p-1 text-slate-400 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded"><Trash2 className="h-4 w-4" /></button>
                     </td>
                   </tr>
                 ))
@@ -281,15 +281,15 @@ export default function Services() {
       </div>
 
       {modal && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={() => setModal(false)}>
-          <div className="w-full max-w-2xl flex flex-col rounded-2xl border border-slate-700/80 bg-gradient-to-b from-slate-900 to-slate-950 shadow-2xl max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm p-4" onClick={() => setModal(false)}>
+          <div className="w-full max-w-2xl flex flex-col rounded-2xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 shadow-2xl max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-700/60 bg-slate-900/95 px-6 py-4 rounded-t-2xl shrink-0">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Settings className="h-5 w-5 text-blue-400" />
-                {editing ? 'Редактировать сервис' : 'Новый сервис (Portal)'}
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900/95 px-6 py-4 rounded-t-2xl shrink-0">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Settings className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                {editing ? 'Редактировать сервис' : 'Новый сервис'}
               </h3>
-              <button onClick={() => setModal(false)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-700/60 hover:text-white transition-colors">
+              <button onClick={() => setModal(false)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700/60 hover:text-slate-900 dark:hover:text-white transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </button>
             </div>
@@ -298,8 +298,8 @@ export default function Services() {
               {/* ─── Шаблоны (Templates) ─── */}
               {!editing && (
                 <div className="space-y-3">
-                  <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                    <span className="h-px flex-1 bg-slate-700/60" />
+                  <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700/60" />
                     Быстрые шаблоны
                     <span className="h-px flex-1 bg-slate-700/60" />
                   </h4>
@@ -329,7 +329,7 @@ export default function Services() {
                 {isSuperAdmin && (
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-1.5">Организация</label>
-                    <select value={form.orgId} onChange={e => handleFormOrgChange(e.target.value)} className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors">
+                    <select value={form.orgId} onChange={e => handleFormOrgChange(e.target.value)} className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors">
                       <option value="">Выберите...</option>
                       {orgs.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
                     </select>
@@ -338,7 +338,7 @@ export default function Services() {
 
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-1.5">Филиал *</label>
-                  <select value={form.branchId} onChange={e => setForm({ ...form, branchId: e.target.value })} className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors">
+                  <select value={form.branchId} onChange={e => setForm({ ...form, branchId: e.target.value })} className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors">
                     <option value="">Все филиалы</option>
                     {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                   </select>
@@ -347,29 +347,29 @@ export default function Services() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-1.5">Название *</label>
-                    <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Мойка кузова" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
+                    <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Мойка кузова" className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-1.5">Категория</label>
-                    <input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} placeholder="Основные" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
+                    <input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} placeholder="Основные" className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-1.5">Описание</label>
-                  <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} placeholder="Краткое описание услуги..." className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors resize-none" />
+                  <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} placeholder="Краткое описание услуги..." className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors resize-none" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                       {branches.find(b => b.id === form.branchId)?.partnerType === 'SERVICE' ? 'Стоимость (сум)' : 'Цена за минуту (сум)'}
                     </label>
-                    <input type="number" value={form.pricePerMinute} onChange={e => setForm({ ...form, pricePerMinute: Number(e.target.value) })} className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
+                    <input type="number" value={form.pricePerMinute} onChange={e => setForm({ ...form, pricePerMinute: Number(e.target.value) })} className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-1.5">Длительность (мин)</label>
-                    <input type="number" value={form.durationMinutes} onChange={e => setForm({ ...form, durationMinutes: Number(e.target.value) })} className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
+                    <input type="number" value={form.durationMinutes} onChange={e => setForm({ ...form, durationMinutes: Number(e.target.value) })} className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
                   </div>
                 </div>
 
@@ -427,8 +427,8 @@ export default function Services() {
               {/* ─── Настройки оборудования (IoT) ─── */}
               {branches.find(b => b.id === form.branchId)?.partnerType !== 'SERVICE' && (
                 <div className="space-y-4">
-                  <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                    <span className="h-px flex-1 bg-slate-700/60" />
+                  <h4 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700/60" />
                     Базовые Настройки Оборудования (IoT)
                     <span className="h-px flex-1 bg-slate-700/60" />
                   </h4>
@@ -440,22 +440,22 @@ export default function Services() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-1.5">Команда</label>
-                      <input value={form.command} onChange={e => setForm({ ...form, command: e.target.value })} placeholder="START_WASH" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
+                      <input value={form.command} onChange={e => setForm({ ...form, command: e.target.value })} placeholder="START_WASH" className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-1.5">Relay Bits</label>
-                      <input value={form.relayBits} onChange={e => setForm({ ...form, relayBits: e.target.value })} placeholder="0xFF" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
+                      <input value={form.relayBits} onChange={e => setForm({ ...form, relayBits: e.target.value })} placeholder="0xFF" className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-1.5">Частота мотора (Hz)</label>
-                      <input type="number" value={form.motorFrequency} onChange={e => setForm({ ...form, motorFrequency: Number(e.target.value) })} className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
+                      <input type="number" value={form.motorFrequency} onChange={e => setForm({ ...form, motorFrequency: Number(e.target.value) })} className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-1.5">Флаг мотора</label>
-                      <input value={form.motorFlag} onChange={e => setForm({ ...form, motorFlag: e.target.value })} placeholder="ON/OFF" className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2.5 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
+                      <input value={form.motorFlag} onChange={e => setForm({ ...form, motorFlag: e.target.value })} placeholder="ON/OFF" className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2.5 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors font-mono text-sm" />
                     </div>
                   </div>
 
@@ -467,7 +467,7 @@ export default function Services() {
                           type="number"
                           value={(form as Record<string, any>)[`pump${n}Power`]}
                           onChange={e => setForm({ ...form, [`pump${n}Power`]: Number(e.target.value) })}
-                          className="w-full rounded-lg bg-slate-800/80 border border-slate-700 text-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors"
+                          className="w-full rounded-lg bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors"
                         />
                       </div>
                     ))}
@@ -477,8 +477,8 @@ export default function Services() {
             </div>
 
             {/* ─── Кнопки ─── */}
-            <div className="flex justify-end gap-3 p-4 border-t border-slate-700/60 shrink-0">
-              <button onClick={() => setModal(false)} className="px-5 py-2.5 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Отмена</button>
+            <div className="flex justify-end gap-3 p-4 border-t border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-900/50 shrink-0">
+              <button onClick={() => setModal(false)} className="px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors text-sm font-medium">Отмена</button>
               <button onClick={save} className="bg-blue-600 px-6 py-2.5 rounded-lg text-white hover:bg-blue-500 transition-colors text-sm font-medium shadow-lg shadow-blue-600/20">Сохранить</button>
             </div>
           </div>

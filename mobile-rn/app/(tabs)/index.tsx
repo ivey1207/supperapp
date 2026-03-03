@@ -14,15 +14,16 @@ import StoryCircle from '@/components/StoryCircle';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { getMe } from '@/lib/api';
+import * as Location from 'expo-location';
 
 const { width } = Dimensions.get('window');
 const dark = Colors.dark;
 
 const CATEGORIES = [
-  { id: 1, name: 'Автомойка', icon: 'local-car-wash', color: '#3b82f6', image: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=400' },
-  { id: 2, name: 'АЗС', icon: 'local-gas-station', color: '#10b981', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400' },
-  { id: 3, name: 'Тюнинг', icon: 'build', color: '#f59e0b', image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400' },
-  { id: 4, name: 'Шины', icon: 'settings-input-component', color: '#8b5cf6', image: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?w=400' },
+  { id: 1, name: 'Автомойка', partnerType: 'CAR_WASH', icon: 'local-car-wash', color: '#3b82f6', image: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=400' },
+  { id: 2, name: 'АЗС', partnerType: 'GAS_STATION', icon: 'local-gas-station', color: '#10b981', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400' },
+  { id: 3, name: 'Тюнинг', partnerType: 'SERVICE', icon: 'build', color: '#f59e0b', image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400' },
+  { id: 4, name: 'Шины', partnerType: 'TIRES', icon: 'settings-input-component', color: '#8b5cf6', image: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?w=400' },
 ];
 
 const STORIES = [
@@ -65,6 +66,7 @@ export default function HomeScreen() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
   const [selectedMacId, setSelectedMacId] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
 
   const { data: user } = useQuery({
     queryKey: ['me', token],
@@ -81,6 +83,20 @@ export default function HomeScreen() {
     }
   }, [params.branchId, params.macId]);
 
+  // Request location for sorting
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+      try {
+        let location = await Location.getCurrentPositionAsync({});
+        setUserLocation(location);
+      } catch (e) {
+        console.log('Error getting location on home:', e);
+      }
+    })();
+  }, []);
+
   const { data: promotions = [], refetch: refetchPromos, isRefetching: isRefetchingPromos } = useQuery({
     queryKey: ['promotions', token, selectedBranchId],
     queryFn: () => getPromotions(token!, selectedBranchId || undefined),
@@ -90,8 +106,15 @@ export default function HomeScreen() {
   const displayPromos = promotions.length > 0 ? promotions : MOCK_PROMOS;
 
   const { data: branches = [], refetch: refetchBranches, isRefetching: isRefetchingBranches } = useQuery({
-    queryKey: ['branches', token, activeFilter],
-    queryFn: () => getBranches(token!, 'OPEN', activeFilter),
+    queryKey: ['branches', token, activeFilter, userLocation?.coords.latitude, userLocation?.coords.longitude],
+    queryFn: () => getBranches(
+      token!,
+      'OPEN',
+      activeFilter,
+      undefined,
+      userLocation?.coords.latitude,
+      userLocation?.coords.longitude
+    ),
     enabled: !!token,
   });
 
@@ -224,7 +247,7 @@ export default function HomeScreen() {
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesScroll}>
               {CATEGORIES.map((cat) => (
-                <TouchableOpacity key={cat.id} style={styles.categoryItem} activeOpacity={0.8} onPress={handleComingSoon}>
+                <TouchableOpacity key={cat.id} style={styles.categoryItem} activeOpacity={0.8} onPress={() => router.push({ pathname: '/(tabs)/map', params: { partnerType: cat.partnerType } } as any)}>
                   <View style={[styles.categoryCircle, { backgroundColor: cat.color }]}>
                     <MaterialIcons name={cat.icon as any} size={28} color="#fff" />
                   </View>
@@ -252,7 +275,7 @@ export default function HomeScreen() {
                   branch={branch}
                   index={idx}
                   isSponsored={idx === 0} // Mocking the first item as an In-feed Ad
-                  onPress={() => router.push({ pathname: '/(tabs)/map', params: { branchId: branch.id } } as any)}
+                  onPress={() => router.push(`/branch/${branch.id}` as any)}
                 />
               ))}
             </View>
@@ -264,7 +287,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  mainContainer: { flex: 1, backgroundColor: '#0f172a' },
+  mainContainer: { flex: 1 },
   safeArea: { flex: 1 },
   scrollContent: { paddingBottom: 100 },
   storiesContainer: { marginTop: 20 },

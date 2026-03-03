@@ -1,18 +1,21 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, useColorScheme } from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import { Branch, getFileUrl } from '@/lib/api';
+import { openYandexNavigation } from '@/lib/navigation';
 
 interface BranchCardProps {
     branch: Branch;
     onPress: () => void;
     index: number;
     isSponsored?: boolean;
+    style?: any;
+    onNavigate?: () => void;
 }
 
-export default function BranchCard({ branch, onPress, index, isSponsored }: BranchCardProps) {
+export default function BranchCard({ branch, onPress, index, isSponsored, style, onNavigate }: BranchCardProps) {
     const scheme = useColorScheme() ?? 'dark';
     const colors = Colors[scheme];
 
@@ -20,17 +23,21 @@ export default function BranchCard({ branch, onPress, index, isSponsored }: Bran
     const rating = (4.5 + (index % 5) * 0.1).toFixed(1);
     const reviews = 100 + (index * 23) % 500;
     const time = 15 + (index * 5) % 30;
-    const distance = (0.5 + (index * 0.3)).toFixed(1);
+    const distance = branch.distance !== undefined
+        ? (branch.distance < 1
+            ? `${(branch.distance * 1000).toFixed(0)} м`
+            : `${branch.distance.toFixed(1)} км`)
+        : null;
 
     return (
         <TouchableOpacity
-            style={[styles.card, { backgroundColor: colors.card }, isSponsored && styles.sponsoredCard]}
+            style={[styles.card, { backgroundColor: colors.card }, isSponsored && styles.sponsoredCard, style]}
             onPress={onPress}
             activeOpacity={0.9}
         >
             <View style={styles.imageWrapper}>
                 <Image
-                    source={{ uri: getFileUrl(branch.photoUrl) || 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&q=80' }}
+                    source={{ uri: getFileUrl(branch.photoUrl || (branch.images && branch.images[0])) || 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&q=80' }}
                     style={styles.image}
                 />
                 <LinearGradient
@@ -66,7 +73,7 @@ export default function BranchCard({ branch, onPress, index, isSponsored }: Bran
                             <Text style={styles.reviewsText}>({reviews}+)</Text>
                         </View>
                         <View style={styles.dot} />
-                        <Text style={styles.distanceText}>{distance} км</Text>
+                        <Text style={styles.distanceText}>{distance || '--- км'}</Text>
                     </View>
                 </View>
             </View>
@@ -81,6 +88,30 @@ export default function BranchCard({ branch, onPress, index, isSponsored }: Bran
                     </Text>
                 </View>
             </View>
+
+            {/* Navigation Button Overlay */}
+            {branch.location?.coordinates?.[1] && (
+                <TouchableOpacity
+                    style={[styles.miniNavBtn, { backgroundColor: colors.primary }]}
+                    onPress={(e) => {
+                        e.stopPropagation();
+                        if (onNavigate) {
+                            onNavigate();
+                        } else {
+                            // If no custom handler (like on Home screen), navigate to Map with startNav param
+                            import('expo-router').then(({ router }) => {
+                                router.push({
+                                    pathname: '/(tabs)/map',
+                                    params: { branchId: branch.id, startNav: 'true' }
+                                } as any);
+                            });
+                        }
+                    }}
+                >
+                    <MaterialIcons name="navigation" size={20} color="#fff" />
+                    <Text style={styles.miniNavText}>Поехали</Text>
+                </TouchableOpacity>
+            )}
         </TouchableOpacity>
     );
 }
@@ -223,4 +254,25 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         textTransform: 'uppercase',
     },
+    miniNavBtn: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 20,
+        gap: 6,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 10,
+    },
+    miniNavText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '800',
+    }
 });

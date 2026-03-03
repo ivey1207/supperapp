@@ -5,18 +5,22 @@ import { useAuth } from '@/lib/auth';
 import { updateProfile } from '@/lib/api';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import PolicyModal from '@/components/PolicyModal';
 
 export default function RegisterScreen() {
     const { token } = useAuth();
     const router = useRouter();
     const [fullName, setFullName] = useState('');
     const [carModel, setCarModel] = useState('');
+    const [agreedToPolicy, setAgreedToPolicy] = useState(false);
+    const [isPolicyVisible, setIsPolicyVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const colors = Colors.dark;
 
     const handleRegister = async () => {
         if (!fullName.trim()) { setError('Введите ваше имя'); return; }
+        if (!agreedToPolicy) { setError('Пожалуйста, примите политику конфиденциальности'); return; }
         setError('');
         setLoading(true);
         try {
@@ -67,6 +71,34 @@ export default function RegisterScreen() {
                         </View>
                     </View>
 
+                    <TouchableOpacity
+                        style={styles.policyRow}
+                        onPress={() => setAgreedToPolicy(!agreedToPolicy)}
+                        activeOpacity={0.7}
+                    >
+                        <View style={[
+                            styles.checkbox,
+                            { borderColor: colors.border },
+                            agreedToPolicy && { backgroundColor: colors.primary, borderColor: colors.primary }
+                        ]}>
+                            {agreedToPolicy && <Ionicons name="checkmark" size={16} color="#fff" />}
+                        </View>
+                        <View style={styles.policyTextWrapper}>
+                            <Text style={[styles.policyText, { color: colors.textSecondary }]}>
+                                Я согласен с{' '}
+                                <Text
+                                    style={{ color: colors.primary, fontWeight: '700' }}
+                                    onPress={(e) => {
+                                        e.stopPropagation();
+                                        setIsPolicyVisible(true);
+                                    }}
+                                >
+                                    политикой конфиденциальности
+                                </Text>
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+
                     {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
                     <TouchableOpacity
@@ -77,6 +109,11 @@ export default function RegisterScreen() {
                         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Завершить регистрацию</Text>}
                     </TouchableOpacity>
                 </View>
+
+                <PolicyModal
+                    visible={isPolicyVisible}
+                    onClose={() => setIsPolicyVisible(false)}
+                />
             </ScrollView>
         </KeyboardAvoidingView>
     );
@@ -94,7 +131,11 @@ const styles = StyleSheet.create({
     inputWrapper: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, borderWidth: 1, paddingHorizontal: 16 },
     inputIcon: { marginRight: 12 },
     input: { flex: 1, paddingVertical: 16, fontSize: 16 },
-    button: { borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginTop: 12, shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
+    policyRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12, paddingHorizontal: 4 },
+    checkbox: { width: 24, height: 24, borderRadius: 8, borderWidth: 2, marginRight: 12, justifyContent: 'center', alignItems: 'center' },
+    policyTextWrapper: { flex: 1 },
+    policyText: { fontSize: 14, lineHeight: 20 },
+    button: { borderRadius: 16, paddingVertical: 18, alignItems: 'center', marginTop: 8, shadowColor: '#3b82f6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
     buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
     errorText: { color: '#ef4444', textAlign: 'center', fontSize: 14, fontWeight: '600' }
 });

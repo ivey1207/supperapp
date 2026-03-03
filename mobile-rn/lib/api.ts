@@ -19,10 +19,31 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
+
+api.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    if (error.response?.status === 401) {
+      await AsyncStorage.removeItem('app_token');
+      delete api.defaults.headers.common['Authorization'];
+      router.replace('/login');
+    }
+    return Promise.reject(error);
+  }
+);
+
 export function getFileUrl(filename?: string): string | null {
   if (!filename) return null;
   if (filename.startsWith('http')) return filename;
-  return `${getBaseUrl()}/api/v1/files/download/${filename}`;
+
+  // Strip backend prefix if it already exists (to handle mixed DB data)
+  const cleanFilename = filename.startsWith('/api/v1/files/')
+    ? filename.replace('/api/v1/files/', '')
+    : filename;
+
+  return `${getBaseUrl()}/api/v1/files/${cleanFilename}`;
 }
 
 export function setAuthToken(token: string | null) {
@@ -68,6 +89,7 @@ export type Branch = {
   phone: string;
   status: string;
   partnerType: string;
+  description?: string;
   workingHours?: string;
   images?: string[];
   photoUrl?: string;
@@ -77,12 +99,16 @@ export type Branch = {
     type: 'Point';
     coordinates: [number, number]; // [lon, lat]
   };
+  distance?: number;
 };
 
-export async function getBranches(token: string, status?: string, filter?: string) {
+export async function getBranches(token: string, status?: string, filter?: string, partnerType?: string, lat?: number, lon?: number) {
   const params: Record<string, string> = {};
-  if (status) params.status = status;
+  if (status && status !== 'all') params.status = status;
   if (filter && filter !== 'all') params.filter = filter;
+  if (partnerType) params.partnerType = partnerType;
+  if (lat !== undefined) params.lat = lat.toString();
+  if (lon !== undefined) params.lon = lon.toString();
 
   const { data } = await api.get('/api/v1/app/branches', {
     headers: { Authorization: `Bearer ${token}` },
@@ -103,6 +129,26 @@ export async function getWallet(token: string) {
   return data as { walletId: string; balance: number; currency: string };
 }
 
+export interface PartnerOrg {
+  id: string;
+  name: string;
+  description: string;
+  logoUrl: string;
+}
+
+export interface Service {
+  id: string;
+  orgId: string;
+  branchId?: string;
+  name: string;
+  description: string;
+  category: string;
+  pricePerMinute: number;
+  durationMinutes: number;
+  bookable: boolean;
+  workingHours?: string;
+}
+
 export type Promotion = {
   id: string;
   title: string;
@@ -112,6 +158,13 @@ export type Promotion = {
   startDate: string;
   endDate: string;
 };
+
+export async function getBranchById(token: string, branchId: string) {
+  const { data } = await api.get(`/api/v1/app/branches/${branchId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as Branch;
+}
 
 export async function getPromotions(token: string, branchId?: string) {
   const { data } = await api.get('/api/v1/app/promotions', {
@@ -126,7 +179,7 @@ export async function getServices(token: string, branchId?: string, macId?: stri
     params: { branchId, macId },
     headers: { Authorization: `Bearer ${token}` },
   });
-  return data as any[];
+  return data as Service[];
 }
 
 export async function scanQr(token: string, code: string) {

@@ -151,8 +151,8 @@ export default function Devices() {
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Smartphone className="h-7 w-7 text-violet-400" />
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Smartphone className="h-7 w-7 text-violet-500 dark:text-violet-400" />
           {isSuperAdmin ? 'Все девайсы' : 'Девайсы'}
         </h1>
         <div className="flex flex-wrap items-center gap-3">
@@ -160,7 +160,7 @@ export default function Devices() {
             <select
               value={orgId}
               onChange={(e) => setOrgId(e.target.value)}
-              className="rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-white focus:border-blue-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
             >
               <option value="">Все компании</option>
               {orgs.map((o) => (
@@ -177,7 +177,7 @@ export default function Devices() {
               placeholder="Поиск..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-48 rounded-lg border border-slate-600 bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
+              className="w-48 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
             />
           </div>
           <button
@@ -203,17 +203,17 @@ export default function Devices() {
         </div>
       )}
 
-      <div className="rounded-xl border border-slate-800/60 bg-slate-900/60 shadow-lg shadow-slate-900/40 overflow-hidden">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm dark:shadow-none overflow-hidden">
         {loading && devices.length === 0 ? (
           <div className="flex items-center justify-center py-16 text-slate-400">Загрузка...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-slate-800/70 bg-gradient-to-r from-slate-900 to-slate-800">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Название / MAC</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Статус</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 text-right">Действия</th>
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Название / MAC</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Статус</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right">Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -227,12 +227,12 @@ export default function Devices() {
                   paginated.map((d) => (
                     <tr
                       key={d.id}
-                      className="border-b border-slate-800/60 bg-slate-900/40 hover:bg-slate-800/70 transition-colors"
+                      className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-white">{d.name}</span>
-                          {d.macId && <span className="text-[10px] text-violet-400 font-mono">MAC: {d.macId}</span>}
+                          <span className="font-medium text-slate-900 dark:text-white">{d.name}</span>
+                          {d.macId && <span className="text-[10px] text-violet-600 dark:text-violet-400 font-mono">MAC: {d.macId}</span>}
                           <span className="text-[11px] text-slate-500">ID: {d.id.slice(0, 8)}…</span>
                         </div>
                       </td>
@@ -250,7 +250,7 @@ export default function Devices() {
                         <button
                           type="button"
                           onClick={() => openEdit(d)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-slate-600 hover:text-white"
+                          className="rounded p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white"
                           title="Редактировать"
                         >
                           <Pencil className="h-4 w-4" />
@@ -296,7 +296,7 @@ export default function Devices() {
             <button
               type="button"
               onClick={closeModal}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 border border-slate-700/80 transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700/80 transition-colors"
             >
               Отмена
             </button>
@@ -320,7 +320,7 @@ export default function Devices() {
                   const nextOrgId = e.target.value;
                   setForm(f => ({ ...f, orgId: nextOrgId, branchId: '' }));
                 }}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none cursor-pointer"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white focus:border-violet-500 focus:outline-none cursor-pointer"
               >
                 <option value="">Выберите компанию</option>
                 {orgs.map((o) => (
@@ -340,7 +340,7 @@ export default function Devices() {
               value={form.name}
               onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
               placeholder="Например: Бокс 1"
-              className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-violet-500 focus:outline-none"
             />
           </div>
 
@@ -362,7 +362,7 @@ export default function Devices() {
                 type="number"
                 value={form.cashBalance}
                 onChange={(e) => setForm(f => ({ ...f, cashBalance: Number(e.target.value) }))}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white focus:border-violet-500 focus:outline-none"
               />
             </div>
             <div>
@@ -370,7 +370,7 @@ export default function Devices() {
               <select
                 value={form.status}
                 onChange={(e) => setForm(f => ({ ...f, status: e.target.value }))}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-violet-500 focus:outline-none cursor-pointer"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white focus:border-violet-500 focus:outline-none cursor-pointer"
               >
                 <option value="ACTIVE">ACTIVE (Активен)</option>
                 <option value="INACTIVE">INACTIVE (Не активен)</option>

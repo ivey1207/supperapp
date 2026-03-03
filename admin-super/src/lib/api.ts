@@ -1,14 +1,22 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://161.97.118.117:8080',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
 });
 
 export const getFileUrl = (url?: string) => {
   if (!url) return '';
   if (url.startsWith('http')) return url;
-  const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-  return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+  const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8080').replace(/\/$/, '');
+
+  // Strip backend prefix if it already exists
+  const cleanFilename = url.startsWith('/api/v1/files/')
+    ? url.replace('/api/v1/files/', '')
+    : url.startsWith('api/v1/files/')
+      ? url.replace('api/v1/files/', '')
+      : url;
+
+  return `${baseUrl}/api/v1/files/${cleanFilename.startsWith('/') ? cleanFilename.substring(1) : cleanFilename}`;
 };
 
 api.interceptors.request.use((config) => {

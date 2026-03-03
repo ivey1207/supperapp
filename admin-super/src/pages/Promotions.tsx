@@ -174,8 +174,8 @@ export default function Promotions() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Акции и спецпредложения</h1>
-                    <p className="text-slate-400">Управляйте рекламными кампаниями и филиалами</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Акции и спецпредложения</h1>
+                    <p className="text-slate-500 dark:text-slate-400">Управляйте рекламными кампаниями и филиалами</p>
                 </div>
                 <button
                     onClick={handleOpenCreate}
@@ -194,7 +194,7 @@ export default function Promotions() {
                         placeholder="Поиск..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full rounded-xl border border-slate-800/60 bg-slate-900/60 py-2.5 pl-10 pr-4 text-white placeholder-slate-500 outline-none focus:border-blue-500/50 focus:bg-slate-900/80 transition-all font-medium"
+                        className="w-full rounded-xl border border-slate-300 dark:border-slate-800/60 bg-white dark:bg-slate-900/60 py-2.5 pl-10 pr-4 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-blue-500/50 focus:bg-white dark:focus:bg-slate-900/80 transition-all font-medium"
                     />
                 </div>
 
@@ -204,7 +204,7 @@ export default function Promotions() {
                         <select
                             value={filterOrg}
                             onChange={(e) => { setFilterOrg(e.target.value); setFilterBranch(''); }}
-                            className="w-full appearance-none rounded-xl border border-slate-800/60 bg-slate-900/60 py-2.5 pl-10 pr-4 text-white outline-none focus:border-blue-500/50 focus:bg-slate-900/80 transition-all cursor-pointer font-medium"
+                            className="w-full appearance-none rounded-xl border border-slate-300 dark:border-slate-800/60 bg-white dark:bg-slate-900/60 py-2.5 pl-10 pr-4 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 focus:bg-white dark:focus:bg-slate-900/80 transition-all cursor-pointer font-medium"
                         >
                             <option value="">Все партнёры</option>
                             {organizations.map(org => (
@@ -219,7 +219,7 @@ export default function Promotions() {
                     <select
                         value={filterBranch}
                         onChange={(e) => setFilterBranch(e.target.value)}
-                        className="w-full appearance-none rounded-xl border border-slate-800/60 bg-slate-900/60 py-2.5 pl-10 pr-4 text-white outline-none focus:border-blue-500/50 focus:bg-slate-900/80 transition-all cursor-pointer font-medium"
+                        className="w-full appearance-none rounded-xl border border-slate-300 dark:border-slate-800/60 bg-white dark:bg-slate-900/60 py-2.5 pl-10 pr-4 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 focus:bg-white dark:focus:bg-slate-900/80 transition-all cursor-pointer font-medium"
                     >
                         <option value="">Все филиалы</option>
                         {filterBranches.map(branch => (
@@ -231,7 +231,7 @@ export default function Promotions() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filtered.map((promo) => (
-                    <div key={promo.id} className="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/40 p-4 transition-all hover:border-slate-700 hover:bg-slate-900/60">
+                    <div key={promo.id} className="group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-slate-900/40 p-4 transition-all hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/60 shadow-sm dark:shadow-none">
                         {promo.imageUrl && (
                             <div className="mb-4 aspect-video overflow-hidden rounded-xl bg-slate-800">
                                 <img src={getFileUrl(promo.imageUrl)} alt={promo.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -241,7 +241,7 @@ export default function Promotions() {
                         <div className="space-y-3">
                             <div className="flex items-start justify-between">
                                 <div>
-                                    <h3 className="font-bold text-white">{promo.title}</h3>
+                                    <h3 className="font-bold text-slate-900 dark:text-white">{promo.title}</h3>
                                     <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
                                         {promo.active ? (
                                             <span className="flex items-center gap-1 text-emerald-400 font-semibold"><CheckCircle className="h-3.5 w-3.5" /> Активна</span>
@@ -258,12 +258,12 @@ export default function Promotions() {
                             <p className="line-clamp-2 text-sm text-slate-400 leading-relaxed">{promo.description}</p>
 
                             <div className="flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wider">
-                                <div className="flex items-center gap-1 rounded-full bg-slate-800/80 px-2.5 py-1 text-slate-400">
+                                <div className="flex items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 text-slate-500 dark:text-slate-400">
                                     <Calendar className="h-3 w-3" />
                                     {new Date(promo.startDate).toLocaleDateString()} - {new Date(promo.endDate).toLocaleDateString()}
                                 </div>
                                 {promo.branchId && (
-                                    <div className="flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-1 text-blue-400">
+                                    <div className="flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-1 text-blue-600 dark:text-blue-400">
                                         <GitBranch className="h-3 w-3" />
                                         {filterBranches.find(b => b.id === promo.branchId)?.name || 'Филиал'}
                                     </div>
@@ -273,7 +273,7 @@ export default function Promotions() {
                             <div className="flex items-center justify-end gap-2 pt-2 opacity-0 transition-all duration-300 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0">
                                 <button
                                     onClick={() => handleOpenEdit(promo)}
-                                    className="rounded-lg bg-slate-800 p-2 text-white hover:bg-slate-700 transition-colors shadow-lg"
+                                    className="rounded-lg bg-white dark:bg-slate-800 p-2 text-slate-600 dark:text-white border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm dark:shadow-none"
                                     title="Редактировать"
                                 >
                                     <Edit2 className="h-4 w-4" />
@@ -292,11 +292,11 @@ export default function Promotions() {
             </div>
 
             {modal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setModal(false)}>
-                    <div className="w-full max-w-2xl overflow-hidden rounded-[2rem] border border-slate-700/50 bg-slate-900 shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
-                        <div className="border-b border-slate-800/60 px-8 py-6 flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-white tracking-tight">{editing ? 'Редактировать акцию' : 'Новая акция'}</h2>
-                            <button onClick={() => setModal(false)} className="rounded-full p-2 text-slate-500 hover:bg-slate-800 hover:text-white transition-all">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setModal(false)}>
+                    <div className="w-full max-w-2xl overflow-hidden rounded-[2rem] border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+                        <div className="border-b border-slate-100 dark:border-slate-800/60 px-8 py-6 flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{editing ? 'Редактировать акцию' : 'Новая акция'}</h2>
+                            <button onClick={() => setModal(false)} className="rounded-full p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-white transition-all">
                                 <XCircle className="h-6 w-6" />
                             </button>
                         </div>
@@ -309,7 +309,7 @@ export default function Promotions() {
                                         <input
                                             required
                                             type="text"
-                                            className="w-full rounded-2xl border border-slate-700 bg-slate-800/30 px-5 py-3.5 text-white outline-none focus:border-blue-500/50 focus:bg-slate-800/50 transition-all font-medium"
+                                            className="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 px-5 py-3.5 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 focus:bg-white dark:focus:bg-slate-800/50 transition-all font-medium"
                                             value={formData.title}
                                             placeholder="Напр. Скидка на комплексную мойку"
                                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -320,7 +320,7 @@ export default function Promotions() {
                                         <textarea
                                             required
                                             rows={3}
-                                            className="w-full rounded-2xl border border-slate-700 bg-slate-800/30 px-5 py-3.5 text-white outline-none focus:border-blue-500/50 focus:bg-slate-800/50 transition-all font-medium"
+                                            className="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 px-5 py-3.5 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 focus:bg-white dark:focus:bg-slate-800/50 transition-all font-medium"
                                             value={formData.description}
                                             placeholder="Расскажите подробности предложения..."
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -343,11 +343,11 @@ export default function Promotions() {
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Изображение акции</label>
                                     <div className="flex items-center gap-4">
-                                        <div className="relative aspect-video w-48 rounded-2xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center overflow-hidden">
+                                        <div className="relative aspect-video w-48 rounded-2xl bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden">
                                             {formData.imageUrl ? (
                                                 <img src={getFileUrl(formData.imageUrl)} alt="Promo" className="h-full w-full object-cover" />
                                             ) : (
-                                                <ImageIcon className="h-10 w-10 text-slate-600" />
+                                                <ImageIcon className="h-10 w-10 text-slate-400 dark:text-slate-600" />
                                             )}
                                             <label className="absolute bottom-2 right-2 bg-blue-600 p-2 rounded-xl cursor-pointer hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/40">
                                                 <Pencil className="h-4 w-4 text-white" />
@@ -373,12 +373,12 @@ export default function Promotions() {
                                         <div className="flex-1 space-y-2">
                                             <input
                                                 type="url"
-                                                className="w-full rounded-2xl border border-slate-700 bg-slate-800/30 px-5 py-3.5 text-white outline-none focus:border-blue-500/50 focus:bg-slate-800/50 transition-all font-medium text-sm"
+                                                className="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 px-5 py-3.5 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 focus:bg-white dark:focus:bg-slate-800/50 transition-all font-medium text-sm"
                                                 value={formData.imageUrl}
                                                 placeholder="Или вставьте URL https://..."
                                                 onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                                             />
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider px-2">Рекомендуемый размер: 16:9 (напр. 1280x720)</p>
+                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider px-2">Рекомендуемый размер: 16:9 (напр. 1280x720)</p>
                                         </div>
                                     </div>
                                 </div>
