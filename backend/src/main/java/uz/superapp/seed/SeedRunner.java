@@ -83,19 +83,13 @@ public class SeedRunner implements CommandLineRunner {
         branchRepository.deleteAll();
         hardwareKioskRepository.deleteAll();
         serviceRepository.deleteAll();
+        deviceRepository.deleteAll(); // Force clean devices too
 
         List<Account> accounts = accountRepository.findAll();
         for (Account acc : accounts) {
             if (!"SUPER_ADMIN".equals(acc.getRole())) {
                 accountRepository.delete(acc);
             }
-        }
-
-        List<Device> devices = deviceRepository.findAll();
-        for (Device d : devices) {
-            d.setOrgId(null);
-            d.setBranchId(null);
-            deviceRepository.save(d);
         }
         System.out.println("Database wiped.");
     }
@@ -308,15 +302,20 @@ public class SeedRunner implements CommandLineRunner {
             d.setStatus("ACTIVE");
             deviceRepository.save(d);
 
-            HardwareKiosk kiosk = new HardwareKiosk();
-            kiosk.setName("Kiosk " + (assigned + 1) + " for branch " + branchId);
-            kiosk.setKioskId("KIOSK-" + d.getMacId().replace(":", "").substring(6)); // последняя часть MAC
-            kiosk.setMacId(d.getMacId()); // ТОТ ЖЕ MAC
-            kiosk.setOrgId(orgId);
-            kiosk.setBranchId(branchId);
-            kiosk.setStatus("ACTIVE");
-            kiosk.setArchived(false);
-            hardwareKioskRepository.save(kiosk);
+            // Double check existence for macId to avoid DuplicateKeyException
+            if (hardwareKioskRepository.findByMacIdAndArchivedFalse(d.getMacId()).isEmpty()) {
+                HardwareKiosk kiosk = new HardwareKiosk();
+                kiosk.setName("Kiosk " + (assigned + 1) + " for branch " + branchId);
+                kiosk.setKioskId("KIOSK-" + d.getMacId().replace(":", "").substring(6)); // последняя часть MAC
+                kiosk.setMacId(d.getMacId()); // ТОТ ЖЕ MAC
+                kiosk.setOrgId(orgId);
+                kiosk.setBranchId(branchId);
+                kiosk.setStatus("ACTIVE");
+                kiosk.setArchived(false);
+                hardwareKioskRepository.save(kiosk);
+            } else {
+                System.out.println("Skipping existing kiosk for MAC: " + d.getMacId());
+            }
 
             assigned++;
         }
@@ -348,11 +347,11 @@ public class SeedRunner implements CommandLineRunner {
     }
 
     private void seedInactiveDevices() {
-        if (deviceRepository.count() < 15) {
+        if (deviceRepository.count() < 20) {
             String masterOrgId = organizationRepository.findFirstByNameAndArchivedFalse("SuperApp Master Partner")
                     .map(Organization::getId).orElse(null);
 
-            for (int i = 1; i <= 15; i++) {
+            for (int i = 1; i <= 20; i++) {
                 String macId = String.format("00:00:00:00:00:%02X", i);
                 if (deviceRepository.findByMacIdAndArchivedFalse(macId).isEmpty()) {
                     Device d = new Device();
