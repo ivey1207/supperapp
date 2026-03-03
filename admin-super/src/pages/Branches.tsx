@@ -557,14 +557,14 @@ export default function Branches() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Филиал</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Филиал</th>
                   {isSuperAdmin && (
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Организация</th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Организация</th>
                   )}
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Адрес</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Телефон</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Статус</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Адрес</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Телефон</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Статус</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400 text-right">
                     Действия
                   </th>
                 </tr>
@@ -593,13 +593,13 @@ export default function Branches() {
                           </div>
                           <div className="flex flex-col gap-0.5">
                             <span className="font-medium text-slate-900 dark:text-white">{b.name}</span>
-                            <span className="text-[11px] text-slate-500">ID: {(b.id || '').slice(0, 8)}…</span>
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400">ID: {(b.id || '').slice(0, 8)}…</span>
                           </div>
                         </div>
                       </td>
                       {isSuperAdmin && (
                         <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
-                          <span className="inline-flex rounded-full bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 text-xs text-slate-700 dark:text-slate-200">
+                          <span className="inline-flex rounded-full bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 text-xs text-slate-600 dark:text-slate-200">
                             {orgName(b.orgId)}
                           </span>
                         </td>
@@ -622,7 +622,7 @@ export default function Branches() {
                         <button
                           type="button"
                           onClick={() => openEdit(b)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                          className="rounded p-1.5 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                           title="Редактировать"
                         >
                           <Pencil className="h-4 w-4" />

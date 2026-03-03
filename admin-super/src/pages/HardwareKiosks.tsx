@@ -277,7 +277,7 @@ export default function HardwareKiosks() {
   if (!isSuperAdmin) {
     return (
       <div className="animate-fade-in space-y-6">
-        <div className="rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-3 text-red-300">
+        <div className="rounded-lg border border-red-200 dark:border-red-500/50 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-red-600 dark:text-red-400 font-medium">
           Доступ запрещён. Только Super Admin может управлять hardware киосками.
         </div>
       </div>
@@ -374,14 +374,14 @@ export default function HardwareKiosks() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Название</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">MAC ID</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Организация</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Филиал</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Баланс</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Статус</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Последний heartbeat</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 text-right">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Название</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">MAC ID</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Организация</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Филиал</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Баланс</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Статус</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Последний heartbeat</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400 text-right">
                     Действия
                   </th>
                 </tr>
@@ -447,7 +447,7 @@ export default function HardwareKiosks() {
                             setSelectedQrKiosk(k);
                             setQrModal(true);
                           }}
-                          className="rounded p-1.5 text-slate-400 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 hover:text-blue-600 dark:hover:text-blue-400"
+                          className="rounded p-1.5 text-slate-500 dark:text-slate-400 hover:bg-blue-500/10 dark:hover:bg-blue-500/20 hover:text-blue-600 dark:hover:text-blue-400"
                           title="Показать QR-код"
                         >
                           <QrCode className="h-4 w-4" />
@@ -455,7 +455,7 @@ export default function HardwareKiosks() {
                         <button
                           type="button"
                           onClick={() => openAssign(k)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                          className="rounded p-1.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                           title={k.orgId ? 'Изменить привязку' : 'Привязать'}
                         >
                           {k.orgId ? <Link2 className="h-4 w-4" /> : <Unlink className="h-4 w-4" />}
@@ -463,7 +463,7 @@ export default function HardwareKiosks() {
                         <button
                           type="button"
                           onClick={() => openEdit(k)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                          className="rounded p-1.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                           title="Редактировать"
                         >
                           <Pencil className="h-4 w-4" />
@@ -472,7 +472,7 @@ export default function HardwareKiosks() {
                           <button
                             type="button"
                             onClick={() => handleUnassign(k.id)}
-                            className="rounded p-1.5 text-slate-400 hover:bg-orange-500/20 hover:text-orange-400"
+                            className="rounded p-1.5 text-slate-500 dark:text-slate-400 hover:bg-orange-500/20 hover:text-orange-600 dark:hover:text-orange-400"
                             title="Отвязать"
                           >
                             <Unlink className="h-4 w-4" />
@@ -481,7 +481,7 @@ export default function HardwareKiosks() {
                         <button
                           type="button"
                           onClick={() => handleDelete(k.id)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-red-500/20 hover:text-red-400"
+                          className="rounded p-1.5 text-slate-500 dark:text-slate-400 hover:bg-red-500/20 hover:text-red-500"
                           title="Удалить"
                         >
                           <Trash2 className="h-4 w-4" />

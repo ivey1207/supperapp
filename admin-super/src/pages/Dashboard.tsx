@@ -91,7 +91,7 @@ export default function Dashboard() {
                 </span>
               </div>
               <div className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">{kpiValues[card.key]}</div>
-              <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-500">
+              <div className="mt-1 text-[11px] text-slate-600 dark:text-slate-500">
                 {card.key === 'kiosks' && 'Активных постов в сети'}
                 {card.key === 'users' && 'Администраторов и менеджеров'}
                 {card.key === 'companies' && 'Подключённых партнёрских организаций'}
@@ -106,7 +106,7 @@ export default function Dashboard() {
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800/70 bg-white dark:bg-slate-900 p-5 shadow-sm dark:shadow-lg transition-all duration-300">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Динамика выручки за неделю</h3>
-            <span className="text-[11px] text-slate-500">Все посты мойки</span>
+            <span className="text-[11px] text-slate-600 dark:text-slate-400">Все посты мойки</span>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={weeklyRevenue} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
@@ -121,7 +121,7 @@ export default function Dashboard() {
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800/70 bg-white dark:bg-slate-900 p-5 shadow-sm dark:shadow-lg transition-all duration-300">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Способы оплаты</h3>
-            <span className="text-[11px] text-slate-500">Доля по типам платежей</span>
+            <span className="text-[11px] text-slate-600 dark:text-slate-400">Доля по типам платежей</span>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>

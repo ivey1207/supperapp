@@ -242,11 +242,11 @@ export default function Promotions() {
                             <div className="flex items-start justify-between">
                                 <div>
                                     <h3 className="font-bold text-slate-900 dark:text-white">{promo.title}</h3>
-                                    <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
+                                    <div className="mt-1 flex items-center gap-2 text-xs text-slate-600 dark:text-slate-500">
                                         {promo.active ? (
-                                            <span className="flex items-center gap-1 text-emerald-400 font-semibold"><CheckCircle className="h-3.5 w-3.5" /> Активна</span>
+                                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold"><CheckCircle className="h-3.5 w-3.5" /> Активна</span>
                                         ) : (
-                                            <span className="flex items-center gap-1 text-slate-500 font-semibold"><XCircle className="h-3.5 w-3.5" /> Черновик</span>
+                                            <span className="flex items-center gap-1 text-slate-500 dark:text-slate-500 font-semibold"><XCircle className="h-3.5 w-3.5" /> Черновик</span>
                                         )}
                                     </div>
                                 </div>
@@ -255,10 +255,10 @@ export default function Promotions() {
                                 </div>
                             </div>
 
-                            <p className="line-clamp-2 text-sm text-slate-400 leading-relaxed">{promo.description}</p>
+                            <p className="line-clamp-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{promo.description}</p>
 
                             <div className="flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wider">
-                                <div className="flex items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 text-slate-500 dark:text-slate-400">
+                                <div className="flex items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 text-slate-600 dark:text-slate-400">
                                     <Calendar className="h-3 w-3" />
                                     {new Date(promo.startDate).toLocaleDateString()} - {new Date(promo.endDate).toLocaleDateString()}
                                 </div>
@@ -273,7 +273,7 @@ export default function Promotions() {
                             <div className="flex items-center justify-end gap-2 pt-2 opacity-0 transition-all duration-300 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0">
                                 <button
                                     onClick={() => handleOpenEdit(promo)}
-                                    className="rounded-lg bg-white dark:bg-slate-800 p-2 text-slate-600 dark:text-white border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm dark:shadow-none"
+                                    className="rounded-lg bg-white dark:bg-slate-800 p-2 text-slate-500 dark:text-white border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm dark:shadow-none"
                                     title="Редактировать"
                                 >
                                     <Edit2 className="h-4 w-4" />

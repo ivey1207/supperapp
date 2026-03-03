@@ -186,7 +186,7 @@ export default function Rfid() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Номер карты</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Номер карты</label>
                 <input
                   type="text"
                   value={form.number}
@@ -196,7 +196,7 @@ export default function Rfid() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Владелец</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Владелец</label>
                 <input
                   type="text"
                   value={form.holder}
@@ -206,11 +206,11 @@ export default function Rfid() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Статус</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Статус</label>
                 <select
                   value={form.status}
                   onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-amber-500 focus:outline-none"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/80 px-3 py-2 text-slate-900 dark:text-white focus:border-amber-500 focus:outline-none"
                 >
                   <option value="ACTIVE">Активна</option>
                   <option value="BLOCKED">Заблокирована</option>

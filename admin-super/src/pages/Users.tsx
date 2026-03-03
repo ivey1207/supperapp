@@ -187,11 +187,11 @@ export default function Users() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Email</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Имя</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Роль</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Org ID</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right">Действия</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Email</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Имя</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Роль</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Org ID</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400 text-right">Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -210,7 +210,7 @@ export default function Users() {
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-0.5">
                           <span className="font-medium text-slate-900 dark:text-white">{a.email}</span>
-                          <span className="text-[11px] text-slate-500">
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400">
                             {a.fullName || 'Без имени'} · ID {a.id.slice(0, 8)}…
                           </span>
                         </div>
@@ -234,7 +234,7 @@ export default function Users() {
                         <button
                           type="button"
                           onClick={() => handleDelete(a.id)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-red-500/20 hover:text-red-400"
+                          className="rounded p-1.5 text-slate-500 dark:text-slate-400 hover:bg-red-500/20 hover:text-red-500"
                           title="Удалить"
                         >
                           <Trash2 className="h-4 w-4" />

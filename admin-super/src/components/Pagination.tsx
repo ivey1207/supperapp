@@ -73,9 +73,9 @@ export default function Pagination({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 border-t border-slate-700/50 bg-slate-800/30">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 border-t border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/30">
       <div className="flex items-center gap-4">
-        <span className="text-sm text-slate-400">
+        <span className="text-sm text-slate-500 dark:text-slate-400">
           Показано {startItem}–{endItem} из {totalItems}
         </span>
         {onPageSizeChange && (
@@ -84,7 +84,7 @@ export default function Pagination({
             <select
               value={pageSize}
               onChange={handlePageSizeChange}
-              className="rounded-lg border border-slate-600 bg-slate-800/80 px-2 py-1 text-sm text-white focus:border-blue-500 focus:outline-none"
+              className="rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800/80 px-2 py-1 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>
@@ -124,11 +124,10 @@ export default function Pagination({
                 key={pageNum}
                 type="button"
                 onClick={() => handlePageChange(pageNum)}
-                className={`min-w-[32px] rounded px-2 py-1 text-sm font-medium transition-colors ${
-                  isActive
+                className={`min-w-[32px] rounded px-2 py-1 text-sm font-medium transition-colors ${isActive
                     ? 'bg-blue-600 text-white'
-                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
-                }`}
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
+                  }`}
               >
                 {pageNum}
               </button>

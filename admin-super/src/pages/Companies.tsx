@@ -421,14 +421,14 @@ export default function Companies() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Название</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Название</th>
 
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Адрес</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Телефон</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Рейтинг</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Статус</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Адрес</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Телефон</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Рейтинг</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Статус</th>
                   {isSuperAdmin && (
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right">
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400 text-right">
                       Действия
                     </th>
                   )}
@@ -449,18 +449,18 @@ export default function Companies() {
                     >
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-white">{o.name}</span>
-                          <span className="text-[11px] text-slate-400">ID: {o.id.slice(0, 8)}…</span>
+                          <span className="font-medium text-slate-900 dark:text-white">{o.name}</span>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400">ID: {o.id.slice(0, 8)}…</span>
                         </div>
                       </td>
 
-                      <td className="px-4 py-3 text-slate-200">{o.address || '—'}</td>
-                      <td className="px-4 py-3 text-slate-200">{o.phone || '—'}</td>
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-200">{o.address || '—'}</td>
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-200">{o.phone || '—'}</td>
                       <td className="px-4 py-3">
                         {o.rating ? (
                           <div className="flex items-center gap-1">
                             <span className="text-yellow-400">★</span>
-                            <span className="text-sm text-slate-200">
+                            <span className="text-sm text-slate-700 dark:text-slate-200">
                               {o.rating.toFixed(1)} ({o.reviewCount || 0})
                             </span>
                           </div>
@@ -472,7 +472,7 @@ export default function Companies() {
                         <span
                           className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${o.status === 'ACTIVE'
                             ? 'bg-emerald-500/20 text-emerald-300'
-                            : 'bg-slate-500/20 text-slate-200'
+                            : 'bg-slate-200 dark:bg-slate-500/20 text-slate-700 dark:text-slate-200'
                             }`}
                         >
                           {o.status}
@@ -484,7 +484,7 @@ export default function Companies() {
                           <button
                             type="button"
                             onClick={() => openEdit(o)}
-                            className="rounded p-1.5 text-slate-300 hover:bg-slate-600 hover:text-white"
+                            className="rounded p-1.5 text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white"
                             title="Редактировать"
                           >
                             <Pencil className="h-4 w-4" />

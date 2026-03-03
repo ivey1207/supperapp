@@ -243,10 +243,10 @@ export default function Services() {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Название</th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Филиал</th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Цена/мин</th>
-                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 text-right">Действия</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Название</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Филиал</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">Цена/мин</th>
+                <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 text-right">Действия</th>
               </tr>
             </thead>
             <tbody>
@@ -266,8 +266,8 @@ export default function Services() {
                       <span className="text-emerald-600 dark:text-emerald-400 font-mono">{s.pricePerMinute.toLocaleString()}</span>
                     </td>
                     <td className="px-4 py-3 text-right space-x-2">
-                      <button onClick={() => openEdit(s)} className="p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors rounded"><Pencil className="h-4 w-4" /></button>
-                      <button onClick={() => { if (confirm('Удалить?')) deleteService(s.id).then(load) }} className="p-1 text-slate-400 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded"><Trash2 className="h-4 w-4" /></button>
+                      <button onClick={() => openEdit(s)} className="p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-colors rounded"><Pencil className="h-4 w-4" /></button>
+                      <button onClick={() => { if (confirm('Удалить?')) deleteService(s.id).then(load) }} className="p-1 text-slate-500 dark:text-slate-400 hover:bg-red-500/10 hover:text-red-500 transition-colors rounded"><Trash2 className="h-4 w-4" /></button>
                     </td>
                   </tr>
                 ))

@@ -71,20 +71,20 @@ export default function PaymentReports() {
     useEffect(() => { load(); }, [load]);
 
     return (
-        <div style={{ padding: '24px' }}>
+        <div className="p-6 space-y-6">
             {/* Заголовок */}
-            <div style={{ marginBottom: '24px' }}>
-                <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#f1f5f9', margin: 0 }}>
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     💰 Отчёты по оплатам
                 </h1>
-                <p style={{ color: '#94a3b8', marginTop: '4px', fontSize: '14px' }}>
+                <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm font-medium">
                     Все виды оплат: купюроприёмник, RFID-карта, онлайн через приложение
                 </p>
             </div>
 
             {/* Summary карточки */}
             {summary && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {(['CASH', 'RFID', 'ONLINE'] as const).map(type => {
                         const cfg = TYPE_CONFIG[type];
                         const s = summary[type];
@@ -92,57 +92,50 @@ export default function PaymentReports() {
                             <div
                                 key={type}
                                 onClick={() => setTypeFilter(typeFilter === type ? '' : type)}
-                                style={{
-                                    padding: '20px',
-                                    borderRadius: '16px',
-                                    background: typeFilter === type ? cfg.bg : 'rgba(255,255,255,0.04)',
-                                    border: `1px solid ${typeFilter === type ? cfg.border : 'rgba(255,255,255,0.08)'}`,
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s',
-                                }}
+                                className={`p-5 rounded-2xl cursor-pointer transition-all border ${typeFilter === type
+                                        ? `bg-blue-500/10 border-blue-500/30`
+                                        : `bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm dark:shadow-none`
+                                    }`}
+                                style={typeFilter === type ? { borderColor: `${cfg.color}50`, background: `${cfg.color}10` } : {}}
                             >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                                    <div style={{ fontSize: '28px' }}>{cfg.icon}</div>
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="text-3xl">{cfg.icon}</div>
                                     {typeFilter === type && (
-                                        <span style={{ fontSize: '11px', background: cfg.color + '30', color: cfg.color, padding: '2px 8px', borderRadius: '10px', fontWeight: 700 }}>
+                                        <span
+                                            className="text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider"
+                                            style={{ background: `${cfg.color}20`, color: cfg.color }}
+                                        >
                                             фильтр
                                         </span>
                                     )}
                                 </div>
-                                <div style={{ color: '#64748b', fontSize: '13px', marginBottom: '4px' }}>{cfg.label}</div>
-                                <div style={{ color: cfg.color, fontSize: '22px', fontWeight: 700 }}>{fmt(s.total)}</div>
-                                <div style={{ color: '#64748b', fontSize: '12px', marginTop: '4px' }}>{s.count} транзакций</div>
+                                <div className="text-slate-500 dark:text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">{cfg.label}</div>
+                                <div className="text-2xl font-black" style={{ color: cfg.color }}>{fmt(s.total)}</div>
+                                <div className="text-slate-400 dark:text-slate-500 text-xs mt-1 font-semibold">{s.count} транзакций</div>
                             </div>
                         );
                     })}
                     {/* Итого */}
-                    <div style={{
-                        padding: '20px', borderRadius: '16px',
-                        background: 'rgba(255,255,255,0.06)',
-                        border: '1px solid rgba(255,255,255,0.15)',
-                    }}>
-                        <div style={{ fontSize: '28px', marginBottom: '12px' }}>📊</div>
-                        <div style={{ color: '#64748b', fontSize: '13px', marginBottom: '4px' }}>Всего</div>
-                        <div style={{ color: '#f1f5f9', fontSize: '22px', fontWeight: 700 }}>{fmt(summary.ALL.total)}</div>
-                        <div style={{ color: '#64748b', fontSize: '12px', marginTop: '4px' }}>{summary.ALL.count} транзакций</div>
+                    <div className="p-5 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
+                        <div className="text-3xl mb-4">📊</div>
+                        <div className="text-slate-500 dark:text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Всего</div>
+                        <div className="text-slate-900 dark:text-slate-100 text-2xl font-black">{fmt(summary.ALL.total)}</div>
+                        <div className="text-slate-400 dark:text-slate-500 text-xs mt-1 font-semibold">{summary.ALL.count} транзакций</div>
                     </div>
                 </div>
             )}
 
             {/* Фильтры */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
-                <div style={{ display: 'flex', gap: '6px' }}>
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+                <div className="flex gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
                     {[{ v: '', l: 'Все типы' }, { v: 'CASH', l: '💵 Cash' }, { v: 'RFID', l: '💳 RFID' }, { v: 'ONLINE', l: '📱 Онлайн' }].map(f => (
                         <button
                             key={f.v}
                             onClick={() => setTypeFilter(f.v)}
-                            style={{
-                                padding: '6px 14px', borderRadius: '20px', border: 'none', cursor: 'pointer',
-                                fontSize: '13px', fontWeight: 600,
-                                background: typeFilter === f.v ? '#3b82f6' : 'rgba(255,255,255,0.08)',
-                                color: typeFilter === f.v ? '#fff' : '#94a3b8',
-                                transition: 'all 0.2s',
-                            }}
+                            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${typeFilter === f.v
+                                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                                }`}
                         >
                             {f.l}
                         </button>
@@ -152,17 +145,12 @@ export default function PaymentReports() {
                     type="date"
                     value={dateFilter}
                     onChange={e => setDateFilter(e.target.value)}
-                    style={{
-                        padding: '6px 12px', borderRadius: '10px',
-                        background: 'rgba(255,255,255,0.08)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        color: '#f1f5f9', fontSize: '13px', cursor: 'pointer',
-                    }}
+                    className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold outline-none border border-transparent focus:border-blue-500/50 cursor-pointer"
                 />
                 {(typeFilter || dateFilter) && (
                     <button
                         onClick={() => { setTypeFilter(''); setDateFilter(''); }}
-                        style={{ padding: '6px 12px', borderRadius: '10px', border: 'none', background: 'rgba(239,68,68,0.15)', color: '#ef4444', cursor: 'pointer', fontSize: '13px' }}
+                        className="px-4 py-2 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold hover:bg-red-500/20 transition-all active:scale-[0.98]"
                     >
                         ✕ Сбросить
                     </button>
@@ -171,78 +159,78 @@ export default function PaymentReports() {
 
             {/* Таблица транзакций */}
             {loading ? (
-                <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>Загрузка...</div>
+                <div className="py-20 text-center text-slate-500 dark:text-slate-400 font-medium">Загрузка...</div>
             ) : transactions.length === 0 ? (
-                <div style={{
-                    textAlign: 'center', padding: '60px',
-                    background: 'rgba(255,255,255,0.03)',
-                    borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)'
-                }}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>💰</div>
-                    <div style={{ color: '#94a3b8', fontSize: '16px' }}>Нет транзакций</div>
-                    <div style={{ color: '#475569', fontSize: '13px', marginTop: '8px' }}>
+                <div className="text-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+                    <div className="text-4xl mb-4 opacity-50">💰</div>
+                    <div className="text-slate-900 dark:text-white text-lg font-bold">Нет транзакций</div>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 max-w-xs mx-auto">
                         Транзакции появятся после первых оплат через кассу, RFID-карту или приложение
-                    </div>
+                    </p>
                 </div>
             ) : (
-                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                                {['Тип оплаты', 'Киоск (MAC)', 'Сумма', 'Статус', 'Детали', 'Дата и время'].map(h => (
-                                    <th key={h} style={{ padding: '12px 16px', textAlign: 'left', color: '#64748b', fontSize: '12px', fontWeight: 600, textTransform: 'uppercase' }}>{h}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {transactions.map((tx, i) => {
-                                const cfg = TYPE_CONFIG[tx.paymentType] || { label: tx.paymentType, icon: '?', color: '#94a3b8' };
-                                return (
-                                    <tr
-                                        key={tx.id}
-                                        style={{
-                                            borderBottom: i < transactions.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                                        }}
-                                    >
-                                        <td style={{ padding: '14px 16px' }}>
-                                            <span style={{
-                                                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                                                padding: '4px 12px', borderRadius: '20px',
-                                                background: cfg.bg || 'rgba(255,255,255,0.08)',
-                                                color: cfg.color, fontSize: '12px', fontWeight: 700,
-                                                border: `1px solid ${cfg.border || 'transparent'}`,
-                                            }}>
-                                                {cfg.icon} {cfg.label}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '14px 16px', color: '#94a3b8', fontSize: '13px', fontFamily: 'monospace' }}>
-                                            {tx.kioskId || '—'}
-                                        </td>
-                                        <td style={{ padding: '14px 16px', color: '#22c55e', fontSize: '15px', fontWeight: 700 }}>
-                                            {fmt(tx.amount)}
-                                        </td>
-                                        <td style={{ padding: '14px 16px' }}>
-                                            <span style={{
-                                                padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 600,
-                                                color: STATUS_COLOR[tx.status] || '#94a3b8',
-                                                background: (STATUS_COLOR[tx.status] || '#94a3b8') + '20',
-                                            }}>
-                                                {tx.status}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '14px 16px', color: '#64748b', fontSize: '12px' }}>
-                                            {tx.rfidCardId ? `RFID: ${tx.rfidCardId}` :
-                                                tx.userId ? `User: ${tx.userId.slice(-8)}` :
-                                                    tx.description || '—'}
-                                        </td>
-                                        <td style={{ padding: '14px 16px', color: '#64748b', fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                            {tx.createdAt ? new Date(tx.createdAt).toLocaleString('ru') : '—'}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                <div className="bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-200 dark:border-slate-800/60 overflow-hidden shadow-sm dark:shadow-none">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
+                                    {['Тип оплаты', 'Киоск', 'Сумма', 'Статус', 'Детали', 'Дата и время'].map(h => (
+                                        <th key={h} className="px-5 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-500">{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {transactions.map((tx) => {
+                                    const cfg = TYPE_CONFIG[tx.paymentType] || { label: tx.paymentType, icon: '?', color: '#94a3b8' };
+                                    return (
+                                        <tr
+                                            key={tx.id}
+                                            className="border-b border-slate-100 dark:border-slate-800/40 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors"
+                                        >
+                                            <td className="px-5 py-4">
+                                                <span
+                                                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold"
+                                                    style={{
+                                                        background: `${cfg.color}15`,
+                                                        color: cfg.color,
+                                                        border: `1px solid ${cfg.color}30`
+                                                    }}
+                                                >
+                                                    {cfg.icon} {cfg.label}
+                                                </span>
+                                            </td>
+                                            <td className="px-5 py-4 text-xs text-slate-500 dark:text-slate-400 font-mono font-medium">
+                                                {tx.kioskId || '—'}
+                                            </td>
+                                            <td className="px-5 py-4 text-sm text-emerald-600 dark:text-emerald-400 font-black">
+                                                {fmt(tx.amount)}
+                                            </td>
+                                            <td className="px-5 py-4">
+                                                <span
+                                                    className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
+                                                    style={{
+                                                        color: STATUS_COLOR[tx.status] || '#64748b',
+                                                        background: `${STATUS_COLOR[tx.status] || '#64748b'}20`,
+                                                        border: `1px solid ${STATUS_COLOR[tx.status] || '#64748b'}30`
+                                                    }}
+                                                >
+                                                    {tx.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-5 py-4 text-xs text-slate-600 dark:text-slate-400 font-medium">
+                                                {tx.rfidCardId ? `RFID: ${tx.rfidCardId}` :
+                                                    tx.userId ? `User: ${tx.userId.slice(-8)}` :
+                                                        tx.description || '—'}
+                                            </td>
+                                            <td className="px-5 py-4 text-xs text-slate-500 dark:text-slate-500 font-semibold whitespace-nowrap">
+                                                {tx.createdAt ? new Date(tx.createdAt).toLocaleString('ru') : '—'}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
         </div>

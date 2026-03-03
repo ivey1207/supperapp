@@ -211,9 +211,9 @@ export default function Devices() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Название / MAC</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Статус</th>
-                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 text-right">Действия</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Название / MAC</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Статус</th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400 text-right">Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -233,7 +233,7 @@ export default function Devices() {
                         <div className="flex flex-col gap-0.5">
                           <span className="font-medium text-slate-900 dark:text-white">{d.name}</span>
                           {d.macId && <span className="text-[10px] text-violet-600 dark:text-violet-400 font-mono">MAC: {d.macId}</span>}
-                          <span className="text-[11px] text-slate-500">ID: {d.id.slice(0, 8)}…</span>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400">ID: {d.id.slice(0, 8)}…</span>
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -250,7 +250,7 @@ export default function Devices() {
                         <button
                           type="button"
                           onClick={() => openEdit(d)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white"
+                          className="rounded p-1.5 text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white"
                           title="Редактировать"
                         >
                           <Pencil className="h-4 w-4" />
@@ -258,7 +258,7 @@ export default function Devices() {
                         <button
                           type="button"
                           onClick={() => handleDelete(d.id)}
-                          className="rounded p-1.5 text-slate-400 hover:bg-red-500/20 hover:text-red-400"
+                          className="rounded p-1.5 text-slate-500 dark:text-slate-300 hover:bg-red-500/20 hover:text-red-400"
                           title="Удалить"
                         >
                           <Trash2 className="h-4 w-4" />
