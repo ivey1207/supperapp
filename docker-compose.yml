@@ -1,5 +1,5 @@
 services:
-  postgres:
+  postgres-master:
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: superapp
@@ -9,11 +9,41 @@ services:
       - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - wal_archives:/archives
+      - ./postgres/init-master.sh:/docker-entrypoint-initdb.d/init-master.sh:ro
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=replica"
+      - "-c"
+      - "archive_mode=on"
+      - "-c"
+      - "archive_command=test ! -f /archives/%f && cp %p /archives/%f"
+      - "-c"
+      - "max_wal_senders=10"
+      - "-c"
+      - "max_replication_slots=10"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U user -d superapp" ]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  postgres-replica:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: superapp
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      PGPASSWORD: repl_password
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+      - wal_archives:/archives
+      - ./postgres/init-replica.sh:/usr/local/bin/init-replica.sh:ro
+    entrypoint: [ "/usr/local/bin/init-replica.sh" ]
+    depends_on:
+      postgres-master:
+        condition: service_healthy
 
   redis:
     image: redis:7-alpine
@@ -33,17 +63,18 @@ services:
       dockerfile: Dockerfile
     environment:
       SEED_DATABASE: "true"
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/superapp
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-master:5432/superapp
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: "6379"
       JWT_SECRET: superapp-jwt-secret-change-in-production-min-256-bits
+      FORCE_RESEED: "false"
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
-      postgres:
+      postgres-master:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -60,7 +91,7 @@ services:
       dockerfile: Dockerfile
     environment:
       SEED_DATABASE: "false"
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/superapp
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-master:5432/superapp
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
@@ -70,7 +101,7 @@ services:
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
-      postgres:
+      postgres-master:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -109,7 +140,7 @@ services:
   backup:
     image: postgres:16-alpine
     environment:
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: postgres-master
       POSTGRES_DB: superapp
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -119,9 +150,11 @@ services:
       - ./scripts/backup.sh:/usr/local/bin/backup.sh:ro
     entrypoint: [ "sh", "-c", "chmod +x /usr/local/bin/backup.sh && echo \"0 3 * * * /usr/local/bin/backup.sh\" > /etc/crontabs/root && crond -f -l 2" ]
     depends_on:
-      postgres:
+      postgres-master:
         condition: service_healthy
 
 volumes:
   postgres_data:
+  postgres_replica_data:
+  wal_archives:
   redis_data:
