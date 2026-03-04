@@ -53,9 +53,9 @@ export function setAuthToken(token: string | null) {
   else delete api.defaults.headers.common['Authorization'];
 }
 
-export async function requestOtp(phone: string) {
-  const { data } = await api.post('/api/v1/app-auth/otp/request', { phone });
-  return data as { devOtp?: string };
+export async function requestOtp(phone: string, email: string) {
+  const { data } = await api.post('/api/v1/app-auth/otp/request', { phone, email });
+  return data as { message: string };
 }
 
 export async function verifyOtp(phone: string, otp: string) {
@@ -66,12 +66,23 @@ export async function verifyOtp(phone: string, otp: string) {
 export type User = {
   id: string;
   phone: string;
+  email?: string;
   fullName: string;
   carModel?: string;
   carNumber?: string;
 };
 
-export async function updateProfile(token: string, profile: Partial<User>) {
+export async function forgotPassword(identifier: { email?: string; phone?: string }) {
+  const { data } = await api.post('/api/v1/app-auth/password/forgot', identifier);
+  return data as { message: string; devOtp?: string };
+}
+
+export async function resetPassword(payload: { email?: string; phone?: string; otp: string; newPassword: string }) {
+  const { data } = await api.post('/api/v1/app-auth/password/reset', payload);
+  return data as { message: string };
+}
+
+export async function updateProfile(token: string, profile: Partial<User & { password?: string }>) {
   const { data } = await api.put('/api/v1/app/user/profile', profile, {
     headers: { Authorization: `Bearer ${token}` }
   });

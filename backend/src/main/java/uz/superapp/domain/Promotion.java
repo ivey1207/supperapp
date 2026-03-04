@@ -1,18 +1,25 @@
 package uz.superapp.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 import java.time.LocalDateTime;
 
-@Document("promotions")
+@Entity
+@Table(name = "promotions")
 public class Promotion {
     @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
+
     private String orgId;
     private String branchId;
     private String serviceId;
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
+
     private String imageUrl;
     private String discountValue;
     private LocalDateTime startDate;

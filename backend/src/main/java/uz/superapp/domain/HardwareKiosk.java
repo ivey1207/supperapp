@@ -1,8 +1,7 @@
 package uz.superapp.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -12,68 +11,34 @@ import java.util.Map;
 /**
  * Hardware киоск - физическое устройство с MAC ID
  */
-@Document("hardware_kiosks")
+@Entity
+@Table(name = "hardware_kiosks")
 public class HardwareKiosk {
     @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
 
-    /**
-     * MAC адрес устройства (уникальный идентификатор)
-     */
-    @Indexed(unique = true)
+    @Column(unique = true, nullable = false)
     private String macId;
 
-    /**
-     * Уникальный ID киоска для QR-кода (совпадает с controllerId для heartbeat).
-     * Формат: KIOSK_001, KIOSK_002 и т.д. Печатается на наклейке QR.
-     */
-    @Indexed(unique = true, sparse = true)
+    @Column(unique = true)
     private String kioskId;
 
-    /**
-     * Баланс киоска (пополняется через мобильное приложение после QR-скана)
-     */
+    @Column(precision = 19, scale = 4)
     private BigDecimal balance = BigDecimal.ZERO;
 
-    /**
-     * Название устройства (опционально)
-     */
     private String name;
-
-    /**
-     * Статус: REGISTERED (зарегистрирован, но не привязан), ACTIVE (привязан к
-     * организации), INACTIVE (неактивен)
-     */
     private String status = "REGISTERED";
-
-    /**
-     * ID организации, к которой привязан киоск (null если не привязан)
-     */
     private String orgId;
-
-    /**
-     * ID филиала/локации, к которой привязан киоск (null если не привязан)
-     */
     private String branchId;
-
-    /**
-     * Время регистрации устройства
-     */
     private Instant registeredAt;
-
-    /**
-     * Время последнего heartbeat
-     */
     private Instant lastHeartbeat;
-
-    /**
-     * Мягкое удаление
-     */
     private boolean archived;
 
-    /**
-     * Индивидуальные настройки IoT для каждой услуги (ключ - ID услуги)
-     */
+    @ElementCollection
+    @CollectionTable(name = "kiosk_iot_overrides", joinColumns = @JoinColumn(name = "kiosk_id"))
+    @MapKeyColumn(name = "service_id")
     private Map<String, KioskServiceIotConfig> iotOverrides = new HashMap<>();
 
     public String getId() {

@@ -1,11 +1,11 @@
 package uz.superapp.repository;
 
 import uz.superapp.domain.Branch;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface BranchRepository extends MongoRepository<Branch, String> {
+public interface BranchRepository extends JpaRepository<Branch, String> {
     List<Branch> findByArchivedFalse();
 
     List<Branch> findByOrgIdAndArchivedFalse(String orgId);

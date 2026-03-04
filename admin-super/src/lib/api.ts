@@ -321,3 +321,23 @@ export async function topUpHardwareKioskBalance(id: string, amount: number) {
   const { data } = await api.post(`/api/v1/admin/hardware-kiosks/${id}/top-up`, { amount });
   return data;
 }
+
+// App Users (Mobile)
+export type AppUser = {
+  id: string;
+  phone: string;
+  fullName: string;
+  blocked: boolean;
+  carModel?: string;
+  carNumber?: string;
+};
+
+export async function getAppUsers(): Promise<AppUser[]> {
+  const { data } = await api.get('/api/v1/admin/app-users');
+  return data;
+}
+
+export async function toggleBlockAppUser(id: string): Promise<{ id: string, blocked: boolean }> {
+  const { data } = await api.post(`/api/v1/admin/app-users/${id}/toggle-block`);
+  return data;
+}

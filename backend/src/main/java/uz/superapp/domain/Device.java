@@ -1,60 +1,32 @@
 package uz.superapp.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
+import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 import java.math.BigDecimal;
+import java.time.Instant;
 
-@Document("devices")
+@Entity
+@Table(name = "devices")
 public class Device {
 
     @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
 
-    /**
-     * Организация-владелец девайса.
-     * Не ограничиваем количество девайсов на организацию.
-     */
     private String orgId;
-
-    /**
-     * Локация / филиал, к которому привязан девайс.
-     * ВАЖНО: одна локация может иметь 0..N девайсов (улучшенная логика,
-     * в отличие от старого проекта, где фактически подразумевался 1 девайс на
-     * локацию).
-     */
     private String branchId;
-
     private String name;
 
-    /**
-     * Текущий наличный баланс в девайсе (для отчётов / контроля).
-     */
+    @Column(precision = 19, scale = 4)
     private BigDecimal cashBalance = BigDecimal.ZERO;
 
-    /**
-     * Статус девайса: например, OPEN / CLOSED / MAINTENANCE.
-     */
     private String status = "ACTIVE";
-
-    /**
-     * MAC адрес устройства (для Hardware Kiosks).
-     */
     private String macId;
-
-    /**
-     * Время последней активности (Heartbeat).
-     */
-    private java.time.Instant lastHeartbeat;
-
-    private java.time.Instant registeredAt;
-
+    private Instant lastHeartbeat;
+    private Instant registeredAt;
     private String ipAddress;
     private String version;
-
-    /**
-     * Мягкое удаление.
-     */
     private boolean archived;
 
     public String getId() {
@@ -121,19 +93,19 @@ public class Device {
         this.macId = macId;
     }
 
-    public java.time.Instant getLastHeartbeat() {
+    public Instant getLastHeartbeat() {
         return lastHeartbeat;
     }
 
-    public void setLastHeartbeat(java.time.Instant lastHeartbeat) {
+    public void setLastHeartbeat(Instant lastHeartbeat) {
         this.lastHeartbeat = lastHeartbeat;
     }
 
-    public java.time.Instant getRegisteredAt() {
+    public Instant getRegisteredAt() {
         return registeredAt;
     }
 
-    public void setRegisteredAt(java.time.Instant registeredAt) {
+    public void setRegisteredAt(Instant registeredAt) {
         this.registeredAt = registeredAt;
     }
 

@@ -1,10 +1,10 @@
 package uz.superapp.repository;
 
 import uz.superapp.domain.Order;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface OrderRepository extends MongoRepository<Order, String> {
+public interface OrderRepository extends JpaRepository<Order, String> {
     List<Order> findByUserIdOrderByCreatedAtDesc(String userId);
 }

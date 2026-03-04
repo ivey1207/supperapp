@@ -1,22 +1,57 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, useColorScheme, Dimensions, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, useColorScheme, Dimensions, Platform, ActivityIndicator, StatusBar } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { getBranchById, getServices, getFileUrl } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { openYandexNavigation } from '@/lib/navigation';
 
 const { width } = Dimensions.get('window');
+
+function ServiceCard({ service, colors }: any) {
+    return (
+        <TouchableOpacity
+            style={[styles.serviceCard, { backgroundColor: colors.card }]}
+            activeOpacity={0.7}
+        >
+            <View style={styles.serviceMain}>
+                <View style={styles.serviceText}>
+                    <Text style={[styles.serviceName, { color: colors.text }]}>{service.name}</Text>
+                    <Text style={[styles.serviceDesc, { color: colors.textSecondary }]} numberOfLines={2}>
+                        {service.description || 'High-quality professional service for your vehicle.'}
+                    </Text>
+                </View>
+                <View style={[styles.serviceIcon, { backgroundColor: '#F1F5F9' }]}>
+                    <Ionicons name="construct-outline" size={24} color={colors.primary} />
+                </View>
+            </View>
+
+            <View style={styles.serviceFooter}>
+                <View style={styles.priceContainer}>
+                    <Text style={[styles.priceValue, { color: colors.primary }]}>
+                        {service.pricePerMinute?.toLocaleString()} UZS
+                    </Text>
+                    <Text style={styles.priceUnit}>/ min</Text>
+                </View>
+                {!!service.durationMinutes && (
+                    <View style={styles.durationBadge}>
+                        <Ionicons name="time-outline" size={14} color="#64748B" />
+                        <Text style={styles.durationText}>{service.durationMinutes} min</Text>
+                    </View>
+                )}
+            </View>
+        </TouchableOpacity>
+    );
+}
 
 export default function BranchDetailsScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
     const { token } = useAuth();
-    const scheme = useColorScheme() ?? 'dark';
+    const scheme = useColorScheme() ?? 'light';
     const colors = Colors[scheme];
 
     const { data: branch, isLoading: isBranchLoading } = useQuery({
@@ -42,9 +77,10 @@ export default function BranchDetailsScreen() {
     if (!branch) {
         return (
             <View style={[styles.errorContainer, { backgroundColor: colors.background }]}>
-                <Text style={[styles.errorText, { color: colors.text }]}>Филиал не найден</Text>
-                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                    <Text style={{ color: colors.primary }}>Назад</Text>
+                <Ionicons name="alert-circle-outline" size={64} color={colors.textSecondary} />
+                <Text style={[styles.errorText, { color: colors.text }]}>Branch not found</Text>
+                <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.primary }]} onPress={() => router.back()}>
+                    <Text style={styles.backBtnText}>Go Back</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -52,149 +88,159 @@ export default function BranchDetailsScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <StatusBar barStyle="light-content" />
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                {/* Image Header */}
-                <View style={styles.imageHeader}>
+                {/* Hero Header */}
+                <View style={styles.heroSection}>
                     <Image
                         source={{ uri: getFileUrl(branch.photoUrl || (branch.images && branch.images[0])) || 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=800&q=80' }}
-                        style={styles.headerImage}
+                        style={styles.heroImage}
                     />
                     <LinearGradient
-                        colors={['rgba(0,0,0,0.5)', 'transparent', 'rgba(0,0,0,0.8)']}
-                        style={styles.imageGradient}
+                        colors={['rgba(0,0,0,0.6)', 'transparent', 'rgba(15,23,42,0.95)']}
+                        style={styles.heroGradient}
                     />
 
-                    {/* Floating Back Button */}
-                    <SafeAreaView style={styles.backButtonWrapper}>
+                    {/* Navigation Actions */}
+                    <SafeAreaView style={styles.navHeader}>
                         <TouchableOpacity
-                            style={[styles.iconButton, { backgroundColor: 'rgba(0,0,0,0.5)' }]}
+                            style={styles.blurBtn}
                             onPress={() => router.back()}
                         >
                             <Ionicons name="chevron-back" size={24} color="#fff" />
                         </TouchableOpacity>
+                        <View style={styles.navRight}>
+                            <TouchableOpacity style={styles.blurBtn}>
+                                <Ionicons name="share-outline" size={22} color="#fff" />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.blurBtn}>
+                                <Ionicons name="heart-outline" size={22} color="#fff" />
+                            </TouchableOpacity>
+                        </View>
                     </SafeAreaView>
 
-                    {/* Quick Info Overlay */}
-                    <View style={styles.headerInfo}>
-                        <View style={styles.typeBadge}>
-                            <Text style={styles.typeText}>
-                                {branch.partnerType === 'SERVICE' ? 'Автосервис' : 'Автомойка'}
-                            </Text>
+                    {/* Header Details */}
+                    <View style={styles.heroContent}>
+                        <View style={styles.badgeRow}>
+                            <View style={[styles.typeBadge, { backgroundColor: colors.primary }]}>
+                                <Text style={styles.typeText}>
+                                    {branch.partnerType === 'SERVICE' ? 'SERVICE' : 'WASH'}
+                                </Text>
+                            </View>
+                            <View style={styles.statusBadge}>
+                                <View style={styles.dot} />
+                                <Text style={styles.statusText}>OPEN NOW</Text>
+                            </View>
                         </View>
-                        <Text style={styles.branchName}>{branch.name}</Text>
-                        <View style={styles.ratingRow}>
-                            <FontAwesome name="star" size={16} color="#fbbf24" />
-                            <Text style={styles.ratingText}>4.8</Text>
-                            <Text style={styles.reviewsText}>(120+ отзывов)</Text>
+                        <Text style={styles.branchTitle}>{branch.name}</Text>
+                        <View style={styles.metaRow}>
+                            <View style={styles.ratingBox}>
+                                <Ionicons name="star" size={16} color="#FBBF24" />
+                                <Text style={styles.ratingVal}>4.8</Text>
+                                <Text style={styles.ratingCount}>(120+)</Text>
+                            </View>
+                            <View style={styles.metaDivider} />
+                            <View style={styles.distanceBox}>
+                                <Ionicons name="navigate-outline" size={16} color="rgba(255,255,255,0.7)" />
+                                <Text style={styles.distanceVal}>1.2 km</Text>
+                            </View>
                         </View>
                     </View>
                 </View>
 
-                {/* Content */}
-                <View style={styles.content}>
-                    {/* Info Section */}
-                    <View style={[styles.infoSection, { backgroundColor: colors.card }]}>
-                        <View style={styles.infoRow}>
-                            <View style={[styles.infoIcon, { backgroundColor: colors.primary + '15' }]}>
-                                <Ionicons name="location" size={20} color={colors.primary} />
+                {/* Main Content */}
+                <View style={styles.mainWrapper}>
+                    {/* Action Cards */}
+                    <View style={styles.quickActions}>
+                        <TouchableOpacity
+                            style={[styles.actionCard, { backgroundColor: colors.card }]}
+                            onPress={() => router.push({
+                                pathname: '/(tabs)/map',
+                                params: { branchId: branch.id, startNav: 'true' }
+                            } as any)}
+                        >
+                            <View style={[styles.actionIcon, { backgroundColor: '#DBEAFE' }]}>
+                                <Ionicons name="map-outline" size={22} color="#2563EB" />
                             </View>
-                            <View style={styles.infoTextWrapper}>
-                                <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Адрес</Text>
-                                <Text style={[styles.infoValue, { color: colors.text }]}>{branch.address || 'Адрес не указан'}</Text>
+                            <Text style={[styles.actionLabel, { color: colors.text }]}>Directions</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card }]}>
+                            <View style={[styles.actionIcon, { backgroundColor: '#DCFCE7' }]}>
+                                <Ionicons name="call-outline" size={22} color="#16A34A" />
                             </View>
-                            {branch.location?.coordinates?.[1] && (
-                                <TouchableOpacity
-                                    style={[styles.miniRoundBtn, { backgroundColor: colors.primary + '20' }]}
-                                    onPress={() => router.push({
-                                        pathname: '/(tabs)/map',
-                                        params: { branchId: branch.id, startNav: 'true' }
-                                    } as any)}
-                                >
-                                    <MaterialIcons name="navigation" size={24} color={colors.primary} />
-                                </TouchableOpacity>
-                            )}
-                        </View>
+                            <Text style={[styles.actionLabel, { color: colors.text }]}>Call</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card }]}>
+                            <View style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}>
+                                <Ionicons name="chatbubble-outline" size={22} color="#D97706" />
+                            </View>
+                            <Text style={[styles.actionLabel, { color: colors.text }]}>Chat</Text>
+                        </TouchableOpacity>
+                    </View>
 
-                        <View style={styles.infoRow}>
-                            <View style={[styles.infoIcon, { backgroundColor: '#10b98115' }]}>
-                                <Ionicons name="time" size={20} color="#10b981" />
-                            </View>
-                            <View style={styles.infoTextWrapper}>
-                                <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Режим работы</Text>
-                                <Text style={[styles.infoValue, { color: colors.text }]}>Круглосуточно</Text>
-                            </View>
-                        </View>
-
-                        {/* Description Section */}
-                        {branch.description && (
-                            <View style={styles.descriptionWrapper}>
-                                <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>О филиале</Text>
-                                <Text style={[styles.descriptionText, { color: colors.text }]}>{branch.description}</Text>
-                            </View>
-                        )}
+                    {/* Location Section */}
+                    <View style={styles.section}>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Location</Text>
+                        <TouchableOpacity
+                            style={[styles.locationCard, { backgroundColor: colors.card }]}
+                            activeOpacity={0.9}
+                        >
+                            <Ionicons name="location" size={24} color={colors.primary} />
+                            <Text style={[styles.addressText, { color: colors.text }]}>
+                                {branch.address || 'Address not available'}
+                            </Text>
+                        </TouchableOpacity>
                     </View>
 
                     {/* Services Section */}
                     <View style={styles.section}>
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Наши услуги</Text>
+                        <View style={styles.sectionHeader}>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Our Services</Text>
+                            <TouchableOpacity>
+                                <Text style={{ color: colors.primary, fontWeight: '700' }}>See all</Text>
+                            </TouchableOpacity>
+                        </View>
+
                         {isServicesLoading ? (
                             <ActivityIndicator color={colors.primary} style={{ marginTop: 20 }} />
                         ) : services.length > 0 ? (
-                            services.map((service) => (
-                                <TouchableOpacity
-                                    key={service.id}
-                                    style={[styles.serviceCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-                                    activeOpacity={0.7}
-                                >
-                                    <View style={styles.serviceInfo}>
-                                        <Text style={[styles.serviceName, { color: colors.text }]}>{service.name}</Text>
-                                        <Text style={[styles.serviceDesc, { color: colors.textSecondary }]} numberOfLines={2}>
-                                            {service.description || 'Качественная услуга для вашего авто'}
-                                        </Text>
-                                        <View style={styles.priceRow}>
-                                            <View style={[styles.priceTag, { backgroundColor: colors.primary + '10' }]}>
-                                                <Text style={[styles.price, { color: colors.primary }]}>
-                                                    {service.pricePerMinute?.toLocaleString()} UZS / мин
-                                                </Text>
-                                            </View>
-                                            {!!service.durationMinutes && (
-                                                <View style={styles.durationTag}>
-                                                    <Ionicons name="time-outline" size={14} color={colors.textSecondary} />
-                                                    <Text style={[styles.duration, { color: colors.textSecondary }]}>
-                                                        {service.durationMinutes} мин
-                                                    </Text>
-                                                </View>
-                                            )}
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                            ))
+                            <View style={styles.servicesGrid}>
+                                {services.map((service) => (
+                                    <ServiceCard key={service.id} service={service} colors={colors} />
+                                ))}
+                            </View>
                         ) : (
-                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Услуги временно недоступны</Text>
+                            <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
+                                <Ionicons name="construct-outline" size={48} color="#CBD5E1" />
+                                <Text style={styles.emptyText}>No services available at the moment.</Text>
+                            </View>
                         )}
                     </View>
                 </View>
             </ScrollView>
 
-            {/* Bottom Action Bar */}
-            <View style={[styles.bottomBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+            {/* Sticky Action Footer */}
+            <View style={[styles.footer, { backgroundColor: colors.card }]}>
+                <View style={styles.footerLeft}>
+                    <Text style={styles.footerLabel}>Starting from</Text>
+                    <Text style={[styles.footerPrice, { color: colors.text }]}>
+                        {services[0]?.pricePerMinute?.toLocaleString() || '15,000'} <Text style={styles.footerCurrency}>UZS</Text>
+                    </Text>
+                </View>
                 <TouchableOpacity
-                    style={[styles.navBtn, { borderColor: colors.border }]}
+                    style={[styles.bookBtn, { backgroundColor: colors.primary }]}
                     onPress={() => {
-                        router.push({
-                            pathname: '/(tabs)/map',
-                            params: { branchId: branch.id, startNav: 'true' }
-                        } as any);
+                        if (branch.partnerType === 'SERVICE') {
+                            // Logic for calling master
+                        } else {
+                            // Logic for navigation/booking
+                        }
                     }}
                 >
-                    <MaterialIcons name="navigation" size={24} color={colors.primary} />
-                    <Text style={[styles.navBtnText, { color: colors.primary }]}>Пoказать маpшpут</Text>
+                    <Text style={styles.bookBtnText}>
+                        {branch.partnerType === 'SERVICE' ? 'Call Master' : 'Start Now'}
+                    </Text>
                 </TouchableOpacity>
-                {branch.partnerType === 'SERVICE' && (
-                    <TouchableOpacity style={[styles.callBtn, { backgroundColor: colors.primary }]}>
-                        <Text style={styles.callBtnText}>Вызвать мастера</Text>
-                    </TouchableOpacity>
-                )}
             </View>
         </View>
     );
@@ -203,126 +249,71 @@ export default function BranchDetailsScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-    errorText: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
-    scrollContent: { paddingBottom: 120 },
-    imageHeader: { height: 350, width: '100%' },
-    headerImage: { width: '100%', height: '100%', resizeMode: 'cover' },
-    imageGradient: { ...StyleSheet.absoluteFillObject },
-    backButtonWrapper: { position: 'absolute', top: 0, left: 16 },
-    iconButton: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
-    headerInfo: { position: 'absolute', bottom: 24, left: 20, right: 20 },
-    typeBadge: {
-        backgroundColor: '#3b82f6',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 12,
-        alignSelf: 'flex-start',
-        marginBottom: 12
-    },
-    typeText: { color: '#fff', fontSize: 12, fontWeight: '800', textTransform: 'uppercase' },
-    branchName: { fontSize: 32, fontWeight: '900', color: '#fff', marginBottom: 8 },
-    ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    ratingText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-    reviewsText: { color: 'rgba(255,255,255,0.7)', fontSize: 14 },
-    content: { marginTop: -20, borderTopLeftRadius: 32, borderTopRightRadius: 32, backgroundColor: 'transparent', paddingHorizontal: 20 },
-    infoSection: {
-        marginTop: 20,
-        borderRadius: 24,
-        padding: 20,
-        gap: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 5
-    },
-    backButton: {
-        marginTop: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 8,
-        borderWidth: 1,
-    },
-    infoRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-    infoIcon: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    infoTextWrapper: { flex: 1 },
-    infoLabel: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase', marginBottom: 2 },
-    infoValue: { fontSize: 16, fontWeight: '700' },
-    miniRoundBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    descriptionWrapper: {
-        marginTop: 16,
-        paddingTop: 16,
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(0,0,0,0.05)',
-    },
-    descriptionText: {
-        fontSize: 15,
-        lineHeight: 22,
-        marginTop: 4,
-    },
-    section: { marginTop: 32 },
-    sectionTitle: { fontSize: 22, fontWeight: '800', marginBottom: 20 },
-    serviceCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 20,
-        borderRadius: 24,
-        borderWidth: 1,
-        marginBottom: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2
-    },
-    serviceInfo: { flex: 1 },
+    errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
+    errorText: { fontSize: 20, fontWeight: '800', marginVertical: 16 },
+    backBtn: { paddingHorizontal: 32, paddingVertical: 12, borderRadius: 16 },
+    backBtnText: { color: '#fff', fontWeight: '800' },
+    scrollContent: { paddingBottom: 140 },
+
+    heroSection: { height: 420, width: '100%', position: 'relative' },
+    heroImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+    heroGradient: { ...StyleSheet.absoluteFillObject },
+    navHeader: { position: 'absolute', top: 0, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between' },
+    navRight: { flexDirection: 'row', gap: 10 },
+    blurBtn: { width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
+
+    heroContent: { position: 'absolute', bottom: 30, left: 20, right: 20 },
+    badgeRow: { flexDirection: 'row', gap: 10, marginBottom: 12 },
+    typeBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, alignSelf: 'flex-start' },
+    typeText: { color: '#fff', fontSize: 10, fontWeight: '900', letterSpacing: 0.5 },
+    statusBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
+    dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#22C55E' },
+    statusText: { color: '#fff', fontSize: 10, fontWeight: '800' },
+    branchTitle: { fontSize: 36, fontWeight: '900', color: '#fff', marginBottom: 12 },
+    metaRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    ratingBox: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    ratingVal: { color: '#fff', fontSize: 14, fontWeight: '800' },
+    ratingCount: { color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: '600' },
+    metaDivider: { width: 1, height: 12, backgroundColor: 'rgba(255,255,255,0.3)' },
+    distanceBox: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    distanceVal: { color: 'rgba(255,255,255,0.9)', fontSize: 14, fontWeight: '700' },
+
+    mainWrapper: { marginTop: -24, borderTopLeftRadius: 32, borderTopRightRadius: 32, backgroundColor: 'transparent', paddingHorizontal: 20 },
+
+    quickActions: { flexDirection: 'row', gap: 12, marginTop: 24, marginBottom: 32 },
+    actionCard: { flex: 1, padding: 16, borderRadius: 24, alignItems: 'center', gap: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 },
+    actionIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+    actionLabel: { fontSize: 12, fontWeight: '700' },
+
+    section: { marginBottom: 32 },
+    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    sectionTitle: { fontSize: 20, fontWeight: '800' },
+
+    locationCard: { flexDirection: 'row', alignItems: 'center', gap: 16, padding: 16, borderRadius: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 1 },
+    addressText: { flex: 1, fontSize: 15, fontWeight: '600', lineHeight: 22 },
+
+    servicesGrid: { gap: 16 },
+    serviceCard: { padding: 20, borderRadius: 28, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 2 },
+    serviceMain: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
+    serviceText: { flex: 1, marginRight: 16 },
     serviceName: { fontSize: 18, fontWeight: '800', marginBottom: 6 },
-    serviceDesc: { fontSize: 14, marginBottom: 16, lineHeight: 20 },
-    priceRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-    priceTag: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-    },
-    price: { fontSize: 16, fontWeight: '800' },
-    durationTag: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    duration: { fontSize: 13, fontWeight: '600' },
-    addBtn: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    emptyText: { textAlign: 'center', marginTop: 20, fontSize: 15 },
-    bottomBar: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        flexDirection: 'row',
-        paddingHorizontal: 20,
-        paddingTop: 16,
-        paddingBottom: Platform.OS === 'ios' ? 34 : 20,
-        gap: 12,
-        borderTopWidth: 1,
-        zIndex: 100
-    },
-    navBtn: {
-        flex: 1.2,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 16,
-        borderWidth: 1.5,
-        gap: 8
-    },
-    navBtnText: { fontWeight: '700', fontSize: 14 },
-    callBtn: { flex: 2, height: 56, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    callBtnText: { color: '#fff', fontSize: 18, fontWeight: '800' },
+    serviceDesc: { fontSize: 14, lineHeight: 20 },
+    serviceIcon: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+    serviceFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, borderTopWidth: 1, borderTopColor: '#F1F5F9' },
+    priceContainer: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },
+    priceValue: { fontSize: 20, fontWeight: '900' },
+    priceUnit: { fontSize: 12, color: '#94A3B8', fontWeight: '700' },
+    durationBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F1F5F9', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
+    durationText: { fontSize: 12, fontWeight: '700', color: '#64748B' },
+
+    emptyState: { padding: 40, alignItems: 'center', borderRadius: 24, gap: 12 },
+    emptyText: { color: '#94A3B8', fontWeight: '600', textAlign: 'center' },
+
+    footer: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingTop: 20, paddingBottom: Platform.OS === 'ios' ? 40 : 24, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: '#F1F5F9', shadowColor: '#000', shadowOffset: { width: 0, height: -10 }, shadowOpacity: 0.05, shadowRadius: 15, elevation: 20 },
+    footerLeft: { gap: 2 },
+    footerLabel: { fontSize: 12, color: '#94A3B8', fontWeight: '700', textTransform: 'uppercase' },
+    footerPrice: { fontSize: 24, fontWeight: '900' },
+    footerCurrency: { fontSize: 14, fontWeight: '700' },
+    bookBtn: { flex: 1, marginLeft: 24, height: 60, borderRadius: 20, alignItems: 'center', justifyContent: 'center', shadowColor: '#3B82F6', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 15, elevation: 8 },
+    bookBtnText: { color: '#fff', fontSize: 18, fontWeight: '900' }
 });

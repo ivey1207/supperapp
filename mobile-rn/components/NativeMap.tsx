@@ -7,8 +7,9 @@ import * as Location from 'expo-location';
 import * as Speech from 'expo-speech';
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { View, Image, TouchableOpacity, Text } from 'react-native';
+import { View, Image, TouchableOpacity, Text, useColorScheme } from 'react-native';
 import { RoutePoint } from '@/lib/navigation';
+import Colors from '@/constants/Colors';
 
 interface NativeMapProps {
     branches: Branch[];
@@ -69,7 +70,11 @@ const MANEUVER_VOICES: Record<string, string> = {
     'ENTER_ROUNDABOUT': 'въезжайте на кольцо',
     'LEAVE_ROUNDABOUT': 'съезжайте с кольца',
     'DESTINATION': 'вы прибыли в пункт назначения',
+    'FINISH': 'вы прибыли в пункт назначения',
     'FORWARD': 'продолжайте движение прямо',
+    'STAY_LEFT': 'держитесь левее',
+    'STAY_RIGHT': 'держитесь правее',
+    'WAYPOINT': 'вы проехали промежуточную точку',
 };
 
 const MANEUVER_ICONS: Record<string, string> = {
@@ -84,21 +89,38 @@ const MANEUVER_ICONS: Record<string, string> = {
     'ENTER_ROUNDABOUT': 'rotate-right',
     'LEAVE_ROUNDABOUT': 'arrow-top-right-bold-outline',
     'DESTINATION': 'map-marker-check',
+    'FINISH': 'map-marker-check',
     'FORWARD': 'arrow-up-bold',
+    'STAY_LEFT': 'arrow-top-left-bold-outline',
+    'STAY_RIGHT': 'arrow-top-right-bold-outline',
+    'WAYPOINT': 'flag-checkered',
 };
 
 // Alisa-like voice settings
 const speakAlisa = (text: string) => {
     console.log('Alisa attempt:', text);
-    Speech.stop().then(() => {
-        Speech.speak(text, {
-            language: 'ru-RU',
-            pitch: 1.0,
-            rate: 0.9,
-            onStart: () => console.log('Speech started'),
-            onDone: () => console.log('Speech done'),
-            onError: (err) => console.log('Speech error:', err),
-        });
+    Speech.isSpeakingAsync().then((isSpeaking) => {
+        if (isSpeaking) {
+            Speech.stop().then(() => {
+                Speech.speak(text, {
+                    language: 'ru-RU',
+                    pitch: 1.0,
+                    rate: 0.9,
+                    onStart: () => console.log('Speech started'),
+                    onDone: () => console.log('Speech done'),
+                    onError: (err) => console.log('Speech error:', err),
+                });
+            });
+        } else {
+            Speech.speak(text, {
+                language: 'ru-RU',
+                pitch: 1.0,
+                rate: 0.9,
+                onStart: () => console.log('Speech started'),
+                onDone: () => console.log('Speech done'),
+                onError: (err) => console.log('Speech error:', err),
+            });
+        }
     });
 };
 
@@ -149,6 +171,8 @@ function calculateDistance(p1: { lat: number, lon: number }, p2: { lat: number, 
 }
 
 export default function NativeMap({ branches, selectedBranchId, onBranchSelect, routePoints, onStartNavigation, onStopNavigation, isNavigating }: NativeMapProps) {
+    const scheme = useColorScheme() ?? 'light';
+    const colors = Colors[scheme];
     const mapRef = React.useRef<YaMap>(null);
     const [userLoc, setUserLoc] = React.useState<Location.LocationObjectCoords | null>(null);
     const [hasCenteredOnUser, setHasCenteredOnUser] = React.useState(false);
@@ -172,8 +196,8 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
             subscription = await Location.watchPositionAsync(
                 {
                     accuracy: Location.Accuracy.High,
-                    timeInterval: 2000,
-                    distanceInterval: 5,
+                    timeInterval: 1000,
+                    distanceInterval: 2,
                 },
                 (location) => {
                     setUserLoc(location.coords);
@@ -342,19 +366,19 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                     zoom: 12,
                 }}
                 showUserPosition={!isNavigating}
-                nightMode={!isNavigating}
+                nightMode={scheme === 'dark'}
             >
                 {isNavigating && userLoc && (
                     <Marker
                         point={{ lat: userLoc.latitude, lon: userLoc.longitude }}
-                        scale={1.5}
+                        scale={1.4}
                         anchor={{ x: 0.5, y: 0.5 }}
                     >
                         <View style={styles.arrowMarker}>
                             <MaterialCommunityIcons
                                 name="navigation"
-                                size={56}
-                                color="#fbbf24"
+                                size={50}
+                                color="#3B82F6"
                                 style={{ transform: [{ rotate: `${userLoc.heading || 0}deg` }] }}
                             />
                         </View>
@@ -373,10 +397,10 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                                 }}
                                 onPress={() => onBranchSelect?.(branch)}
                             >
-                                <View>
+                                <View style={styles.markerWrapper}>
                                     <View style={[
                                         styles.markerContainer,
-                                        { borderColor: isSelected ? '#3b82f6' : 'white' },
+                                        { backgroundColor: isSelected ? '#3B82F6' : 'white' },
                                         isSelected && styles.selectedMarker
                                     ]}>
                                         <View style={styles.imageInnerContainer}>
@@ -389,25 +413,25 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                                                 <View style={[styles.fallbackContent, { backgroundColor: getMarkerColor(branch.partnerType) }]}>
                                                     <MaterialCommunityIcons
                                                         name={getMarkerIcon(branch.partnerType) as any}
-                                                        size={isSelected ? 24 : 18}
+                                                        size={isSelected ? 20 : 16}
                                                         color="white"
                                                     />
                                                 </View>
                                             )}
                                         </View>
-                                        {/* Pointer Tail */}
-                                        <View style={[styles.markerTail, { backgroundColor: isSelected ? '#3b82f6' : 'white' }]} />
                                     </View>
+                                    {/* Pointer Tail */}
+                                    <View style={[styles.markerTail, { borderTopColor: isSelected ? '#3B82F6' : 'white' }]} />
 
                                     {/* Quick Nav Button when selected */}
-                                    {isSelected && branch.location?.coordinates?.[1] && (
+                                    {isSelected && (
                                         <View style={styles.quickNavWrapper}>
                                             <TouchableOpacity
                                                 style={styles.quickNavBtn}
                                                 onPress={() => onStartNavigation?.(branch)}
                                             >
-                                                <MaterialCommunityIcons name="navigation" size={20} color="#fff" />
-                                                <Text style={styles.quickNavText}>ПОЕХАЛИ</Text>
+                                                <Text style={styles.quickNavText}>GO</Text>
+                                                <MaterialCommunityIcons name="chevron-right" size={16} color="#fff" />
                                             </TouchableOpacity>
                                         </View>
                                     )}
@@ -419,97 +443,85 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                 {routePoints && routePoints.length > 0 && (
                     <Polyline
                         points={routePoints.map(p => ({ lat: p.latitude, lon: p.longitude }))}
-                        strokeColor="#22c55e"
-                        strokeWidth={8}
-                        outlineColor="#15803d"
-                        outlineWidth={1}
+                        strokeColor="#3B82F6"
+                        strokeWidth={6}
+                        outlineColor="rgba(59, 130, 246, 0.3)"
+                        outlineWidth={2}
                     />
                 )}
             </YaMap>
 
             {isNavigating && (
                 <>
-                    {/* Top Guidance HUD — real-time */}
+                    {/* Top Guidance HUD */}
                     <View style={styles.yandexGuidance}>
                         <View style={styles.guidanceIconWrapper}>
                             <MaterialCommunityIcons
                                 name={((maneuvers.length > 0 && nextManeuverIdx < maneuvers.length
                                     ? MANEUVER_ICONS[maneuvers[nextManeuverIdx].type]
                                     : 'arrow-up-bold') || 'arrow-up-bold') as any}
-                                size={40}
+                                size={32}
                                 color="#fff"
                             />
                         </View>
                         <View style={styles.guidanceTextWrapper}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                                <Text style={styles.guidanceDist}>
-                                    {distToNextManeuver > 0 ? formatDistanceHUD(distToNextManeuver) : '—'}
-                                </Text>
-                                <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>
-                                    (число манёвров: {maneuvers.length})
-                                </Text>
-                            </View>
-                            <Text style={styles.guidanceStreet}>
+                            <Text style={styles.guidanceDist}>
+                                {distToNextManeuver > 0 ? formatDistanceHUD(distToNextManeuver) : '—'}
+                            </Text>
+                            <Text style={styles.guidanceStreet} numberOfLines={1}>
                                 {maneuvers.length > 0 && nextManeuverIdx < maneuvers.length
-                                    ? (MANEUVER_VOICES[maneuvers[nextManeuverIdx].type] || 'Прямо').charAt(0).toUpperCase() +
-                                    (MANEUVER_VOICES[maneuvers[nextManeuverIdx].type] || 'прямо').slice(1)
-                                    : 'Следуйте по маршруту'}
+                                    ? (MANEUVER_VOICES[maneuvers[nextManeuverIdx].type] || 'Keep straight').toUpperCase()
+                                    : 'Follow the route'}
                             </Text>
                         </View>
                     </View>
 
-                    {/* Bottom Navigation HUD — real-time */}
+                    {/* Bottom Navigation HUD */}
                     <View style={styles.yandexBottomBar}>
                         <View style={styles.bottomStats}>
                             <View style={styles.statItem}>
                                 <Text style={styles.statValue}>
                                     {formatDistanceHUD(distToDestination)}
                                 </Text>
-                                <Text style={styles.statLabel}>Осталось</Text>
+                                <Text style={styles.statLabel}>Distance</Text>
                             </View>
                             <View style={styles.statDivider} />
                             <View style={styles.statItem}>
                                 <Text style={styles.statValue}>
                                     {getArrivalTime(distToDestination)}
                                 </Text>
-                                <Text style={styles.statLabel}>Прибытие</Text>
+                                <Text style={styles.statLabel}>Arrival</Text>
                             </View>
                             <View style={styles.statDivider} />
                             <View style={styles.statItem}>
                                 <Text style={styles.statValue}>
                                     {formatETA(distToDestination)}
                                 </Text>
-                                <Text style={styles.statLabel}>В пути</Text>
+                                <Text style={styles.statLabel}>Time</Text>
                             </View>
                         </View>
 
                         <TouchableOpacity
                             style={styles.closeNavBtn}
                             onPress={() => {
-                                speakAlisa('Навигация завершена');
                                 onStopNavigation?.();
                             }}
                         >
-                            <MaterialCommunityIcons name="close" size={24} color="#64748b" />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={[styles.closeNavBtn, { backgroundColor: '#3b82f6' }]}
-                            onPress={() => speakAlisa("Проверка звука. Вы слышите Алису?")}
-                        >
-                            <MaterialCommunityIcons name="volume-high" size={24} color="#fff" />
+                            <MaterialCommunityIcons name="close" size={24} color="#64748B" />
                         </TouchableOpacity>
                     </View>
                 </>
             )}
 
             {!isNavigating && (
-                <TouchableOpacity
-                    style={styles.myLocationBtn}
-                    onPress={jumpToUserLocation}
-                >
-                    <MaterialCommunityIcons name="crosshairs-gps" size={24} color="#3b82f6" />
-                </TouchableOpacity>
+                <View style={styles.floatingControls}>
+                    <TouchableOpacity
+                        style={styles.mapControlBtn}
+                        onPress={jumpToUserLocation}
+                    >
+                        <MaterialCommunityIcons name="crosshairs-gps" size={24} color="#3B82F6" />
+                    </TouchableOpacity>
+                </View>
             )}
         </View>
     );
@@ -517,23 +529,25 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
 
 const styles = StyleSheet.create({
     map: { width: '100%', height: '100%' },
-    markerContainer: {
+    markerWrapper: {
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 4,
+    },
+    markerContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        padding: 3,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
-        elevation: 8,
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 10,
     },
     imageInnerContainer: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: 'white',
-        borderWidth: 2,
-        borderColor: 'white',
+        flex: 1,
+        borderRadius: 21,
+        backgroundColor: '#F1F5F9',
         overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
@@ -541,7 +555,6 @@ const styles = StyleSheet.create({
     markerImage: {
         width: '100%',
         height: '100%',
-        borderRadius: 25,
         resizeMode: 'cover',
     },
     fallbackContent: {
@@ -551,40 +564,41 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     markerTail: {
-        width: 10,
-        height: 10,
-        backgroundColor: 'white',
-        transform: [{ rotate: '45deg' }],
-        marginTop: -5,
-        zIndex: -1,
+        width: 0,
+        height: 0,
+        borderLeftWidth: 8,
+        borderRightWidth: 8,
+        borderTopWidth: 10,
+        borderLeftColor: 'transparent',
+        borderRightColor: 'transparent',
+        borderTopColor: 'white',
+        marginTop: -1,
     },
     selectedMarker: {
-        transform: [{ scale: 1.25 }],
+        transform: [{ scale: 1.15 }],
     },
     quickNavWrapper: {
         position: 'absolute',
-        top: -65,
-        backgroundColor: '#3b82f6',
-        borderRadius: 12,
+        top: -45,
+        backgroundColor: '#3B82F6',
+        borderRadius: 20,
         paddingHorizontal: 12,
-        paddingVertical: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
+        paddingVertical: 6,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        elevation: 10,
     },
     quickNavBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 2,
     },
     quickNavText: {
         color: '#fff',
-        fontSize: 12,
-        fontWeight: '800',
+        fontSize: 10,
+        fontWeight: '900',
     },
     outerContainer: { flex: 1 },
     arrowMarker: {
@@ -597,74 +611,77 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 60,
         left: 20,
-        right: 80,
-        backgroundColor: '#3b82f6',
-        borderRadius: 16,
+        right: 20,
+        backgroundColor: '#3B82F6',
+        borderRadius: 24,
         padding: 16,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 16,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
         elevation: 10,
     },
     guidanceIconWrapper: {
-        width: 50,
-        height: 50,
+        width: 56,
+        height: 56,
         backgroundColor: 'rgba(255,255,255,0.2)',
-        borderRadius: 12,
+        borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    guidanceTextWrapper: { flex: 1 },
-    guidanceDist: { fontSize: 24, fontWeight: '900', color: '#fff' },
-    guidanceStreet: { fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.9)' },
+    guidanceTextWrapper: { flex: 1, gap: 2 },
+    guidanceDist: { fontSize: 26, fontWeight: '900', color: '#fff', lineHeight: 28 },
+    guidanceStreet: { fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.8)' },
     yandexBottomBar: {
         position: 'absolute',
-        bottom: 40,
+        bottom: 30,
         left: 20,
         right: 20,
         backgroundColor: '#fff',
-        borderRadius: 20,
+        borderRadius: 24,
         padding: 16,
         flexDirection: 'row',
         alignItems: 'center',
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: -4 },
+        shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.1,
-        shadowRadius: 10,
+        shadowRadius: 15,
         elevation: 10,
     },
     bottomStats: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' },
-    statItem: { alignItems: 'center' },
-    statValue: { fontSize: 18, fontWeight: '800', color: '#0f172a' },
-    statLabel: { fontSize: 11, color: '#64748b', marginTop: 2, fontWeight: '600' },
-    statDivider: { width: 1, height: 20, backgroundColor: '#e2e8f0' },
+    statItem: { alignItems: 'center', gap: 2 },
+    statValue: { fontSize: 18, fontWeight: '800', color: '#0F172A' },
+    statLabel: { fontSize: 10, color: '#94A3B8', fontWeight: '700', textTransform: 'uppercase' },
+    statDivider: { width: 1, height: 24, backgroundColor: '#F1F5F9' },
     closeNavBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: '#f1f5f9',
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: '#F8FAFC',
         alignItems: 'center',
         justifyContent: 'center',
         marginLeft: 12,
     },
-    myLocationBtn: {
+    floatingControls: {
         position: 'absolute',
-        bottom: 100,
+        bottom: 110,
         right: 20,
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        gap: 12,
+    },
+    mapControlBtn: {
+        width: 52,
+        height: 52,
+        borderRadius: 16,
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
         elevation: 5,
     }
 });

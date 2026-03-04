@@ -89,7 +89,24 @@ async function deploy() {
 
         console.log('[Local] Archiving project...');
         // Exclude node_modules, .git, etc to keep size small
-        await executeLocalCommand(`tar --exclude='node_modules' --exclude='.git' --exclude='dist' --exclude='target' --exclude='.DS_Store' -czf ${config.tarName} .`);
+        // Added recursive exclusion for node_modules and build folders
+        const excludeList = [
+            'node_modules',
+            '*/node_modules/*',
+            '**/node_modules/**',
+            '.git',
+            '.expo',
+            'dist',
+            '*/dist/*',
+            'target',
+            '*/target/*',
+            '.DS_Store',
+            '*/build/*',
+            'android/app/build',
+            'mobile-rn'
+        ];
+        const excludeFlags = excludeList.map(e => `--exclude='${e}'`).join(' ');
+        await executeLocalCommand(`tar ${excludeFlags} -czf ${config.tarName} .`);
 
         await connect();
 
@@ -110,10 +127,10 @@ async function deploy() {
           curl -fsSL https://get.docker.com -o get-docker.sh
           sh get-docker.sh
       fi &&
-      sed -i '/JWT_SECRET/a\\      FORCE_RESET_ADMIN: "true"' docker-compose.yml &&
+      sed -i '/JWT_SECRET/a\\      FORCE_RESET_ADMIN: "true"\\n      FORCE_RESEED: "true"' docker-compose.yml &&
       docker compose down || true &&
       docker compose up -d --build --remove-orphans &&
-      sed -i '/FORCE_RESET_ADMIN/d' docker-compose.yml
+      sed -i '/FORCE_RESET_ADMIN/d; /FORCE_RESEED/d' docker-compose.yml
     `;
         await executeRemoteCommand(deployCmd); // This might take a while
 

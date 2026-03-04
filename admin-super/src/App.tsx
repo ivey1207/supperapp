@@ -15,6 +15,7 @@ import Branches from './pages/Branches';
 import Promotions from './pages/Promotions';
 import WashSessions from './pages/WashSessions';
 import PaymentReports from './pages/PaymentReports';
+import AppUsers from './pages/AppUsers';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token, isLoading } = useAuth();
@@ -30,6 +31,7 @@ function AppRoutes() {
       <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route index element={<Dashboard />} />
         <Route path="users" element={<Users />} />
+        <Route path="app-users" element={<AppUsers />} />
         <Route path="companies" element={<Companies />} />
         <Route path="branches" element={<Branches />} />
         <Route path="devices" element={<Devices />} />

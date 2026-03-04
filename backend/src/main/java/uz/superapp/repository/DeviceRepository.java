@@ -1,12 +1,11 @@
 package uz.superapp.repository;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import uz.superapp.domain.Device;
 
 import java.util.List;
 
-
-public interface DeviceRepository extends MongoRepository<Device, String> {
+public interface DeviceRepository extends JpaRepository<Device, String> {
 
     List<Device> findByArchivedFalse();
 

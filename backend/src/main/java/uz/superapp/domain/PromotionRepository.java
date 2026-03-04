@@ -1,10 +1,10 @@
 package uz.superapp.domain;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface PromotionRepository extends MongoRepository<Promotion, String> {
+public interface PromotionRepository extends JpaRepository<Promotion, String> {
     List<Promotion> findByOrgId(String orgId);
 
     List<Promotion> findByActiveTrueAndEndDateAfter(LocalDateTime now);

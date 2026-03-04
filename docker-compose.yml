@@ -1,12 +1,16 @@
 services:
-  mongodb:
-    image: mongo:7
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: superapp
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
     expose:
-      - "27017"
+      - "5432"
     volumes:
-      - mongo_data:/data/db
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping').ok" ]
+      test: [ "CMD-SHELL", "pg_isready -U user -d superapp" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -29,14 +33,17 @@ services:
       dockerfile: Dockerfile
     environment:
       SEED_DATABASE: "true"
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/superapp
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/superapp
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: "6379"
       JWT_SECRET: superapp-jwt-secret-change-in-production-min-256-bits
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
-      mongodb:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -53,14 +60,17 @@ services:
       dockerfile: Dockerfile
     environment:
       SEED_DATABASE: "false"
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/superapp
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/superapp
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: "6379"
       JWT_SECRET: superapp-jwt-secret-change-in-production-min-256-bits
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
-      mongodb:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -97,5 +107,5 @@ services:
       - nginx-lb
 
 volumes:
-  mongo_data:
+  postgres_data:
   redis_data:

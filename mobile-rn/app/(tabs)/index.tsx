@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar, useColorScheme, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar, useColorScheme, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
@@ -135,45 +135,91 @@ export default function HomeScreen() {
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>Привет, {user?.fullName?.split(' ')[0] || 'Пользователь'}</Text>
-            <View style={styles.locationWrapper}>
-              <Ionicons name="location" size={14} color={colors.primary} />
-              <Text style={[styles.locationText, { color: colors.text }]}>Ташкент, Узбекистан</Text>
-              <Ionicons name="chevron-down" size={14} color={colors.textSecondary} />
+          <View style={styles.userInfoRow}>
+            <TouchableOpacity style={[styles.profileBadge, { borderColor: colors.border }]} onPress={() => router.push('/(tabs)/profile' as any)}>
+              <Image
+                source={{ uri: `https://ui-avatars.com/api/?name=${user?.fullName || 'U'}&background=3b82f6&color=fff` }}
+                style={styles.avatar}
+              />
+            </TouchableOpacity>
+            <View style={styles.userTextContainer}>
+              <Text style={styles.locationLabel}>LOCATION</Text>
+              <TouchableOpacity style={styles.locationWrapper} onPress={handleComingSoon}>
+                <Text style={[styles.locationText, { color: colors.text }]}>Downtown, SF</Text>
+                <Ionicons name="chevron-down" size={14} color={colors.textSecondary} />
+              </TouchableOpacity>
             </View>
           </View>
-          <TouchableOpacity style={[styles.profileBadge, { borderColor: colors.border }]} onPress={() => router.push('/(tabs)/profile' as any)}>
-            <Image
-              source={{ uri: `https://ui-avatars.com/api/?name=${user?.fullName || 'U'}&background=3b82f6&color=fff` }}
-              style={styles.avatar}
-            />
+          <TouchableOpacity style={[styles.notificationButton, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]} onPress={handleComingSoon}>
+            <Ionicons name="notifications-outline" size={24} color={colors.text} />
+            <View style={[styles.notificationBadge, { backgroundColor: colors.primary }]} />
           </TouchableOpacity>
         </View>
 
         <ScrollView
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={dark.primary} />
+            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={colors.primary} />
           }
           contentContainerStyle={styles.scrollContent}
         >
           {/* Search Bar */}
           <View style={styles.searchRow}>
-            <TouchableOpacity style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.border }]} activeOpacity={0.9} onPress={handleComingSoon}>
-              <Ionicons name="search" size={20} color={colors.textSecondary} />
-              <Text style={[styles.searchPlaceholder, { color: colors.textSecondary }]}>Поиск услуг</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.qrButton}
-              activeOpacity={0.8}
-              onPress={() => router.push('/scanner' as any)}
-            >
-              <Ionicons name="qr-code-outline" size={24} color="#fff" />
+            <View style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
+              <Ionicons name="search-outline" size={20} color={colors.primary} />
+              <TextInput
+                style={[styles.searchPlaceholder, { color: colors.text }]}
+                placeholder="Search for gas, washes, or services"
+                placeholderTextColor={colors.textSecondary}
+              />
+              <TouchableOpacity style={[styles.filterBtn, { backgroundColor: colors.primary }]}>
+                <Ionicons name="options-outline" size={18} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Categories */}
+          <View style={styles.categoriesSection}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesScroll}>
+              {CATEGORIES.map((cat, index) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[
+                    styles.categoryButton,
+                    index === 0 ? { backgroundColor: colors.primary } : { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }
+                  ]}
+                  activeOpacity={0.8}
+                  onPress={() => router.push({ pathname: '/(tabs)/map', params: { partnerType: cat.partnerType } } as any)}
+                >
+                  <MaterialIcons name={cat.icon as any} size={20} color={index === 0 ? '#fff' : colors.primary} />
+                  <Text style={[styles.categoryBtnText, { color: index === 0 ? '#fff' : colors.text }]}>{cat.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* Hero Promo Banner (Recommended) */}
+          <View style={styles.recommendedSection}>
+            <TouchableOpacity style={styles.recommendedCard} activeOpacity={0.9} onPress={handleComingSoon}>
+              <Image
+                source={{ uri: displayPromos[0]?.imageUrl || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800' }}
+                style={styles.recommendedImage}
+              />
+              <LinearGradient
+                colors={['transparent', 'rgba(0,0,0,0.6)']}
+                style={styles.recommendedGradient}
+              />
+              <View style={styles.recommendedContent}>
+                <View style={[styles.recommendedBadge, { backgroundColor: colors.primary }]}>
+                  <Text style={styles.recommendedBadgeText}>RECOMMENDED</Text>
+                </View>
+                <Text style={styles.recommendedTitle}>{displayPromos[0]?.title || 'Cheapest fuel nearby'}</Text>
+              </View>
             </TouchableOpacity>
           </View>
 
-          {/* Stories Section */}
+          {/* Stories Section (Integrated as bubble list if needed, but mockup doesn't show them explicitly as top priority) */}
+          {/* Preserving stories since user said "stories ... vsyo doyediogo ostav" (leave as is) */}
           <View style={styles.storiesContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
               {STORIES.map(item => (
@@ -182,87 +228,15 @@ export default function HomeScreen() {
             </ScrollView>
           </View>
 
-          {/* Hero Promo Banner */}
-          {displayPromos.length > 0 && (
-            <View style={styles.promoSection}>
-              <TouchableOpacity style={styles.heroBanner} activeOpacity={0.9} onPress={handleComingSoon}>
-                <LinearGradient
-                  colors={['#ef4444', '#fbbf24']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.heroGradient}
-                >
-                  <View style={styles.heroContent}>
-                    <View style={styles.heroTextBlock}>
-                      <Text style={styles.heroTitle} numberOfLines={2}>{displayPromos[0]?.title}</Text>
-                      <Text style={styles.heroSubtitle}>{displayPromos[0]?.discountValue || 'PROMO'}</Text>
-                    </View>
-                    <Image
-                      source={{ uri: displayPromos[0]?.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400' }}
-                      style={styles.heroImage}
-                    />
-                  </View>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              {displayPromos.length > 1 && (
-                <>
-                  <View style={styles.sectionHeading}>
-                    <Text style={styles.sectionTitle}>Специально для вас</Text>
-                  </View>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.promoList}
-                  >
-                    {displayPromos.slice(1).map((promo: any) => (
-                      <TouchableOpacity key={promo.id} style={styles.promoCard} activeOpacity={0.9} onPress={handleComingSoon}>
-                        <Image source={{ uri: promo.imageUrl || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=600' }} style={styles.promoImage} />
-                        <LinearGradient
-                          colors={['transparent', 'rgba(0,0,0,0.85)']}
-                          style={styles.promoGradient}
-                        />
-                        <View style={styles.promoContent}>
-                          <View style={styles.promoBadge}>
-                            <Text style={styles.promoBadgeText}>{promo.discountValue}</Text>
-                          </View>
-                          <Text style={styles.promoTitle}>{promo.title}</Text>
-                          <Text style={styles.promoDesc} numberOfLines={2}>{promo.description}</Text>
-                        </View>
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </>
-              )}
-            </View>
-          )}
-
           {/* Quick Actions */}
           <QuickActions />
-
-          {/* Categories */}
-          <View style={styles.categoriesSection}>
-            <View style={styles.sectionHeading}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>Категории</Text>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesScroll}>
-              {CATEGORIES.map((cat) => (
-                <TouchableOpacity key={cat.id} style={styles.categoryItem} activeOpacity={0.8} onPress={() => router.push({ pathname: '/(tabs)/map', params: { partnerType: cat.partnerType } } as any)}>
-                  <View style={[styles.categoryCircle, { backgroundColor: cat.color }]}>
-                    <MaterialIcons name={cat.icon as any} size={28} color="#fff" />
-                  </View>
-                  <Text style={[styles.categoryName, { color: colors.textSecondary }]} numberOfLines={1}>{cat.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
 
           {/* Places Section */}
           <View style={styles.placesSection}>
             <View style={styles.sectionHeading}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>Рядом с вами</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Popular Nearby</Text>
               <TouchableOpacity onPress={handleComingSoon}>
-                <Text style={[styles.seeAll, { color: colors.primary }]}>Все</Text>
+                <Text style={[styles.seeAll, { color: colors.primary }]}>See all</Text>
               </TouchableOpacity>
             </View>
 
@@ -274,7 +248,6 @@ export default function HomeScreen() {
                   key={branch.id}
                   branch={branch}
                   index={idx}
-                  isSponsored={idx === 0} // Mocking the first item as an In-feed Ad
                   onPress={() => router.push(`/branch/${branch.id}` as any)}
                 />
               ))}
@@ -290,7 +263,7 @@ const styles = StyleSheet.create({
   mainContainer: { flex: 1 },
   safeArea: { flex: 1 },
   scrollContent: { paddingBottom: 100 },
-  storiesContainer: { marginTop: 20 },
+  storiesContainer: { marginTop: 24, marginBottom: 12 },
   storiesScroll: { paddingHorizontal: 20, gap: 12 },
 
   header: {
@@ -300,290 +273,166 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12
   },
-  greeting: { fontSize: 13, color: '#94a3b8', fontWeight: '500' },
-  locationWrapper: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
-  locationText: { fontSize: 16, fontWeight: '700', marginHorizontal: 4 },
-  profileBadge: { width: 44, height: 44, borderRadius: 22, overflow: 'hidden', borderWidth: 1.5 },
-  avatar: { width: '100%', height: '100%' },
-
-  searchRow: {
+  userInfoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 20,
-    marginTop: 16,
     gap: 12,
   },
-  searchContainer: {
-    flex: 1,
+  userTextContainer: {
+    justifyContent: 'center',
+  },
+  locationLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#94A3B8',
+    letterSpacing: 0.5,
+  },
+  locationWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1e293b',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#334155'
+    gap: 4,
   },
-  qrButton: {
-    width: 54,
-    height: 54,
-    borderRadius: 16,
-    backgroundColor: '#3b82f6',
+  locationText: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  profileBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+  },
+  avatar: { width: '100%', height: '100%' },
+  notificationButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  filterBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
   },
-  searchPlaceholder: { flex: 1, fontSize: 15, marginLeft: 10 },
 
-  promoSection: { marginTop: 24 },
+  searchRow: {
+    paddingHorizontal: 20,
+    marginTop: 16,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 16,
+    gap: 10,
+  },
+  searchPlaceholder: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '500',
+  },
+
+  categoriesSection: {
+    marginTop: 24,
+  },
+  categoriesScroll: {
+    paddingHorizontal: 20,
+    gap: 10,
+  },
+  categoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    gap: 8,
+  },
+  categoryBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+
+  recommendedSection: {
+    marginTop: 24,
+    paddingHorizontal: 20,
+  },
+  recommendedCard: {
+    height: 180,
+    borderRadius: 24,
+    overflow: 'hidden',
+  },
+  recommendedImage: {
+    width: '100%',
+    height: '100%',
+  },
+  recommendedGradient: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  recommendedContent: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+  },
+  recommendedBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  recommendedBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  recommendedTitle: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: '800',
+  },
+
+  placesSection: {
+    marginTop: 32,
+  },
   sectionHeading: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    marginBottom: 16
+    marginBottom: 16,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '800' },
-  seeAll: { fontWeight: '700', fontSize: 14 },
-
-  // Hero Banner
-  heroBanner: {
-    marginHorizontal: 20,
-    marginBottom: 24,
-    borderRadius: 24,
-    overflow: 'hidden',
-    height: 160,
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '800',
   },
-  heroGradient: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 24,
+  seeAll: {
+    fontSize: 14,
+    fontWeight: '700',
   },
-  heroContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  heroTextBlock: { flex: 1 },
-  heroTitle: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#fff',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    lineHeight: 32,
-  },
-  heroSubtitle: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: '#1f2937',
-    backgroundColor: '#fbbf24',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    marginTop: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  heroImage: {
-    width: 140,
-    height: 140,
-    borderRadius: 20,
-    marginLeft: 16,
-  },
-
-  promoList: { paddingHorizontal: 20, gap: 16 },
-  promoCard: { width: width * 0.85, height: 180, borderRadius: 24, overflow: 'hidden' },
-  promoImage: { width: '100%', height: '100%' },
-  promoGradient: { ...StyleSheet.absoluteFillObject },
-  promoContent: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20 },
-  promoBadge: {
-    backgroundColor: '#3b82f6',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-    marginBottom: 8
-  },
-  promoBadgeText: { color: '#fff', fontSize: 12, fontWeight: '800' },
-  promoTitle: { color: '#fff', fontSize: 22, fontWeight: '800' },
-  promoDesc: { color: '#cbd5e1', fontSize: 14, marginTop: 4 },
-
-  categoriesSection: { marginTop: 24 },
-  categoriesScroll: {
-    paddingHorizontal: 20,
-    gap: 16,
-  },
-  categoryItem: {
-    alignItems: 'center',
-    width: 72,
-  },
-  categoryCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  categoryName: {
-    color: '#cbd5e1',
-    fontSize: 12,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-
-  placesSection: { marginTop: 32 },
-  tabsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    gap: 8
-  },
-  tab: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: '#1e293b'
-  },
-  activeTab: { backgroundColor: '#3b82f6' },
-  tabText: { color: '#94a3b8', fontSize: 14, fontWeight: '600' },
-  activeTabText: { color: '#fff' },
-
   placesList: {
     paddingHorizontal: 20,
-    gap: 20,
+    gap: 16,
     paddingBottom: 40,
   },
-  branchCard: {
-    backgroundColor: '#1e293b',
-    borderRadius: 24,
-    overflow: 'hidden',
-    marginBottom: 4,
-  },
-  branchImageContainer: {
-    height: 180,
-    width: '100%',
-    position: 'relative',
-  },
-  branchImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  branchGradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 80,
-  },
-  branchBadgesTop: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    right: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  discountBadgeLarge: {
-    backgroundColor: '#10b981',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  deliveryBadgeLarge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
-    gap: 4,
-  },
-  deliveryText: {
-    color: '#0f172a',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  branchContent: {
-    padding: 16,
-  },
-  branchHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  branchName: {
-    fontSize: 18,
-    fontWeight: '800',
-    flex: 1,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#334155',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    gap: 4,
-  },
-  ratingText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  branchMeta: {
-    fontSize: 13,
-    color: '#94a3b8',
-    fontWeight: '500',
-  },
-  discountBadgeText: {
-    color: '#064e3b',
-    fontSize: 11,
-    fontWeight: '700',
-  },
 
-  // Old styles (keeping only what's necessary or removing duplicates)
-  // placesList removed (duplicate)
-  placeCard: {
-    backgroundColor: '#1e293b',
-    borderRadius: 24,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#334155'
-  },
-  placeImage: { width: '100%', height: 200 },
-  placeRating: {
-    position: 'absolute',
-    top: 16,
-    left: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.75)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  // ratingText removed (duplicate)
-  placeInfo: { padding: 16 },
-  placeHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  placeName: { fontSize: 18, fontWeight: '800', color: '#f8fafc' },
-  statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-  statusText: { fontSize: 11, fontWeight: '800' },
-  placeAddress: { fontSize: 14, color: '#94a3b8', marginBottom: 12 },
-  placeMeta: { flexDirection: 'row', alignItems: 'center' },
-  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  metaText: { fontSize: 13, color: '#64748b', fontWeight: '600' },
-  metaDivider: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#334155', marginHorizontal: 12 },
+  // Preserved old styles if needed for sub-components
+  categoryItem: { alignItems: 'center', width: 72 },
+  categoryCircle: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', marginBottom: 8, elevation: 5 },
+  categoryName: { color: '#cbd5e1', fontSize: 12, fontWeight: '600', textAlign: 'center' },
 });

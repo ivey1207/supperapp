@@ -18,9 +18,12 @@ import java.util.Optional;
 public class AppUserController {
 
     private final AppUserRepository appUserRepository;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
-    public AppUserController(AppUserRepository appUserRepository) {
+    public AppUserController(AppUserRepository appUserRepository,
+            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.appUserRepository = appUserRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Operation(summary = "Get current user profile")
@@ -46,6 +49,23 @@ public class AppUserController {
             user.setCarModel(body.get("carModel"));
         if (body.containsKey("carNumber"))
             user.setCarNumber(body.get("carNumber"));
+        if (body.containsKey("email")) {
+            String email = body.get("email");
+            if (email != null && !email.isBlank()) {
+                if (appUserRepository.findByEmail(email).isPresent() && !user.getEmail().equals(email)) {
+                    return ResponseEntity.badRequest().body(Map.of("message", "Email already in use"));
+                }
+                user.setEmail(email);
+            }
+        }
+        if (body.containsKey("password")) {
+            String password = body.get("password");
+            if (password != null && password.length() >= 6) {
+                user.setPasswordHash(passwordEncoder.encode(password));
+            } else if (password != null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Password must be at least 6 characters"));
+            }
+        }
 
         return ResponseEntity.ok(appUserRepository.save(user));
     }

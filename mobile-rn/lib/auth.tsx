@@ -8,7 +8,7 @@ type AuthContextType = {
   token: string | null;
   isLoading: boolean;
   login: (phone: string, otp: string) => Promise<{ isNewUser: boolean }>;
-  requestOtp: (phone: string) => Promise<string | undefined>;
+  requestOtp: (phone: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -28,9 +28,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const requestOtp = useCallback(async (phone: string) => {
-    const res = await apiRequestOtp(phone);
-    return res.devOtp;
+  const requestOtp = useCallback(async (phone: string, email: string) => {
+    await apiRequestOtp(phone, email);
   }, []);
 
   const login = useCallback(async (phone: string, otp: string) => {

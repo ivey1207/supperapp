@@ -1,14 +1,17 @@
 package uz.superapp.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Услуга (для автомоек, АЗС, сервисов)
  */
-@Document("services")
+@Entity
+@Table(name = "services")
 public class Service {
     @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
 
     /**
@@ -29,6 +32,7 @@ public class Service {
     /**
      * Описание услуги
      */
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     /**

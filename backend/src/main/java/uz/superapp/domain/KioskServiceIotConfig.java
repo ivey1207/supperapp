@@ -1,9 +1,12 @@
 package uz.superapp.domain;
 
+import jakarta.persistence.Embeddable;
+
 /**
  * Переопределение настроек IoT для конкретной услуги на конкретном киоске.
  * Значения null означают, что используется базовое значение из услуги.
  */
+@Embeddable
 public class KioskServiceIotConfig {
     private String relayBits;
     private Integer motorFrequency;

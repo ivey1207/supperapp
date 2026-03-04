@@ -1,19 +1,32 @@
 package uz.superapp.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
-@Document("app_users")
+@Entity
+@Table(name = "app_users")
 public class AppUser {
     @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
-    @Indexed(unique = true)
+
+    @Column(unique = true, nullable = false)
     private String phone;
+
+    @Column(unique = true)
+    private String email;
+
     private String fullName;
-    private String walletId;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Wallet wallet;
+
+    private String walletId; // Оставляем для обратной совместимости или удалим позже
     private String carModel;
     private String carNumber;
+    private String passwordHash;
+    private boolean blocked = false;
 
     public String getId() {
         return id;
@@ -61,5 +74,37 @@ public class AppUser {
 
     public void setCarNumber(String carNumber) {
         this.carNumber = carNumber;
+    }
+
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
     }
 }

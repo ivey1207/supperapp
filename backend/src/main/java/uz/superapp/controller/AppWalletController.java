@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -31,15 +30,18 @@ public class AppWalletController {
     @GetMapping
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> get(Authentication auth) {
-        String userId = auth.getName();
-        Wallet w = appUserRepository.findById(userId).flatMap(u -> walletRepository.findById(u.getWalletId())).orElse(null);
+        String phone = auth.getName();
+        Wallet w = appUserRepository.findByPhone(phone)
+                .map(uz.superapp.domain.AppUser::getWallet)
+                .orElse(null);
+
         if (w == null) {
             return ResponseEntity.ok(Map.of("walletId", "", "balance", 0, "currency", "UZS"));
         }
         return ResponseEntity.ok(Map.of(
                 "walletId", w.getId(),
                 "balance", w.getBalance(),
-                "currency", w.getCurrency()
+                "currency", "UZS" // У кошелька нет поля currency, используем дефолт
         ));
     }
 }

@@ -1,79 +1,34 @@
 package uz.superapp.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Организация-партнёр (автомойка, АЗС, сервис и т.д.)
  */
-@Document("organizations")
+@Entity
+@Table(name = "organizations")
 public class Organization {
     @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
 
-    /**
-     * Название организации
-     */
     private String name;
-
-    /**
-     * ИНН организации
-     */
     private String inn;
-
-    /**
-     * Тип партнёра: CAR_WASH (автомойка), GAS_STATION (АЗС), SERVICE (сервис)
-     */
     private String partnerType;
-
-    /**
-     * Статус: ACTIVE, INACTIVE, SUSPENDED
-     */
     private String status = "ACTIVE";
 
-    /**
-     * Описание организации
-     */
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    /**
-     * Адрес организации
-     */
     private String address;
-
-    /**
-     * Телефон для связи
-     */
     private String phone;
-
-    /**
-     * Email для связи
-     */
     private String email;
-
-    /**
-     * Время работы (например: "09:00-21:00")
-     */
     private String workingHours;
-
-    /**
-     * Рейтинг (0-5)
-     */
     private Double rating;
-
-    /**
-     * Количество отзывов
-     */
     private Integer reviewCount;
-
-    /**
-     * Логотип/фото (URL)
-     */
     private String logoUrl;
-
-    /**
-     * Мягкое удаление
-     */
     private boolean archived;
 
     public String getId() {

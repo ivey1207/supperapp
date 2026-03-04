@@ -56,13 +56,14 @@ public class SeedRunner implements CommandLineRunner {
                     .filter(org -> "Garage Group".equals(org.getName()))
                     .count();
 
-            if (garageCount > 1) {
-                System.out.println("SeedRunner found duplicate initial data (" + garageCount
-                        + "x Garage Group). Wiping to reset.");
+            boolean forceReSeed = "true".equalsIgnoreCase(System.getenv("FORCE_RESEED"));
+
+            if (garageCount > 1 || forceReSeed) {
+                System.out.println("SeedRunner: Wiping database (FORCE_RESEED=" + forceReSeed + ").");
                 wipeDatabase();
                 seedInactiveDevices();
                 seedOrganizations();
-            } else if (organizationRepository.count() == 0 || branchRepository.count() == 0) {
+            } else if (organizationRepository.count() == 0 || (branchRepository.count() == 0)) {
                 System.out.println("SeedRunner: Database empty or missing branches. Seeding initial data.");
                 seedInactiveDevices();
                 seedOrganizations();
@@ -134,27 +135,28 @@ public class SeedRunner implements CommandLineRunner {
     private void seedOrganizations() {
         createPartnerOrg("Garage Group", "305123456", "CAR_WASH", "garage_group_logo_1772204414116.png",
                 "admin@garage.uz", "Tashkent, Chilonzor 15", "+998901234567", "08:00-22:00",
-                "A premium car wash network in Tashkent.", 3, "CAR_WASH");
+                "A premium car wash network in Tashkent.", 3, "CAR_WASH", 0.0);
 
         createPartnerOrg("Lafz", "306987654", "CAR_WASH", "lafz_logo_1772204429157.png",
                 "admin@lafz.uz", "Tashkent, Yunusobod 19", "+998909876543", "09:00-21:00",
-                "High quality car wash services.", 2, "CAR_WASH");
+                "High quality car wash services.", 2, "CAR_WASH", 0.05);
 
         createMixedPartnerOrg("Humo Service", "308112233", "humo_service_logo_1772204446649.png",
                 "admin@humo.uz", "Tashkent, Mirobod 5", "+998931122334", "00:00-23:59",
-                "Reliable auto service and fuel station.");
+                "Reliable auto service and fuel station.", 0.1);
 
         createMixedPartnerOrg("Premium Auto", "309554433", "premium_auto_logo_1772204458981.png",
                 "admin@premium.uz", "Tashkent, Yakkasaroy 10", "+998945544332", "09:00-20:00",
-                "Premium auto services and detailing.");
+                "Premium auto services and detailing.", 0.15);
 
         createMixedPartnerOrg("Fast Fuel", "310998877", "fast_fuel_logo_1772204475500.png",
                 "admin@fastfuel.uz", "Tashkent, Sergeli 2", "+998979988776", "00:00-23:59",
-                "Fast and efficient fuel stations.");
+                "Fast and efficient fuel stations.", 0.2);
     }
 
     private void createPartnerOrg(String name, String inn, String type, String logo, String email,
-            String address, String phone, String workingHours, String desc, int branchCount, String branchType) {
+            String address, String phone, String workingHours, String desc, int branchCount, String branchType,
+            double jitter) {
 
         Organization org = new Organization();
         org.setName(name);
@@ -184,13 +186,13 @@ public class SeedRunner implements CommandLineRunner {
             b.setWorkingHours(workingHours);
 
             GeoLocation loc = new GeoLocation();
-            loc.setCoordinates(Arrays.asList(69.2797 + (i * 0.01), 41.2995 + (i * 0.01)));
+            loc.setCoordinates(Arrays.asList(69.2797 + jitter + (i * 0.01), 41.2995 + jitter + (i * 0.01)));
             b.setLocation(loc);
 
             b.setArchived(false);
             branchRepository.save(b);
 
-            seedServicesForBranch(org.getId(), b.getId());
+            seedServicesForBranch(org.getId(), b.getId(), branchType, i);
 
             int kioskCount = 2;
             if ("Garage Group".equals(name) || "Lafz".equals(name)) {
@@ -202,7 +204,7 @@ public class SeedRunner implements CommandLineRunner {
     }
 
     private void createMixedPartnerOrg(String name, String inn, String logo, String email,
-            String address, String phone, String workingHours, String desc) {
+            String address, String phone, String workingHours, String desc, double jitter) {
 
         Organization org = new Organization();
         org.setName(name);
@@ -232,13 +234,13 @@ public class SeedRunner implements CommandLineRunner {
         b1.setWorkingHours(workingHours);
 
         GeoLocation loc1 = new GeoLocation();
-        loc1.setCoordinates(Arrays.asList(69.28, 41.30));
+        loc1.setCoordinates(Arrays.asList(69.28 + jitter, 41.30 + jitter));
         b1.setLocation(loc1);
 
         b1.setArchived(false);
         branchRepository.save(b1);
 
-        seedServicesForBranch(org.getId(), b1.getId());
+        seedServicesForBranch(org.getId(), b1.getId(), "SERVICE", 1);
         assignExistingDevicesForBranch(org.getId(), b1.getId(), 2);
 
         // Branch 2: GAS Station
@@ -253,7 +255,7 @@ public class SeedRunner implements CommandLineRunner {
         b2.setWorkingHours(workingHours);
 
         GeoLocation loc2 = new GeoLocation();
-        loc2.setCoordinates(Arrays.asList(69.29, 41.31));
+        loc2.setCoordinates(Arrays.asList(69.29 + jitter, 41.31 + jitter));
         b2.setLocation(loc2);
 
         b2.setArchived(false);
@@ -275,11 +277,26 @@ public class SeedRunner implements CommandLineRunner {
         accountRepository.save(acc);
     }
 
-    private void seedServicesForBranch(String orgId, String branchId) {
-        createService(orgId, branchId, "Вода", "Основные", 4000, "W", "00000001", 30, 0, 0, 0, 0);
-        createService(orgId, branchId, "Турбо-вода", "Основные", 6000, "T", "00000002", 50, 0, 0, 0, 0);
-        createService(orgId, branchId, "Активная химия", "Химия", 5000, "C", "00000004", 40, 0, 0, 13, 0);
-        createService(orgId, branchId, "Пена", "Химия", 7000, "F", "00000008", 45, 0, 0, 20, 0);
+    private void seedServicesForBranch(String orgId, String branchId, String type, int index) {
+        if ("GAS_STATION".equals(type)) {
+            createService(orgId, branchId, "Бензин АИ-92", "Топливо", 10200 + (index * 100), "G92", "00000001", 0,
+                    index, 0, 0, 0);
+            createService(orgId, branchId, "Бензин АИ-95", "Топливо", 12500 + (index * 150), "G95", "00000002", 0, 0, 0,
+                    0, 0);
+        } else if ("SERVICE".equals(type)) {
+            createService(orgId, branchId, "Замена масла", "Ремонт", 50000 + (index * 5000), "OIL", "00000001", 0, 0, 0,
+                    0, 0);
+            createService(orgId, branchId, "Балансировка", "Шиномонтаж", 30000 + (index * 2000), "BAL", "00000002", 0,
+                    0, 0, 0, 0);
+        } else {
+            // Default CAR_WASH
+            createService(orgId, branchId, "Вода", "Основные", 4000 + (index * 500), "W", "00000001", 30, 0, 0, 0, 0);
+            createService(orgId, branchId, "Турбо-вода", "Основные", 6000 + (index * 400), "T", "00000002", 50, 0, 0, 0,
+                    0);
+            createService(orgId, branchId, "Активная химия", "Химия", 5000 + (index * 300), "C", "00000004", 40, 0, 0,
+                    13, 0);
+            createService(orgId, branchId, "Пена", "Химия", 7000 + (index * 600), "F", "00000008", 45, 0, 0, 20, 0);
+        }
     }
 
     // Присваивает уже существующие устройства и создаёт для них киоски с ТЕМ ЖЕ MAC

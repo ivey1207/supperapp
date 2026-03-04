@@ -1,28 +1,39 @@
 package uz.superapp.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
-import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
 
-@Document("branches")
+@Entity
+@Table(name = "branches")
 public class Branch {
     @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
+
     private String orgId;
     private String name;
     private String address;
     private String phone;
     private String status = "OPEN";
     private String partnerType;
-    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
+
+    @Embedded
     private GeoLocation location;
+
     private String workingHours;
+
+    @ElementCollection
+    @CollectionTable(name = "branch_images", joinColumns = @JoinColumn(name = "branch_id"))
     private List<String> images;
+
     private String photoUrl;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
+
     private boolean archived;
 
     // Smart Filter Properties
@@ -176,8 +187,12 @@ public class Branch {
         this.reviewCount = reviewCount;
     }
 
+    @Embeddable
     public static class GeoLocation {
         private String type = "Point";
+
+        @ElementCollection
+        @CollectionTable(name = "branch_location_coordinates", joinColumns = @JoinColumn(name = "branch_id"))
         private List<Double> coordinates;
 
         public String getType() {

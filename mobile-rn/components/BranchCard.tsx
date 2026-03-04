@@ -1,10 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, useColorScheme } from 'react-native';
-import { Ionicons, FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { Branch, getFileUrl } from '@/lib/api';
-import { openYandexNavigation } from '@/lib/navigation';
 
 interface BranchCardProps {
     branch: Branch;
@@ -12,106 +10,63 @@ interface BranchCardProps {
     index: number;
     isSponsored?: boolean;
     style?: any;
-    onNavigate?: () => void;
 }
 
-export default function BranchCard({ branch, onPress, index, isSponsored, style, onNavigate }: BranchCardProps) {
-    const scheme = useColorScheme() ?? 'dark';
+export default function BranchCard({ branch, onPress, index, style }: BranchCardProps) {
+    const scheme = useColorScheme() ?? 'light';
     const colors = Colors[scheme];
 
-    // Mock data for WOW effect
     const rating = (4.5 + (index % 5) * 0.1).toFixed(1);
-    const reviews = 100 + (index * 23) % 500;
-    const time = 15 + (index * 5) % 30;
     const distance = branch.distance !== undefined
         ? (branch.distance < 1
-            ? `${(branch.distance * 1000).toFixed(0)} м`
-            : `${branch.distance.toFixed(1)} км`)
-        : null;
+            ? `${(branch.distance * 1000).toFixed(0)} ft` // Adapting to mockup's miles/ft style
+            : `${branch.distance.toFixed(1)} miles away`)
+        : '0.8 miles away';
+
+    const isOpen = index % 3 !== 0; // Mock status
+    const price = 4.95 + (index * 2);
 
     return (
         <TouchableOpacity
-            style={[styles.card, { backgroundColor: colors.card }, isSponsored && styles.sponsoredCard, style]}
+            style={[styles.card, { backgroundColor: colors.card }, style]}
             onPress={onPress}
             activeOpacity={0.9}
         >
-            <View style={styles.imageWrapper}>
+            <View style={styles.imageContainer}>
                 <Image
                     source={{ uri: getFileUrl(branch.photoUrl || (branch.images && branch.images[0])) || 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&q=80' }}
                     style={styles.image}
                 />
-                <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.8)']}
-                    style={styles.gradient}
-                />
 
-                {/* Status Badges */}
-                <View style={styles.topBadges}>
-                    {isSponsored && (
-                        <View style={[styles.badge, styles.sponsoredBadge]}>
-                            <Text style={styles.sponsoredText}>Реклама</Text>
-                        </View>
-                    )}
-                    <View style={[styles.badge, styles.timeBadge, isSponsored && { marginLeft: 'auto' }]}>
-                        <Ionicons name="time" size={12} color="#000" />
-                        <Text style={styles.timeText}>15 мин</Text>
-                    </View>
-                    {!isSponsored && index % 2 === 0 && ( // Only show promo if not sponsored
-                        <View style={styles.promoBadge}>
-                            <Text style={styles.promoText}>-20%</Text>
-                        </View>
-                    )}
+                <View style={styles.ratingBadge}>
+                    <FontAwesome name="star" size={10} color="#FFD700" />
+                    <Text style={styles.ratingText}>{rating}</Text>
                 </View>
 
-                {/* Bottom Overlay Info */}
-                <View style={styles.bottomInfo}>
-                    <Text style={styles.branchName} numberOfLines={1}>{branch.name}</Text>
-                    <View style={styles.metaRow}>
-                        <View style={styles.ratingBox}>
-                            <FontAwesome name="star" size={12} color="#fbbf24" />
-                            <Text style={styles.ratingText}>{rating}</Text>
-                            <Text style={styles.reviewsText}>({reviews}+)</Text>
-                        </View>
-                        <View style={styles.dot} />
-                        <Text style={styles.distanceText}>{distance || '--- км'}</Text>
+                {index === 0 && (
+                    <View style={styles.promoBadge}>
+                        <Text style={styles.promoText}>SAVE 10%</Text>
                     </View>
-                </View>
+                )}
             </View>
 
-            <View style={styles.footer}>
-                <Text style={[styles.address, { color: colors.textSecondary }]} numberOfLines={1}>
-                    {branch.address || 'Адрес не указан'}
-                </Text>
-                <View style={[styles.typeBadge, { backgroundColor: colors.primary + '15' }]}>
-                    <Text style={[styles.typeText, { color: colors.primary }]}>
-                        {branch.partnerType === 'SERVICE' ? 'Сервис' : 'Мойка'}
+            <View style={styles.content}>
+                <View style={styles.headerRow}>
+                    <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>{branch.name}</Text>
+                    <View style={styles.priceContainer}>
+                        <Text style={styles.priceLabel}>Regular</Text>
+                        <Text style={[styles.priceValue, { color: colors.text }]}>${price.toFixed(2)}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.metaRow}>
+                    <Text style={[styles.statusText, { color: isOpen ? '#10B981' : '#EF4444' }]}>
+                        {isOpen ? 'OPEN' : 'CLOSED'}
                     </Text>
+                    <View style={styles.dot} />
+                    <Text style={[styles.metaText, { color: colors.textSecondary }]}>{distance}</Text>
                 </View>
             </View>
-
-            {/* Navigation Button Overlay */}
-            {branch.location?.coordinates?.[1] && (
-                <TouchableOpacity
-                    style={[styles.miniNavBtn, { backgroundColor: colors.primary }]}
-                    onPress={(e) => {
-                        e.stopPropagation();
-                        if (onNavigate) {
-                            onNavigate();
-                        } else {
-                            // If no custom handler (like on Home screen), navigate to Map with startNav param
-                            import('expo-router').then(({ router }) => {
-                                router.push({
-                                    pathname: '/(tabs)/map',
-                                    params: { branchId: branch.id, startNav: 'true' }
-                                } as any);
-                            });
-                        }
-                    }}
-                >
-                    <MaterialIcons name="navigation" size={20} color="#fff" />
-                    <Text style={styles.miniNavText}>Поехали</Text>
-                </TouchableOpacity>
-            )}
         </TouchableOpacity>
     );
 }
@@ -120,159 +75,93 @@ const styles = StyleSheet.create({
     card: {
         borderRadius: 24,
         overflow: 'hidden',
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 5,
+        marginBottom: 8,
     },
-    sponsoredCard: {
-        borderWidth: 2,
-        borderColor: '#fbbf24', // Gold border for sponsored
-    },
-    imageWrapper: {
-        height: 200,
+    imageContainer: {
+        height: 180,
         width: '100%',
+        position: 'relative',
     },
     image: {
         width: '100%',
         height: '100%',
         resizeMode: 'cover',
     },
-    gradient: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    topBadges: {
+    ratingBadge: {
         position: 'absolute',
-        top: 16,
-        left: 16,
-        right: 16,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    badge: {
+        top: 12,
+        left: 12,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 20,
-        gap: 4,
-    },
-    sponsoredBadge: {
-        backgroundColor: '#fbbf24',
-    },
-    sponsoredText: {
-        color: '#000',
-        fontSize: 11,
-        fontWeight: '800',
-        textTransform: 'uppercase',
-    },
-    timeBadge: {
-        backgroundColor: '#fff',
-    },
-    timeText: {
-        fontSize: 13,
-        fontWeight: '800',
-        color: '#000',
-    },
-    promoBadge: {
-        backgroundColor: '#ef4444',
-        paddingHorizontal: 10,
-        paddingVertical: 6,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
         borderRadius: 12,
-    },
-    promoText: {
-        fontSize: 13,
-        fontWeight: '800',
-        color: '#fff',
-    },
-    bottomInfo: {
-        position: 'absolute',
-        bottom: 16,
-        left: 16,
-        right: 16,
-    },
-    branchName: {
-        fontSize: 22,
-        fontWeight: '900',
-        color: '#fff',
-        textShadowColor: 'rgba(0,0,0,0.5)',
-        textShadowOffset: { width: 0, height: 1 },
-        textShadowRadius: 4,
-    },
-    metaRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 4,
-        gap: 8,
-    },
-    ratingBox: {
-        flexDirection: 'row',
-        alignItems: 'center',
         gap: 4,
     },
     ratingText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: '700',
     },
-    reviewsText: {
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: 12,
-    },
-    dot: {
-        width: 4,
-        height: 4,
-        borderRadius: 2,
-        backgroundColor: 'rgba(255,255,255,0.5)',
-    },
-    distanceText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    footer: {
-        padding: 16,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    address: {
-        fontSize: 14,
-        fontWeight: '500',
-        flex: 1,
-        marginRight: 12,
-    },
-    typeBadge: {
+    promoBadge: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        backgroundColor: '#10B981',
         paddingHorizontal: 10,
         paddingVertical: 4,
-        borderRadius: 8,
+        borderRadius: 12,
     },
-    typeText: {
-        fontSize: 12,
-        fontWeight: '700',
-        textTransform: 'uppercase',
+    promoText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: '800',
     },
-    miniNavBtn: {
-        position: 'absolute',
-        top: 16,
-        right: 16,
+    content: {
+        padding: 16,
+    },
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 4,
+    },
+    name: {
+        fontSize: 18,
+        fontWeight: '800',
+        flex: 1,
+        marginRight: 8,
+    },
+    priceContainer: {
+        alignItems: 'flex-end',
+    },
+    priceLabel: {
+        fontSize: 10,
+        color: '#94A3B8',
+        fontWeight: '600',
+    },
+    priceValue: {
+        fontSize: 16,
+        fontWeight: '800',
+    },
+    metaRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 20,
-        gap: 6,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 10,
+        gap: 8,
     },
-    miniNavText: {
-        color: '#fff',
-        fontSize: 12,
+    statusText: {
+        fontSize: 11,
         fontWeight: '800',
-    }
+    },
+    dot: {
+        width: 3,
+        height: 3,
+        borderRadius: 1.5,
+        backgroundColor: '#94A3B8',
+    },
+    metaText: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
 });
