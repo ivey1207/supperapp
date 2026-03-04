@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Tag(name = "Admin App User Management API")
 @RestController
 @RequestMapping("/api/v1/admin/app-users")
-@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'PARTNER_ADMIN', 'MANAGER')")
+@PreAuthorize("hasRole('SUPER_ADMIN')")
 public class AdminAppUserController {
 
     private final AppUserRepository appUserRepository;
