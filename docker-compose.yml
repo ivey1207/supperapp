@@ -40,7 +40,7 @@ services:
       - postgres_replica_data:/var/lib/postgresql/data
       - wal_archives:/archives
       - ./postgres/init-replica.sh:/usr/local/bin/init-replica.sh:ro
-    entrypoint: [ "/usr/local/bin/init-replica.sh" ]
+    entrypoint: [ "sh", "/usr/local/bin/init-replica.sh" ]
     depends_on:
       postgres-master:
         condition: service_healthy
