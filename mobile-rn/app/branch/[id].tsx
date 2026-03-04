@@ -167,9 +167,6 @@ export default function BranchDetailsScreen() {
                                             )}
                                         </View>
                                     </View>
-                                    <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.primary }]}>
-                                        <Ionicons name="add" size={24} color="#fff" />
-                                    </TouchableOpacity>
                                 </TouchableOpacity>
                             ))
                         ) : (

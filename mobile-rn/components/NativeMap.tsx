@@ -1,13 +1,14 @@
 import React from 'react';
-import MapView, { Marker, Polyline, PROVIDER_DEFAULT } from 'react-native-maps';
+import YaMap, { Marker, Polyline, Animation } from 'react-native-yamap';
 import { StyleSheet } from 'react-native';
 import type { Branch } from '@/lib/api';
 import { getFileUrl } from '@/lib/api';
 import * as Location from 'expo-location';
+import * as Speech from 'expo-speech';
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { View, Image, TouchableOpacity, Text } from 'react-native';
-import { openYandexNavigation, RoutePoint } from '@/lib/navigation';
+import { RoutePoint } from '@/lib/navigation';
 
 interface NativeMapProps {
     branches: Branch[];
@@ -15,14 +16,19 @@ interface NativeMapProps {
     onBranchSelect?: (branch: Branch) => void;
     routePoints?: RoutePoint[];
     onStartNavigation?: (branch: Branch) => void;
+    onStopNavigation?: () => void;
     isNavigating?: boolean;
 }
 
-const INITIAL_REGION = {
-    latitude: 41.2995,
-    longitude: 69.2401,
-    latitudeDelta: 0.1,
-    longitudeDelta: 0.1,
+interface Maneuver {
+    lat: number;
+    lon: number;
+    type: string;
+}
+
+const INITIAL_POINT = {
+    lat: 41.2995,
+    lon: 69.2401,
 };
 
 const getMarkerIcon = (type: string) => {
@@ -51,189 +57,461 @@ const getMarkerColor = (type: string) => {
     }
 };
 
-const DARK_MAP_STYLE = [
-    {
-        "elementType": "geometry",
-        "stylers": [{ "color": "#1e293b" }]
-    },
-    {
-        "elementType": "labels.text.fill",
-        "stylers": [{ "color": "#94a3b8" }]
-    },
-    {
-        "elementType": "labels.text.stroke",
-        "stylers": [{ "color": "#0f172a" }]
-    },
-    {
-        "featureType": "administrative",
-        "elementType": "geometry",
-        "stylers": [{ "color": "#334155" }]
-    },
-    {
-        "featureType": "poi",
-        "elementType": "geometry",
-        "stylers": [{ "color": "#334155" }]
-    },
-    {
-        "featureType": "poi",
-        "elementType": "labels.text.fill",
-        "stylers": [{ "color": "#94a3b8" }]
-    },
-    {
-        "featureType": "road",
-        "elementType": "geometry",
-        "stylers": [{ "color": "#334155" }]
-    },
-    {
-        "featureType": "road",
-        "elementType": "geometry.stroke",
-        "stylers": [{ "color": "#1e293b" }]
-    },
-    {
-        "featureType": "road",
-        "elementType": "labels.text.fill",
-        "stylers": [{ "color": "#64748b" }]
-    },
-    {
-        "featureType": "transit",
-        "elementType": "geometry",
-        "stylers": [{ "color": "#1e293b" }]
-    },
-    {
-        "featureType": "water",
-        "elementType": "geometry",
-        "stylers": [{ "color": "#0f172a" }]
-    }
-];
+const MANEUVER_VOICES: Record<string, string> = {
+    'LEFT': 'поверните налево',
+    'RIGHT': 'поверните направо',
+    'SLIGHT_LEFT': 'держитесь левее',
+    'SLIGHT_RIGHT': 'держитесь правее',
+    'SHARP_LEFT': 'резко поверните налево',
+    'SHARP_RIGHT': 'резко поверните направо',
+    'TURN_BACK': 'развернитесь',
+    'UTURN': 'развернитесь',
+    'ENTER_ROUNDABOUT': 'въезжайте на кольцо',
+    'LEAVE_ROUNDABOUT': 'съезжайте с кольца',
+    'DESTINATION': 'вы прибыли в пункт назначения',
+    'FORWARD': 'продолжайте движение прямо',
+};
 
-export default function NativeMap({ branches, selectedBranchId, onBranchSelect, routePoints, onStartNavigation, isNavigating }: NativeMapProps) {
-    const mapRef = React.useRef<MapView>(null);
+const MANEUVER_ICONS: Record<string, string> = {
+    'LEFT': 'arrow-left-bold',
+    'RIGHT': 'arrow-right-bold',
+    'SLIGHT_LEFT': 'arrow-top-left-bold-outline',
+    'SLIGHT_RIGHT': 'arrow-top-right-bold-outline',
+    'SHARP_LEFT': 'arrow-bottom-left-bold',
+    'SHARP_RIGHT': 'arrow-bottom-right-bold',
+    'TURN_BACK': 'arrow-u-down-left-bold',
+    'UTURN': 'arrow-u-down-left-bold',
+    'ENTER_ROUNDABOUT': 'rotate-right',
+    'LEAVE_ROUNDABOUT': 'arrow-top-right-bold-outline',
+    'DESTINATION': 'map-marker-check',
+    'FORWARD': 'arrow-up-bold',
+};
+
+// Alisa-like voice settings
+const speakAlisa = (text: string) => {
+    console.log('Alisa attempt:', text);
+    Speech.stop().then(() => {
+        Speech.speak(text, {
+            language: 'ru-RU',
+            pitch: 1.0,
+            rate: 0.9,
+            onStart: () => console.log('Speech started'),
+            onDone: () => console.log('Speech done'),
+            onError: (err) => console.log('Speech error:', err),
+        });
+    });
+};
+
+const formatDistanceVoice = (meters: number): string => {
+    if (meters >= 1000) {
+        const km = Math.round(meters / 100) / 10;
+        return `${km} ${km === 1 ? 'километр' : km < 5 ? 'километра' : 'километров'}`;
+    }
+    const rounded = Math.round(meters / 100) * 100;
+    return `${rounded} метров`;
+};
+
+const formatDistanceHUD = (meters: number): string => {
+    if (meters >= 1000) {
+        return `${(meters / 1000).toFixed(1)} км`;
+    }
+    return `${Math.round(meters)} м`;
+};
+
+const formatETA = (distMeters: number): string => {
+    // ~40 km/h avg city speed
+    const minutes = Math.ceil(distMeters / (40000 / 60));
+    if (minutes < 1) return '< 1 мин';
+    if (minutes >= 60) {
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        return `${h} ч ${m} мин`;
+    }
+    return `${minutes} мин`;
+};
+
+const getArrivalTime = (distMeters: number): string => {
+    const now = new Date();
+    const minutes = Math.ceil(distMeters / (40000 / 60));
+    now.setMinutes(now.getMinutes() + minutes);
+    return `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+};
+
+function calculateDistance(p1: { lat: number, lon: number }, p2: { lat: number, lon: number }) {
+    const R = 6371e3;
+    const dLat = (p2.lat - p1.lat) * Math.PI / 180;
+    const dLon = (p2.lon - p1.lon) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+export default function NativeMap({ branches, selectedBranchId, onBranchSelect, routePoints, onStartNavigation, onStopNavigation, isNavigating }: NativeMapProps) {
+    const mapRef = React.useRef<YaMap>(null);
+    const [userLoc, setUserLoc] = React.useState<Location.LocationObjectCoords | null>(null);
+    const [hasCenteredOnUser, setHasCenteredOnUser] = React.useState(false);
+    const [maneuvers, setManeuvers] = React.useState<Maneuver[]>([]);
+    const [nextManeuverIdx, setNextManeuverIdx] = React.useState(0);
+    const [lastSpokenDist, setLastSpokenDist] = React.useState<number | null>(null);
+    const [totalRouteDist, setTotalRouteDist] = React.useState(0);
+    const [distToNextManeuver, setDistToNextManeuver] = React.useState(0);
+    const [distToDestination, setDistToDestination] = React.useState(0);
+    const navStartTimeRef = React.useRef<Date | null>(null);
+
+    // Continuous High Accuracy Location Tracking
+    React.useEffect(() => {
+        let subscription: Location.LocationSubscription | null = null;
+
+        (async () => {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') return;
+
+            // Start watching
+            subscription = await Location.watchPositionAsync(
+                {
+                    accuracy: Location.Accuracy.High,
+                    timeInterval: 2000,
+                    distanceInterval: 5,
+                },
+                (location) => {
+                    setUserLoc(location.coords);
+
+                    // Auto-center on first reliable fix if not already navigating
+                    if (!hasCenteredOnUser && !isNavigating && mapRef.current) {
+                        mapRef.current.setCenter({
+                            lat: location.coords.latitude,
+                            lon: location.coords.longitude
+                        }, 15);
+                        setHasCenteredOnUser(true);
+                    }
+                }
+            );
+        })();
+
+        return () => {
+            if (subscription) subscription.remove();
+        };
+    }, [hasCenteredOnUser, isNavigating]); // Include dependencies
+
+    const jumpToUserLocation = () => {
+        if (userLoc && mapRef.current) {
+            mapRef.current.setCenter({
+                lat: userLoc.latitude,
+                lon: userLoc.longitude
+            }, 16, 0, 0, 600, Animation.SMOOTH);
+        }
+    };
 
     React.useEffect(() => {
         if (branches.length > 0 && mapRef.current && !isNavigating) {
-            const coords = branches
+            const points = branches
                 .filter(b => b.location?.coordinates && b.location.coordinates.length >= 2)
                 .map(b => ({
-                    latitude: b.location!.coordinates[1],
-                    longitude: b.location!.coordinates[0]
+                    lat: b.location!.coordinates[1],
+                    lon: b.location!.coordinates[0]
                 }));
 
-            if (coords.length > 0) {
-                mapRef.current.fitToCoordinates(coords, {
-                    edgePadding: { top: 100, right: 50, bottom: 100, left: 50 },
-                    animated: true,
-                });
+            if (points.length > 0) {
+                mapRef.current.fitMarkers(points);
             }
         }
     }, [branches, isNavigating]);
 
-    // Handle 3D Navigation Follow
+    // Fetch Yandex native route & maneuvers when navigation starts
     React.useEffect(() => {
-        let subscription: any;
-        if (isNavigating && mapRef.current) {
-            (async () => {
-                subscription = await Location.watchPositionAsync(
-                    {
-                        accuracy: Location.Accuracy.BestForNavigation,
-                        timeInterval: 1000,
-                        distanceInterval: 1,
-                    },
-                    (location) => {
-                        if (mapRef.current) {
-                            mapRef.current.animateCamera({
-                                center: {
-                                    latitude: location.coords.latitude,
-                                    longitude: location.coords.longitude,
-                                },
-                                pitch: 45,
-                                heading: location.coords.heading || 0,
-                                altitude: 1000, // For iOS
-                                zoom: 17, // For Android
-                            }, { duration: 1000 });
-                        }
-                    }
+        if (isNavigating && mapRef.current && routePoints && routePoints.length > 0) {
+            const start = { lat: userLoc?.latitude || INITIAL_POINT.lat, lon: userLoc?.longitude || INITIAL_POINT.lon };
+            const end = { lat: routePoints[routePoints.length - 1].latitude, lon: routePoints[routePoints.length - 1].longitude };
+
+            // Calculate total route distance
+            let totalDist = 0;
+            for (let i = 1; i < routePoints.length; i++) {
+                totalDist += calculateDistance(
+                    { lat: routePoints[i - 1].latitude, lon: routePoints[i - 1].longitude },
+                    { lat: routePoints[i].latitude, lon: routePoints[i].longitude }
                 );
-            })();
+            }
+            setTotalRouteDist(totalDist);
+            setDistToDestination(totalDist);
+            navStartTimeRef.current = new Date();
+
+            // Welcome announcement — Alisa style
+            const distText = formatDistanceVoice(totalDist);
+            const etaText = formatETA(totalDist);
+
+            // Delay for stability
+            setTimeout(() => {
+                speakAlisa(`Маршрут построен. ${distText}, примерно ${etaText}. Поехали!`);
+            }, 500);
+
+            // @ts-ignore
+            mapRef.current.findDrivingRoutes([start, end], (event: any) => {
+                console.log('Voice Nav Event:', JSON.stringify(event));
+                if (event && event.status === 'success' && event.routes && event.routes.length > 0) {
+                    const route = event.routes[0];
+                    const allManeuvers: Maneuver[] = route.maneuvers || [];
+                    setManeuvers(allManeuvers);
+                    setNextManeuverIdx(0);
+                    setLastSpokenDist(null);
+                    console.log(`Voice Nav Success: ${allManeuvers.length} maneuvers`);
+                } else if (event && event.status === 'error') {
+                    console.error('Voice Nav: Router error');
+                }
+            });
+        } else if (!isNavigating) {
+            Speech.stop();
+            setManeuvers([]);
+            setNextManeuverIdx(0);
+            setTotalRouteDist(0);
+            setDistToDestination(0);
+            navStartTimeRef.current = null;
         }
-        return () => {
-            if (subscription) subscription.remove();
-        };
     }, [isNavigating]);
 
+    // Voice Guidance Loop — Alisa style with progressive distance alerts
+    React.useEffect(() => {
+        if (!isNavigating || !userLoc) return;
+
+        // Update distance to destination
+        if (routePoints && routePoints.length > 0) {
+            const dest = routePoints[routePoints.length - 1];
+            const destDist = calculateDistance(
+                { lat: userLoc.latitude, lon: userLoc.longitude },
+                { lat: dest.latitude, lon: dest.longitude }
+            );
+            setDistToDestination(destDist);
+
+            // Arrival detection
+            if (destDist < 30) {
+                speakAlisa('Вы прибыли в пункт назначения. Хорошего дня!');
+                setManeuvers([]);
+                return;
+            }
+        }
+
+        if (maneuvers.length === 0 || nextManeuverIdx >= maneuvers.length) return;
+
+        const maneuver = maneuvers[nextManeuverIdx];
+        const dist = calculateDistance(
+            { lat: userLoc.latitude, lon: userLoc.longitude },
+            { lat: maneuver.lat, lon: maneuver.lon }
+        );
+
+        setDistToNextManeuver(dist);
+
+        const instruction = MANEUVER_VOICES[maneuver.type] || 'продолжайте движение';
+
+        const announceOnce = (text: string, threshold: number) => {
+            if (lastSpokenDist !== threshold) {
+                speakAlisa(text);
+                setLastSpokenDist(threshold);
+            }
+        };
+
+        // Progressive distance announcements like Yandex Navigator
+        if (dist < 30) {
+            // At the maneuver point
+            const capitalInstruction = instruction.charAt(0).toUpperCase() + instruction.slice(1);
+            announceOnce(capitalInstruction, 30);
+            setNextManeuverIdx(prev => prev + 1);
+            setLastSpokenDist(null);
+        } else if (dist < 100 && dist > 60) {
+            announceOnce(`Через сто метров ${instruction}`, 100);
+        } else if (dist < 300 && dist > 250) {
+            announceOnce(`Через триста метров ${instruction}`, 300);
+        } else if (dist < 500 && dist > 450) {
+            announceOnce(`Через пятьсот метров ${instruction}`, 500);
+        } else if (dist < 800 && dist > 750) {
+            announceOnce(`Через восемьсот метров ${instruction}`, 800);
+        } else if (dist >= 2000 && dist < 2100 && lastSpokenDist !== 2000) {
+            announceOnce(`Через два километра ${instruction}`, 2000);
+        }
+
+    }, [userLoc, isNavigating, maneuvers, nextManeuverIdx, lastSpokenDist, routePoints]);
+
     return (
-        <MapView
-            ref={mapRef}
-            style={styles.map}
-            initialRegion={INITIAL_REGION}
-            provider={PROVIDER_DEFAULT}
-            showsUserLocation
-            showsMyLocationButton
-            customMapStyle={DARK_MAP_STYLE}
-        >
-            {branches
-                .filter((b) => b.location?.coordinates && b.location.coordinates.length >= 2)
-                .map((branch) => {
-                    const isSelected = selectedBranchId === branch.id;
-                    return (
-                        <Marker
-                            key={branch.id}
-                            coordinate={{
-                                latitude: branch.location!.coordinates[1],
-                                longitude: branch.location!.coordinates[0],
-                            }}
-                            onPress={() => onBranchSelect?.(branch)}
-                        >
-                            <View style={[
-                                styles.markerContainer,
-                                { borderColor: isSelected ? '#3b82f6' : 'white' },
-                                isSelected && styles.selectedMarker
-                            ]}>
-                                <View style={styles.imageInnerContainer}>
-                                    {(branch.photoUrl || (branch.images && branch.images.length > 0)) ? (
-                                        <Image
-                                            source={{ uri: getFileUrl(branch.photoUrl || branch.images![0]) as string }}
-                                            style={styles.markerImage}
-                                        />
-                                    ) : (
-                                        <View style={[styles.fallbackContent, { backgroundColor: getMarkerColor(branch.partnerType) }]}>
-                                            <MaterialCommunityIcons
-                                                name={getMarkerIcon(branch.partnerType) as any}
-                                                size={isSelected ? 24 : 18}
-                                                color="white"
-                                            />
+        <View style={styles.outerContainer}>
+            <YaMap
+                ref={mapRef}
+                style={styles.map}
+                initialRegion={{
+                    lat: INITIAL_POINT.lat,
+                    lon: INITIAL_POINT.lon,
+                    zoom: 12,
+                }}
+                showUserPosition={!isNavigating}
+                nightMode={!isNavigating}
+            >
+                {isNavigating && userLoc && (
+                    <Marker
+                        point={{ lat: userLoc.latitude, lon: userLoc.longitude }}
+                        scale={1.5}
+                        anchor={{ x: 0.5, y: 0.5 }}
+                    >
+                        <View style={styles.arrowMarker}>
+                            <MaterialCommunityIcons
+                                name="navigation"
+                                size={56}
+                                color="#fbbf24"
+                                style={{ transform: [{ rotate: `${userLoc.heading || 0}deg` }] }}
+                            />
+                        </View>
+                    </Marker>
+                )}
+                {branches
+                    .filter((b) => b.location?.coordinates && b.location.coordinates.length >= 2)
+                    .map((branch) => {
+                        const isSelected = selectedBranchId === branch.id;
+                        return (
+                            <Marker
+                                key={branch.id}
+                                point={{
+                                    lat: branch.location!.coordinates[1],
+                                    lon: branch.location!.coordinates[0],
+                                }}
+                                onPress={() => onBranchSelect?.(branch)}
+                            >
+                                <View>
+                                    <View style={[
+                                        styles.markerContainer,
+                                        { borderColor: isSelected ? '#3b82f6' : 'white' },
+                                        isSelected && styles.selectedMarker
+                                    ]}>
+                                        <View style={styles.imageInnerContainer}>
+                                            {(branch.photoUrl || (branch.images && branch.images.length > 0)) ? (
+                                                <Image
+                                                    source={{ uri: getFileUrl(branch.photoUrl || branch.images![0]) as string }}
+                                                    style={styles.markerImage}
+                                                />
+                                            ) : (
+                                                <View style={[styles.fallbackContent, { backgroundColor: getMarkerColor(branch.partnerType) }]}>
+                                                    <MaterialCommunityIcons
+                                                        name={getMarkerIcon(branch.partnerType) as any}
+                                                        size={isSelected ? 24 : 18}
+                                                        color="white"
+                                                    />
+                                                </View>
+                                            )}
+                                        </View>
+                                        {/* Pointer Tail */}
+                                        <View style={[styles.markerTail, { backgroundColor: isSelected ? '#3b82f6' : 'white' }]} />
+                                    </View>
+
+                                    {/* Quick Nav Button when selected */}
+                                    {isSelected && branch.location?.coordinates?.[1] && (
+                                        <View style={styles.quickNavWrapper}>
+                                            <TouchableOpacity
+                                                style={styles.quickNavBtn}
+                                                onPress={() => onStartNavigation?.(branch)}
+                                            >
+                                                <MaterialCommunityIcons name="navigation" size={20} color="#fff" />
+                                                <Text style={styles.quickNavText}>ПОЕХАЛИ</Text>
+                                            </TouchableOpacity>
                                         </View>
                                     )}
                                 </View>
-                                {/* Pointer Tail */}
-                                <View style={[styles.markerTail, { backgroundColor: isSelected ? '#3b82f6' : 'white' }]} />
+                            </Marker>
+                        );
+                    })}
+
+                {routePoints && routePoints.length > 0 && (
+                    <Polyline
+                        points={routePoints.map(p => ({ lat: p.latitude, lon: p.longitude }))}
+                        strokeColor="#22c55e"
+                        strokeWidth={8}
+                        outlineColor="#15803d"
+                        outlineWidth={1}
+                    />
+                )}
+            </YaMap>
+
+            {isNavigating && (
+                <>
+                    {/* Top Guidance HUD — real-time */}
+                    <View style={styles.yandexGuidance}>
+                        <View style={styles.guidanceIconWrapper}>
+                            <MaterialCommunityIcons
+                                name={((maneuvers.length > 0 && nextManeuverIdx < maneuvers.length
+                                    ? MANEUVER_ICONS[maneuvers[nextManeuverIdx].type]
+                                    : 'arrow-up-bold') || 'arrow-up-bold') as any}
+                                size={40}
+                                color="#fff"
+                            />
+                        </View>
+                        <View style={styles.guidanceTextWrapper}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                <Text style={styles.guidanceDist}>
+                                    {distToNextManeuver > 0 ? formatDistanceHUD(distToNextManeuver) : '—'}
+                                </Text>
+                                <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>
+                                    (число манёвров: {maneuvers.length})
+                                </Text>
                             </View>
+                            <Text style={styles.guidanceStreet}>
+                                {maneuvers.length > 0 && nextManeuverIdx < maneuvers.length
+                                    ? (MANEUVER_VOICES[maneuvers[nextManeuverIdx].type] || 'Прямо').charAt(0).toUpperCase() +
+                                    (MANEUVER_VOICES[maneuvers[nextManeuverIdx].type] || 'прямо').slice(1)
+                                    : 'Следуйте по маршруту'}
+                            </Text>
+                        </View>
+                    </View>
 
-                            {/* Callout/Quick Nav Button when selected */}
-                            {isSelected && branch.location?.coordinates?.[1] && (
-                                <View style={styles.quickNavWrapper}>
-                                    <TouchableOpacity
-                                        style={styles.quickNavBtn}
-                                        onPress={() => onStartNavigation?.(branch)}
-                                    >
-                                        <MaterialCommunityIcons name="navigation" size={20} color="#fff" />
-                                        <Text style={styles.quickNavText}>ПОЕХАЛИ</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                        </Marker>
-                    );
-                })}
+                    {/* Bottom Navigation HUD — real-time */}
+                    <View style={styles.yandexBottomBar}>
+                        <View style={styles.bottomStats}>
+                            <View style={styles.statItem}>
+                                <Text style={styles.statValue}>
+                                    {formatDistanceHUD(distToDestination)}
+                                </Text>
+                                <Text style={styles.statLabel}>Осталось</Text>
+                            </View>
+                            <View style={styles.statDivider} />
+                            <View style={styles.statItem}>
+                                <Text style={styles.statValue}>
+                                    {getArrivalTime(distToDestination)}
+                                </Text>
+                                <Text style={styles.statLabel}>Прибытие</Text>
+                            </View>
+                            <View style={styles.statDivider} />
+                            <View style={styles.statItem}>
+                                <Text style={styles.statValue}>
+                                    {formatETA(distToDestination)}
+                                </Text>
+                                <Text style={styles.statLabel}>В пути</Text>
+                            </View>
+                        </View>
 
-            {routePoints && routePoints.length > 0 && (
-                <Polyline
-                    coordinates={routePoints}
-                    strokeColor="#3b82f6"
-                    strokeWidth={5}
-                    lineDashPattern={[0]}
-                    geodesic={true}
-                />
+                        <TouchableOpacity
+                            style={styles.closeNavBtn}
+                            onPress={() => {
+                                speakAlisa('Навигация завершена');
+                                onStopNavigation?.();
+                            }}
+                        >
+                            <MaterialCommunityIcons name="close" size={24} color="#64748b" />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.closeNavBtn, { backgroundColor: '#3b82f6' }]}
+                            onPress={() => speakAlisa("Проверка звука. Вы слышите Алису?")}
+                        >
+                            <MaterialCommunityIcons name="volume-high" size={24} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
+                </>
             )}
-        </MapView>
+
+            {!isNavigating && (
+                <TouchableOpacity
+                    style={styles.myLocationBtn}
+                    onPress={jumpToUserLocation}
+                >
+                    <MaterialCommunityIcons name="crosshairs-gps" size={24} color="#3b82f6" />
+                </TouchableOpacity>
+            )}
+        </View>
     );
 }
 
@@ -307,5 +585,86 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 12,
         fontWeight: '800',
+    },
+    outerContainer: { flex: 1 },
+    arrowMarker: {
+        width: 60,
+        height: 60,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    yandexGuidance: {
+        position: 'absolute',
+        top: 60,
+        left: 20,
+        right: 80,
+        backgroundColor: '#3b82f6',
+        borderRadius: 16,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 10,
+    },
+    guidanceIconWrapper: {
+        width: 50,
+        height: 50,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    guidanceTextWrapper: { flex: 1 },
+    guidanceDist: { fontSize: 24, fontWeight: '900', color: '#fff' },
+    guidanceStreet: { fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.9)' },
+    yandexBottomBar: {
+        position: 'absolute',
+        bottom: 40,
+        left: 20,
+        right: 20,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 10,
+    },
+    bottomStats: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' },
+    statItem: { alignItems: 'center' },
+    statValue: { fontSize: 18, fontWeight: '800', color: '#0f172a' },
+    statLabel: { fontSize: 11, color: '#64748b', marginTop: 2, fontWeight: '600' },
+    statDivider: { width: 1, height: 20, backgroundColor: '#e2e8f0' },
+    closeNavBtn: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#f1f5f9',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 12,
+    },
+    myLocationBtn: {
+        position: 'absolute',
+        bottom: 100,
+        right: 20,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     }
 });

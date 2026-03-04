@@ -86,51 +86,16 @@ export default function MapScreen() {
         selectedBranchId={selectedBranch?.id}
         onBranchSelect={setSelectedBranch}
         routePoints={routePoints}
+        isNavigating={isNavigating}
         onStartNavigation={(branch) => {
           setSelectedBranch(branch);
           setIsNavigating(true);
         }}
+        onStopNavigation={() => {
+          setIsNavigating(false);
+          setSelectedBranch(null);
+        }}
       />
-
-      {/* Floating Header Overlay */}
-      <View style={[styles.headerOverlay, { backgroundColor: colors.card + 'E0' }]}>
-        <Text style={[styles.title, { color: colors.text }]}>Филиалы ({branches.length})</Text>
-      </View>
-
-      {/* Selected Branch Card */}
-      {selectedBranch && (
-        <View style={styles.cardOverlay}>
-          <BranchCard
-            branch={selectedBranch}
-            index={0}
-            onPress={() => router.push(`/branch/${selectedBranch.id}` as any)}
-            style={{ borderColor: colors.border, borderWidth: 1 }}
-            onNavigate={() => setIsNavigating(true)}
-          />
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setSelectedBranch(null)}
-          >
-            <Ionicons name="close" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Navigation HUD */}
-      {isNavigating && (
-        <View style={styles.navHud}>
-          <View style={styles.navInfo}>
-            <Ionicons name="navigate" size={24} color="#fff" />
-            <Text style={styles.navText}>Навигация активна</Text>
-          </View>
-          <TouchableOpacity
-            style={styles.stopNavBtn}
-            onPress={() => setIsNavigating(false)}
-          >
-            <Text style={styles.stopNavText}>ОСТАНОВИТЬ</Text>
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 }

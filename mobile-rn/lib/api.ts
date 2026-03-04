@@ -1,5 +1,8 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 
 export const getBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_API_URL) {
@@ -14,13 +17,12 @@ export const getBaseUrl = () => {
   return 'http://161.97.118.117:8080';
 };
 
-export const api = axios.create({
+console.log('Using API URL:', Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL);
+
+const api = axios.create({
   baseURL: getBaseUrl(),
   headers: { 'Content-Type': 'application/json' },
 });
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
 
 api.interceptors.response.use(
   (res) => res,
@@ -189,3 +191,5 @@ export async function scanQr(token: string, code: string) {
   });
   return data as { macId: string; branchId: string; kioskId: string; name: string };
 }
+
+export default api;
