@@ -1,8 +1,7 @@
 package uz.superapp.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -12,14 +11,17 @@ import java.time.Instant;
  * приложение (QR-скан)
  * Статусы: PENDING → ACTIVE → FINISHED | FAILED
  */
-@Document("wash_sessions")
+@Entity
+@Table(name = "wash_sessions")
 public class WashSession {
 
     @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
 
     /** ID Hardware Kiosk (совпадает с controllerId для heartbeat) */
-    @Indexed
+    /** ID Hardware Kiosk (совпадает с controllerId для heartbeat) */
     private String kioskId;
 
     /** ID пользователя мобильного приложения */

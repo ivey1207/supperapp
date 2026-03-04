@@ -1,12 +1,12 @@
 package uz.superapp.repository;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import uz.superapp.domain.WashSession;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface WashSessionRepository extends MongoRepository<WashSession, String> {
+public interface WashSessionRepository extends JpaRepository<WashSession, String> {
 
     /** Активная сессия для конкретного киоска */
     Optional<WashSession> findByKioskIdAndStatus(String kioskId, String status);

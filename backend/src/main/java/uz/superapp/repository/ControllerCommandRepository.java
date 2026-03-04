@@ -1,12 +1,12 @@
 package uz.superapp.repository;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import uz.superapp.domain.ControllerCommand;
 
 import java.util.List;
 
-public interface ControllerCommandRepository extends MongoRepository<ControllerCommand, String> {
+public interface ControllerCommandRepository extends JpaRepository<ControllerCommand, String> {
 
-    List<ControllerCommand> findByControllerIdAndStatusOrderByPriorityDescCreatedAtAsc(String controllerId, String status);
+    List<ControllerCommand> findByControllerIdAndStatusOrderByPriorityDescCreatedAtAsc(String controllerId,
+            String status);
 }
-

@@ -1,8 +1,7 @@
 package uz.superapp.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,26 +16,25 @@ import java.time.Instant;
  *
  * Статусы (status): PENDING, SUCCESS, FAILED, REFUNDED
  */
-@Document("payment_transactions")
+@Entity
+@Table(name = "payment_transactions")
 public class PaymentTransaction {
 
     @Id
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
 
     /** Тип оплаты: CASH | RFID | ONLINE */
-    @Indexed
     private String paymentType;
 
     /** ID киоска (MAC ID Raspberry Pi) */
-    @Indexed
     private String kioskId;
 
     /** ID организации */
-    @Indexed
     private String orgId;
 
     /** ID филиала */
-    @Indexed
     private String branchId;
 
     /** ID пользователя (для ONLINE оплаты) */
@@ -61,7 +59,6 @@ public class PaymentTransaction {
     private String description;
 
     /** Время транзакции */
-    @Indexed
     private Instant createdAt;
 
     // ── Getters & Setters ──────────────────────────────────────────────────

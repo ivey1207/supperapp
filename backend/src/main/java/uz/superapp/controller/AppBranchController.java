@@ -8,13 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Branch;
 import uz.superapp.repository.BranchRepository;
 
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
-import org.springframework.data.geo.Distance;
-import org.springframework.data.geo.Point;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +18,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/app/branches")
 public class AppBranchController {
 
-    private final MongoTemplate mongoTemplate;
+    private final BranchRepository branchRepository;
 
-    public AppBranchController(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
+    public AppBranchController(BranchRepository branchRepository) {
+        this.branchRepository = branchRepository;
     }
 
     @Operation(summary = "Get list of items")
@@ -40,48 +33,39 @@ public class AppBranchController {
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon) {
 
-        Query query = new Query();
-        query.addCriteria(Criteria.where("archived").is(false));
+        List<Branch> allBranches = branchRepository.findAll();
 
-        if (status != null && !status.isEmpty() && !"all".equalsIgnoreCase(status)) {
-            query.addCriteria(Criteria.where("status").is(status));
-        }
-
-        if (partnerType != null && !partnerType.isEmpty()) {
-            query.addCriteria(Criteria.where("partnerType").is(partnerType));
-        }
-
-        if (filter != null && !filter.isEmpty()) {
-            switch (filter) {
-                case "24_7":
-                    query.addCriteria(Criteria.where("is24x7").is(true));
-                    break;
-                case "cafe":
-                    query.addCriteria(Criteria.where("hasCafe").is(true));
-                    break;
-                case "in_app_pay":
-                    query.addCriteria(Criteria.where("hasInAppPayment").is(true));
-                    break;
-                case "top_rating":
-                    query.addCriteria(Criteria.where("rating").gte(4.5));
-                    break;
-                // 'all', 'free_now', 'my_car' are currently handled as 'no special filter' on
-                // backend
-            }
-        }
-
-        List<Branch> branches;
-        if (lat != null && lon != null) {
-            // NearSphere sorting
-            query.addCriteria(Criteria.where("location").nearSphere(new GeoJsonPoint(lon, lat)));
-            // Limit to avoid excessive results if needed, e.g., branches within 100km
-            // query.addCriteria(Criteria.where("location").within(new Circle(lon, lat,
-            // 100.0 / 6378.1)));
-        }
-
-        branches = mongoTemplate.find(query, Branch.class);
-
-        List<Map<String, Object>> result = branches.stream()
+        List<Map<String, Object>> result = allBranches.stream()
+                .filter(b -> !b.isArchived())
+                .filter(b -> {
+                    if (status != null && !status.isEmpty() && !"all".equalsIgnoreCase(status)) {
+                        return status.equals(b.getStatus());
+                    }
+                    return true;
+                })
+                .filter(b -> {
+                    if (partnerType != null && !partnerType.isEmpty()) {
+                        return partnerType.equals(b.getPartnerType());
+                    }
+                    return true;
+                })
+                .filter(b -> {
+                    if (filter != null && !filter.isEmpty()) {
+                        switch (filter) {
+                            case "24_7":
+                                return b.isIs24x7();
+                            case "cafe":
+                                return b.isHasCafe();
+                            case "in_app_pay":
+                                return b.isHasInAppPayment();
+                            case "top_rating":
+                                return b.getRating() >= 4.5;
+                            default:
+                                return true;
+                        }
+                    }
+                    return true;
+                })
                 .map(b -> {
                     Map<String, Object> map = toMap(b);
                     if (lat != null && lon != null && b.getLocation() != null
@@ -94,7 +78,16 @@ public class AppBranchController {
                     }
                     return map;
                 })
+                .sorted((m1, m2) -> {
+                    if (lat != null && lon != null) {
+                        Double d1 = (Double) m1.getOrDefault("distance", Double.MAX_VALUE);
+                        Double d2 = (Double) m2.getOrDefault("distance", Double.MAX_VALUE);
+                        return d1.compareTo(d2);
+                    }
+                    return 0;
+                })
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(result);
     }
 
@@ -111,7 +104,7 @@ public class AppBranchController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getById(@PathVariable String id) {
-        Branch branch = mongoTemplate.findById(id, Branch.class);
+        Branch branch = branchRepository.findById(id).orElse(null);
         if (branch == null || branch.isArchived()) {
             return ResponseEntity.notFound().build();
         }

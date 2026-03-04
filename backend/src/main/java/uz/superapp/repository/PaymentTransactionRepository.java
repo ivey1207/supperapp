@@ -1,12 +1,12 @@
 package uz.superapp.repository;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import uz.superapp.domain.PaymentTransaction;
 
 import java.time.Instant;
 import java.util.List;
 
-public interface PaymentTransactionRepository extends MongoRepository<PaymentTransaction, String> {
+public interface PaymentTransactionRepository extends JpaRepository<PaymentTransaction, String> {
 
     /** Все транзакции по типу оплаты */
     List<PaymentTransaction> findByPaymentTypeOrderByCreatedAtDesc(String paymentType);

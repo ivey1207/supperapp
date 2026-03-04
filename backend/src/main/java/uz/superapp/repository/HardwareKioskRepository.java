@@ -1,12 +1,12 @@
 package uz.superapp.repository;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import uz.superapp.domain.HardwareKiosk;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface HardwareKioskRepository extends MongoRepository<HardwareKiosk, String> {
+public interface HardwareKioskRepository extends JpaRepository<HardwareKiosk, String> {
 
     Optional<HardwareKiosk> findByMacIdAndArchivedFalse(String macId);
 
