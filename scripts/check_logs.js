@@ -11,7 +11,7 @@ const conn = new Client();
 
 conn.on('ready', () => {
     console.log('Client :: ready');
-    conn.exec('cd /root/uz-superapp && echo "=== DOCKER PS ALL ===" && docker ps -a && echo "=== REPLICA INSPECT ===" && docker inspect uz-superapp-postgres-replica-1 && echo "=== BACKUP LOGS ===" && docker compose logs backup', (err, stream) => {
+    conn.exec('cd /root/uz-superapp && echo "=== MANUAL START REPLICA ===" && docker compose up -d postgres-replica 2>&1 && docker compose logs --tail 50 postgres-replica', (err, stream) => {
         if (err) throw err;
         stream.on('close', (code, signal) => {
             console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
