@@ -147,8 +147,8 @@ services:
     volumes:
       - ./backups:/backups
       - ./backend/uploads:/app/uploads:ro
-      - ./scripts/backup.sh:/usr/local/bin/backup.sh:ro
-    entrypoint: [ "sh", "-c", "chmod +x /usr/local/bin/backup.sh && echo \"0 3 * * * /usr/local/bin/backup.sh\" > /etc/crontabs/root && crond -f -l 2" ]
+      - ./scripts/backup.sh:/usr/local/bin/backup.sh
+    entrypoint: [ "sh", "-c", "echo \"0 3 * * * /usr/local/bin/backup.sh\" > /etc/crontabs/root && crond -f -l 2" ]
     depends_on:
       postgres-master:
         condition: service_healthy
