@@ -11,7 +11,7 @@ const conn = new Client();
 
 conn.on('ready', () => {
     console.log('Client :: ready');
-    conn.exec('cd /root/uz-superapp && docker compose logs backend-1', (err, stream) => {
+    conn.exec('cd /root/uz-superapp && echo "=== SEARCHING FOR ERRORS ===" && docker compose logs backend-1 | grep -C 5 -iE "error|exception"', (err, stream) => {
         if (err) throw err;
         stream.on('close', (code, signal) => {
             console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);

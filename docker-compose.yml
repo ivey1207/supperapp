@@ -49,10 +49,10 @@ services:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 40s
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
 
   backend-2:
     build:
@@ -76,10 +76,10 @@ services:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "wget", "-q", "-O", "-", "http://localhost:8080/actuator/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 40s
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
 
   nginx-lb:
     image: nginx:alpine
