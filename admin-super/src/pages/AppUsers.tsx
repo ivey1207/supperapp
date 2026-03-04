@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Users as UsersIcon, RefreshCw, Search, ShieldAlert, ShieldCheck } from 'lucide-react';
 import axios from 'axios';
-import { getAppUsers, toggleBlockAppUser, AppUser } from '../lib/api';
+import { getAppUsers, toggleBlockAppUser, type AppUser } from '../lib/api';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
 
