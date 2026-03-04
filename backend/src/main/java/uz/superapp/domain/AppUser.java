@@ -22,7 +22,8 @@ public class AppUser {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Wallet wallet;
 
-    private String walletId; // Оставляем для обратной совместимости или удалим позже
+    @Transient
+    private String walletId; // Оставляем для обратной совместимости или удалим позже (не сохраняем в БД)
     private String carModel;
     private String carNumber;
     private String passwordHash;

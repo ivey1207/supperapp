@@ -17,7 +17,8 @@ public class Wallet {
     @JoinColumn(name = "user_id", unique = true)
     private AppUser user;
 
-    private String userId; // Оставляем для совместимости
+    @Transient
+    private String userId; // Оставляем для совместимости (не сохраняем в БД)
 
     @Column(precision = 19, scale = 4)
     private BigDecimal balance = BigDecimal.ZERO;
