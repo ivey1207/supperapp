@@ -13,3 +13,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     SELECT * FROM pg_create_physical_replication_slot('replica_slot') 
     WHERE NOT EXISTS (SELECT 1 FROM pg_replication_slots WHERE slot_name = 'replica_slot');
 EOSQL
+
+# Allow replication connections in pg_hba.conf
+echo "host replication replicator 0.0.0.0/0 md5" >> "$PGDATA/pg_hba.conf"
