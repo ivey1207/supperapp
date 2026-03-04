@@ -121,6 +121,7 @@ async function deploy() {
         const deployCmd = `
       cd ${config.remoteDir} &&
       tar -xzf ${config.tarName} &&
+      chmod -R +x scripts postgres &&
       rm ${config.tarName} &&
       if ! command -v docker &> /dev/null; then
           echo "Installing Docker..."

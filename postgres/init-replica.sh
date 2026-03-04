@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 echo "Replica initialization started..."
@@ -14,12 +14,10 @@ echo "Master is ready. Checking data directory..."
 # If data directory is empty, perform base backup
 if [ -z "$(ls -A /var/lib/postgresql/data)" ]; then
     echo "Data directory is empty. Performing base backup from master..."
-    # Use PGPASSWORD for pg_basebackup
     export PGPASSWORD=repl_password
     pg_basebackup -h postgres-master -D /var/lib/postgresql/data -U replicator -v -P -X stream -C -S replica_slot
     
     echo "Backup completed. Configuring standby mode..."
-    # Create signal file for standby mode
     touch /var/lib/postgresql/data/standby.signal
     
     echo "primary_conninfo = 'host=postgres-master port=5432 user=replicator password=repl_password'" >> /var/lib/postgresql/data/postgresql.conf
