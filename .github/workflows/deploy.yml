@@ -39,13 +39,21 @@ jobs:
             sh get-docker.sh
           fi
 
-          echo "Setting up 2GB swap file to prevent Out-Of-Memory during build..."
-          sudo fallocate -l 2G /swapfile || true
-          sudo chmod 600 /swapfile || true
-          sudo mkswap /swapfile || true
-          sudo swapon /swapfile || true
+          echo "Checking swap file..."
+          if ! swapon --show | grep -q "/swapfile"; then
+            echo "Setting up 2GB swap file..."
+            sudo fallocate -l 2G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=2048
+            sudo chmod 600 /swapfile
+            sudo mkswap /swapfile
+            sudo swapon /swapfile
+          else
+            echo "Swap already active."
+          fi
 
-          docker compose down || true
+          echo "Cleaning up old containers..."
+          docker compose down --remove-orphans || true
+          # Force remove any stuck containers related to this project
+          docker ps -a --filter "name=uz-superapp-" -q | xargs -r docker rm -f || true
           
           echo "Building backend-1..."
           docker compose build backend-1
@@ -57,7 +65,7 @@ jobs:
           docker compose build admin-super
           
           echo "Starting containers..."
-          if ! docker compose up -d --remove-orphans; then
+          if ! docker compose up -d --remove-orphans --force-recreate; then
             echo "Deploy failed! Printing logs of backend-2-1:"
             docker logs uz-superapp-backend-2-1 || true
             echo "Printing logs of backend-1-1:"
