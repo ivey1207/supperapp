@@ -8,6 +8,7 @@ import uz.superapp.domain.*;
 import uz.superapp.domain.Branch.GeoLocation;
 import java.util.List;
 import java.util.Arrays;
+import org.springframework.jdbc.core.JdbcTemplate;
 import uz.superapp.domain.HardwareKiosk;
 import uz.superapp.repository.*;
 
@@ -24,6 +25,7 @@ public class SeedRunner implements CommandLineRunner {
     private final DeviceRepository deviceRepository;
     private final ServiceRepository serviceRepository;
     private final HardwareKioskRepository hardwareKioskRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     public SeedRunner(AccountRepository accountRepository,
             PasswordEncoder passwordEncoder,
@@ -31,7 +33,8 @@ public class SeedRunner implements CommandLineRunner {
             BranchRepository branchRepository,
             DeviceRepository deviceRepository,
             ServiceRepository serviceRepository,
-            HardwareKioskRepository hardwareKioskRepository) {
+            HardwareKioskRepository hardwareKioskRepository,
+            JdbcTemplate jdbcTemplate) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
         this.organizationRepository = organizationRepository;
@@ -39,6 +42,7 @@ public class SeedRunner implements CommandLineRunner {
         this.deviceRepository = deviceRepository;
         this.serviceRepository = serviceRepository;
         this.hardwareKioskRepository = hardwareKioskRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -50,6 +54,17 @@ public class SeedRunner implements CommandLineRunner {
             }
 
             System.out.println("SeedRunner starting...");
+
+            // Manual migration for missing columns if Hibernate fails to update
+            try {
+                System.out.println("Checking database schema for missing columns...");
+                jdbcTemplate.execute(
+                        "ALTER TABLE branches ADD COLUMN IF NOT EXISTS is_mobile_service BOOLEAN DEFAULT FALSE");
+                System.out.println("Database schema checked/updated.");
+            } catch (Exception e) {
+                System.err.println("Database migration failed: " + e.getMessage());
+            }
+
             seedSuperAdmin();
 
             long garageCount = organizationRepository.findAll().stream()
