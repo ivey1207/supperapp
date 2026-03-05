@@ -31,8 +31,7 @@ export default function RegisterScreen() {
         setError('');
         setLoading(true);
         try {
-            if (!token) throw new Error('Authentication required');
-            await updateProfile(token, { fullName, carModel, email, password });
+            await updateProfile(token || '', { fullName, carModel, email, password });
             router.replace('/(tabs)' as any);
         } catch (e: any) {
             setError(e.message || 'Error occurred during registration');

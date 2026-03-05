@@ -128,10 +128,8 @@ async function deploy() {
           curl -fsSL https://get.docker.com -o get-docker.sh
           sh get-docker.sh
       fi &&
-      sed -i '/JWT_SECRET/a\\      FORCE_RESET_ADMIN: "true"\\n      FORCE_RESEED: "true"' docker-compose.yml &&
       docker compose down || true &&
-      docker compose up -d --build --remove-orphans &&
-      sed -i '/FORCE_RESET_ADMIN/d; /FORCE_RESEED/d' docker-compose.yml
+      FORCE_RESET_ADMIN="true" FORCE_RESEED="true" docker compose up -d --build --remove-orphans
     `;
         await executeRemoteCommand(deployCmd); // This might take a while
 

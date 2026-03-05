@@ -30,8 +30,8 @@ public class AppWalletController {
     @GetMapping
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> get(Authentication auth) {
-        String phone = auth.getName();
-        Wallet w = appUserRepository.findByPhone(phone)
+        String userId = auth.getName(); // JWT 'sub' stores the user ID, not phone
+        Wallet w = appUserRepository.findById(userId)
                 .map(uz.superapp.domain.AppUser::getWallet)
                 .orElse(null);
 
@@ -41,7 +41,6 @@ public class AppWalletController {
         return ResponseEntity.ok(Map.of(
                 "walletId", w.getId(),
                 "balance", w.getBalance(),
-                "currency", "UZS" // У кошелька нет поля currency, используем дефолт
-        ));
+                "currency", w.getCurrency()));
     }
 }

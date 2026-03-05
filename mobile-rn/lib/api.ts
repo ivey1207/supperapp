@@ -83,9 +83,8 @@ export async function resetPassword(payload: { email?: string; phone?: string; o
 }
 
 export async function updateProfile(token: string, profile: Partial<User & { password?: string }>) {
-  const { data } = await api.put('/api/v1/app/user/profile', profile, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  const { data } = await api.put('/api/v1/app/user/profile', profile, headers ? { headers } : undefined);
   return data as User;
 }
 

@@ -15,10 +15,8 @@ public class Wallet {
 
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private AppUser user;
-
-    @Transient
-    private String userId; // Оставляем для совместимости (не сохраняем в БД)
 
     @Column(precision = 19, scale = 4)
     private BigDecimal balance = BigDecimal.ZERO;
@@ -39,14 +37,6 @@ public class Wallet {
 
     public void setUser(AppUser user) {
         this.user = user;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public BigDecimal getBalance() {

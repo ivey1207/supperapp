@@ -11,7 +11,6 @@ import uz.superapp.config.JwtUtil;
 import uz.superapp.domain.AppUser;
 import uz.superapp.domain.Wallet;
 import uz.superapp.repository.AppUserRepository;
-import uz.superapp.repository.WalletRepository;
 
 import java.util.Map;
 import java.util.Optional;
@@ -27,18 +26,16 @@ public class AppAuthController {
 
     private final StringRedisTemplate redis;
     private final AppUserRepository appUserRepository;
-    private final WalletRepository walletRepository;
     private final JwtUtil jwtUtil;
     private final uz.superapp.service.EmailService emailService;
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     public AppAuthController(StringRedisTemplate redis, AppUserRepository appUserRepository,
-            WalletRepository walletRepository, JwtUtil jwtUtil,
+            JwtUtil jwtUtil,
             uz.superapp.service.EmailService emailService,
             org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.redis = redis;
         this.appUserRepository = appUserRepository;
-        this.walletRepository = walletRepository;
         this.jwtUtil = jwtUtil;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
@@ -56,14 +53,18 @@ public class AppAuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "email required for OTP delivery"));
         }
 
+        if (!email.contains("@") || !email.contains(".")) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid email format"));
+        }
+
         String code = String.format("%06d", (int) (Math.random() * 1_000_000));
         redis.opsForValue().set(OTP_PREFIX + phone, code, OTP_TTL_MIN, TimeUnit.MINUTES);
 
         try {
             emailService.sendOtp(email, code);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body(Map.of("message", "Failed to send email: " + e.getMessage()));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Failed to send email. please check the email address."));
         }
 
         return ResponseEntity.ok(Map.of("message", "OTP sent to your email"));
@@ -71,6 +72,7 @@ public class AppAuthController {
 
     @Operation(summary = "Execute verifyOtp operation")
     @PostMapping("/otp/verify")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> body) {
         String phone = body.get("phone");
         String otp = body.get("otp");
@@ -81,18 +83,20 @@ public class AppAuthController {
         if (stored == null || !stored.equals(otp)) {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid or expired code"));
         }
-        boolean isNewUser = appUserRepository.findByPhone(phone).isEmpty();
+        Optional<AppUser> existingUser = appUserRepository.findByPhone(phone);
+        boolean isNewUser = existingUser.isEmpty();
 
-        AppUser user = appUserRepository.findByPhone(phone).orElseGet(() -> {
+        AppUser user = existingUser.orElseGet(() -> {
             AppUser u = new AppUser();
             u.setPhone(phone);
             u.setFullName(phone);
             u.setBlocked(false);
-            u = appUserRepository.save(u);
+
             Wallet w = new Wallet();
-            w.setUser(u); // Используем объект вместо ID для JPA соответствия
-            w = walletRepository.save(w);
+            w.setCurrency("UZS");
+            w.setUser(u);
             u.setWallet(w);
+
             return appUserRepository.save(u);
         });
 
