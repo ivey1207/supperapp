@@ -235,50 +235,59 @@ export default function Branches() {
           <MapPin className="h-7 w-7 text-blue-500 dark:text-blue-400" />
           {isSuperAdmin ? 'Филиалы (локации)' : 'Мои филиалы'}
         </h1>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-4 bg-white dark:bg-slate-900/60 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
           {isSuperAdmin && (
-            <select
-              value={orgId}
-              onChange={(e) => setOrgId(e.target.value)}
-              className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 py-2 pl-3 pr-8 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
-            >
-              <option value="">Все организации</option>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setOrgId('')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${!orgId
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+              >
+                Все орг.
+              </button>
               {orgs.map((o) => (
-                <option key={o.id} value={o.id}>
+                <button
+                  key={o.id}
+                  onClick={() => setOrgId(o.id)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${orgId === o.id
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                >
                   {o.name}
-                </option>
+                </button>
               ))}
-            </select>
+              <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-1" />
+            </div>
           )}
-          <div className="flex bg-slate-100 dark:bg-slate-800/80 rounded-lg border border-slate-300 dark:border-slate-700 p-1 overflow-hidden">
+
+          <div className="flex items-center gap-1">
             <button
               onClick={() => setPartnerType('')}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${partnerType === ''
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-700/50'
-                }`}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${!partnerType
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
             >
-              Все
+              Все типы
             </button>
-            {PARTNER_TYPES.map((t) => {
-              const Icon = t.icon;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setPartnerType(t.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${partnerType === t.id
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-700/50'
-                    }`}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {t.label}
-                </button>
-              );
-            })}
+            {PARTNER_TYPES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setPartnerType(t.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${partnerType === t.id
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+              >
+                <t.icon className="h-3.5 w-3.5" />
+                {t.label}
+              </button>
+            ))}
           </div>
+        </div>
+
+        <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
               placeholder="Поиск..."
@@ -292,14 +301,13 @@ export default function Branches() {
             onClick={openAdd}
             className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
           >
-            <Plus className="h-4 w-4" />
-            Создать филиал
+            <Plus className="h-4 w-4" /> Добавить
           </button>
           <button
             type="button"
             onClick={load}
             disabled={loading}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-slate-100 dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Обновить

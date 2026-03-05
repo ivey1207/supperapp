@@ -276,72 +276,119 @@ export default function HardwareKiosks() {
           <Cpu className="h-7 w-7 text-blue-500 dark:text-blue-400" />
           Hardware Киоски
         </h1>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Поиск..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-56 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-          <select
-            value={orgFilter}
-            onChange={(e) => setOrgFilter(e.target.value)}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">Все компании</option>
-            {orgs.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={branchFilter}
-            onChange={(e) => setBranchFilter(e.target.value)}
-            disabled={!orgFilter}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none disabled:opacity-50"
-          >
-            <option value="">Все филиалы</option>
-            {branches
-              .filter(b => b.orgId === orgFilter)
-              .map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-slate-900/60 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setOrgFilter('')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${!orgFilter
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+              >
+                Все орг.
+              </button>
+              {orgs.map((o) => (
+                <button
+                  key={o.id}
+                  onClick={() => setOrgFilter(o.id)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${orgFilter === o.id
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                >
+                  {o.name}
+                </button>
               ))}
-          </select>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">Все статусы</option>
-            <option value="REGISTERED">Зарегистрирован</option>
-            <option value="ACTIVE">Активен</option>
-            <option value="INACTIVE">Неактивен</option>
-          </select>
-          <select
-            value={assignmentFilter}
-            onChange={(e) => setAssignmentFilter(e.target.value)}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
-          >
-            <option value="all">Все устройства</option>
-            <option value="assigned">Привязанные</option>
-            <option value="unassigned">Не привязанные</option>
-          </select>
-          <button
-            type="button"
-            onClick={load}
-            disabled={loading}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Обновить
-          </button>
+            </div>
+
+            <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-1" />
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setBranchFilter('')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${!branchFilter
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+              >
+                Все филиалы
+              </button>
+              {branches
+                .filter(b => !orgFilter || b.orgId === orgFilter)
+                .map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => setBranchFilter(b.id)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${branchFilter === b.id
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                      : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                  >
+                    {b.name}
+                  </button>
+                ))}
+            </div>
+
+            <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-1" />
+
+            <div className="flex items-center gap-1">
+              {[
+                { id: '', label: 'Все статусы' },
+                { id: 'REGISTERED', label: 'Зарегистрирован' },
+                { id: 'ACTIVE', label: 'Активен' },
+                { id: 'INACTIVE', label: 'Неактивен' }
+              ].map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => setStatusFilter(s.id)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${statusFilter === s.id
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-1" />
+
+            <div className="flex items-center gap-1">
+              {[
+                { id: 'all', label: 'Все устройства' },
+                { id: 'assigned', label: 'Привязанные' },
+                { id: 'unassigned', label: 'Не привязанные' }
+              ].map((a) => (
+                <button
+                  key={a.id}
+                  onClick={() => setAssignmentFilter(a.id)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${assignmentFilter === a.id
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Поиск по названию или MAC..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-64 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 py-2 pl-9 pr-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={load}
+              disabled={loading}
+              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50 transition-colors"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              Обновить
+            </button>
+          </div>
         </div>
       </div>
 
