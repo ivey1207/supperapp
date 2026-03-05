@@ -42,6 +42,7 @@ public class Branch {
     private boolean hasInAppPayment = false;
     private double rating = 0.0;
     private int reviewCount = 0;
+    private boolean isMobileService = false;
 
     public String getId() {
         return id;
@@ -185,6 +186,14 @@ public class Branch {
 
     public void setReviewCount(int reviewCount) {
         this.reviewCount = reviewCount;
+    }
+
+    public boolean isMobileService() {
+        return isMobileService;
+    }
+
+    public void setMobileService(boolean mobileService) {
+        isMobileService = mobileService;
     }
 
     @Embeddable

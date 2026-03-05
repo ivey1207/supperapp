@@ -154,7 +154,8 @@ const formatETA = (distMeters: number): string => {
 
 const getArrivalTime = (distMeters: number): string => {
     const now = new Date();
-    const minutes = Math.ceil(distMeters / (40000 / 60));
+    // 40km/h = 666 meters per minute
+    const minutes = Math.max(1, Math.ceil(distMeters / 666));
     now.setMinutes(now.getMinutes() + minutes);
     return `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
 };
@@ -275,13 +276,19 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                 console.log('Voice Nav Event:', JSON.stringify(event));
                 if (event && event.status === 'success' && event.routes && event.routes.length > 0) {
                     const route = event.routes[0];
-                    const allManeuvers: Maneuver[] = route.maneuvers || [];
+                    // Some versions return maneuvers in a different property or nested
+                    const allManeuvers: Maneuver[] = route.maneuvers || route.sections?.[0]?.maneuvers || [];
                     setManeuvers(allManeuvers);
                     setNextManeuverIdx(0);
                     setLastSpokenDist(null);
-                    console.log(`Voice Nav Success: ${allManeuvers.length} maneuvers`);
+
+                    if (allManeuvers.length === 0) {
+                        console.log('Voice Nav: Route success but no maneuvers found in event');
+                    } else {
+                        console.log(`Voice Nav Success: ${allManeuvers.length} maneuvers`);
+                    }
                 } else if (event && event.status === 'error') {
-                    console.error('Voice Nav: Router error');
+                    console.error('Voice Nav: Router error', event.message);
                 }
             });
         } else if (!isNavigating) {
@@ -299,16 +306,20 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
         if (!isNavigating || !userLoc) return;
 
         // Update distance to destination
-        if (routePoints && routePoints.length > 0) {
+        if (routePoints && routePoints.length > 1) { // Changed to length > 1
             const dest = routePoints[routePoints.length - 1];
             const destDist = calculateDistance(
                 { lat: userLoc.latitude, lon: userLoc.longitude },
                 { lat: dest.latitude, lon: dest.longitude }
             );
-            setDistToDestination(destDist);
+
+            // Only update if it's a realistic distance (OSRM might return 0 if stale)
+            if (destDist > 5) {
+                setDistToDestination(destDist);
+            }
 
             // Arrival detection
-            if (destDist < 30) {
+            if (destDist > 0 && destDist < 30) {
                 speakAlisa('Вы прибыли в пункт назначения. Хорошего дня!');
                 setManeuvers([]);
                 return;
@@ -466,12 +477,14 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                         </View>
                         <View style={styles.guidanceTextWrapper}>
                             <Text style={styles.guidanceDist}>
-                                {distToNextManeuver > 0 ? formatDistanceHUD(distToNextManeuver) : '—'}
+                                {(maneuvers.length > 0 && nextManeuverIdx < maneuvers.length && distToNextManeuver > 10)
+                                    ? formatDistanceHUD(distToNextManeuver)
+                                    : (distToDestination > 10 ? formatDistanceHUD(distToDestination) : '...')}
                             </Text>
                             <Text style={styles.guidanceStreet} numberOfLines={1}>
                                 {maneuvers.length > 0 && nextManeuverIdx < maneuvers.length
-                                    ? (MANEUVER_VOICES[maneuvers[nextManeuverIdx].type] || 'Keep straight').toUpperCase()
-                                    : 'Follow the route'}
+                                    ? (MANEUVER_VOICES[maneuvers[nextManeuverIdx].type] || 'Продолжайте движение').toUpperCase()
+                                    : 'Прямо к цели'.toUpperCase()}
                             </Text>
                         </View>
                     </View>
@@ -637,7 +650,7 @@ const styles = StyleSheet.create({
     guidanceStreet: { fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.8)' },
     yandexBottomBar: {
         position: 'absolute',
-        bottom: 30,
+        bottom: 120, // Moved MUCH higher to clear system buttons AND tab bar
         left: 20,
         right: 20,
         backgroundColor: '#fff',

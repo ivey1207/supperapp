@@ -115,6 +115,7 @@ public class AdminBranchController {
         branch.setIs24x7(getBoolean(body, "is24x7", false));
         branch.setHasCafe(getBoolean(body, "hasCafe", false));
         branch.setHasInAppPayment(getBoolean(body, "hasInAppPayment", false));
+        branch.setMobileService(getBoolean(body, "isMobileService", false));
         branch.setRating(getDouble(body, "rating", 0.0));
         branch.setReviewCount(getInt(body, "reviewCount", 0));
 
@@ -224,6 +225,9 @@ public class AdminBranchController {
         if (body.containsKey("hasInAppPayment")) {
             branch.setHasInAppPayment(getBoolean(body, "hasInAppPayment", false));
         }
+        if (body.containsKey("isMobileService")) {
+            branch.setMobileService(getBoolean(body, "isMobileService", false));
+        }
         if (body.containsKey("rating")) {
             branch.setRating(getDouble(body, "rating", branch.getRating()));
         }
@@ -284,6 +288,7 @@ public class AdminBranchController {
         m.put("is24x7", branch.isIs24x7());
         m.put("hasCafe", branch.isHasCafe());
         m.put("hasInAppPayment", branch.isHasInAppPayment());
+        m.put("isMobileService", branch.isMobileService());
         m.put("rating", branch.getRating());
         m.put("reviewCount", branch.getReviewCount());
 

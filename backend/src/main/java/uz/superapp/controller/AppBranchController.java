@@ -60,6 +60,8 @@ public class AppBranchController {
                                 return b.isHasInAppPayment();
                             case "top_rating":
                                 return b.getRating() >= 4.5;
+                            case "mobile_service":
+                                return b.isMobileService();
                             default:
                                 return true;
                         }
@@ -131,6 +133,7 @@ public class AppBranchController {
         m.put("hasInAppPayment", b.isHasInAppPayment());
         m.put("rating", b.getRating());
         m.put("reviewCount", b.getReviewCount());
+        m.put("isMobileService", b.isMobileService());
 
         if (b.getLocation() != null && b.getLocation().getCoordinates() != null
                 && b.getLocation().getCoordinates().size() >= 2) {

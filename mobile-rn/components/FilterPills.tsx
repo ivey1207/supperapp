@@ -30,7 +30,7 @@ export default function FilterPills({ activeFilter, onChangeFilter }: FilterPill
                             key={filter.id}
                             style={[
                                 styles.pill,
-                                { backgroundColor: isActive ? colors.primary : '#F1F5F9' },
+                                { backgroundColor: isActive ? colors.primary : colors.card, borderWidth: isActive ? 0 : 1, borderColor: colors.border },
                             ]}
                             onPress={() => onChangeFilter(filter.id)}
                             activeOpacity={0.8}

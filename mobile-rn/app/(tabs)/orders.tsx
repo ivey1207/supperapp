@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, RefreshControl, useColorScheme, Touch
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
-import { getOrders } from '@/lib/api';
+import { getOrders, getOnDemandOrders } from '@/lib/api';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -49,18 +49,44 @@ export default function OrdersScreen() {
   const { token } = useAuth();
   const scheme = useColorScheme() ?? 'light';
   const colors = Colors[scheme];
-  const { data: orders = [], refetch, isRefetching } = useQuery({
+  const { data: orders = [], refetch: refetchOrders, isRefetching: isRefetchingOrders } = useQuery({
     queryKey: ['orders', token],
     queryFn: () => getOrders(token!),
     enabled: !!token,
   });
 
+  const { data: onDemandOrders = [], refetch: refetchOnDemand, isRefetching: isRefetchingOnDemand } = useQuery({
+    queryKey: ['on-demand-orders', token],
+    queryFn: () => getOnDemandOrders(token!),
+    enabled: !!token,
+  });
+
+  const combinedOrders = [...orders, ...onDemandOrders].sort((a: any, b: any) => {
+    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+  });
+
+  const refetch = () => {
+    refetchOrders();
+    refetchOnDemand();
+  };
+
+  const isRefetching = isRefetchingOrders || isRefetchingOnDemand;
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
-        data={orders as Order[]}
+        data={combinedOrders as Order[]}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <OrderItem item={item} colors={colors} />}
+        renderItem={({ item }: any) => {
+          const isOnDemand = !!item.userAddress;
+          const displayOrder = {
+            ...item,
+            description: isOnDemand ? `${item.type === 'MOBILE_WASH' ? 'Mobile Wash' : 'SOS Repair'}: ${item.userAddress}` : item.description,
+            totalAmount: item.totalAmount || 0,
+            currency: item.currency || 'UZS'
+          };
+          return <OrderItem item={displayOrder} colors={colors} />;
+        }}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         refreshControl={

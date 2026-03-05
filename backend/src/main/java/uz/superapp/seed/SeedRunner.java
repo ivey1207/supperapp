@@ -97,7 +97,7 @@ public class SeedRunner implements CommandLineRunner {
 
     private void seedSuperAdmin() {
         boolean forceReset = "true".equalsIgnoreCase(System.getenv("FORCE_RESET_ADMIN"));
-        accountRepository.findFirstByEmail("admin@admin.com").ifPresentOrElse(
+        accountRepository.findFirstByEmail("admin@superapp.uz").ifPresentOrElse(
                 admin -> {
                     boolean changed = false;
                     if (admin.isArchived()) {
@@ -109,7 +109,7 @@ public class SeedRunner implements CommandLineRunner {
                         changed = true;
                     }
                     if (admin.getPasswordHash() == null || admin.getPasswordHash().isEmpty() || forceReset) {
-                        admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
+                        admin.setPasswordHash(passwordEncoder.encode("admin123"));
                         changed = true;
                         if (forceReset) {
                             System.out.println("Force-resetting super admin password to default.");
@@ -117,18 +117,18 @@ public class SeedRunner implements CommandLineRunner {
                     }
                     if (changed) {
                         accountRepository.save(admin);
-                        System.out.println("Repaired super admin: admin@admin.com");
+                        System.out.println("Repaired super admin: admin@superapp.uz");
                     }
                 },
                 () -> {
                     Account admin = new Account();
-                    admin.setEmail("admin@admin.com");
-                    admin.setPasswordHash(passwordEncoder.encode("Admin1!"));
+                    admin.setEmail("admin@superapp.uz");
+                    admin.setPasswordHash(passwordEncoder.encode("admin123"));
                     admin.setFullName("Super Admin");
                     admin.setRole("SUPER_ADMIN");
                     admin.setArchived(false);
                     accountRepository.save(admin);
-                    System.out.println("Created super admin: admin@admin.com");
+                    System.out.println("Created super admin: admin@superapp.uz");
                 });
     }
 
@@ -149,9 +149,9 @@ public class SeedRunner implements CommandLineRunner {
                 "admin@premium.uz", "Tashkent, Yakkasaroy 10", "+998945544332", "09:00-20:00",
                 "Premium auto services and detailing.", 0.15);
 
-        createMixedPartnerOrg("Fast Fuel", "310998877", "fast_fuel_logo_1772204475500.png",
-                "admin@fastfuel.uz", "Tashkent, Sergeli 2", "+998979988776", "00:00-23:59",
-                "Fast and efficient fuel stations.", 0.2);
+        createMixedPartnerOrg("Mustang SOS", "311667788", "mustang_sos_logo_1772204489900.png",
+                "sos@mustang.uz", "Tashkent, Ring Road", "+998901112233", "00:00-23:59",
+                "Emergency road assistance and mobile wash.", 0.25);
     }
 
     private void createPartnerOrg(String name, String inn, String type, String logo, String email,
@@ -172,7 +172,7 @@ public class SeedRunner implements CommandLineRunner {
         org.setArchived(false);
         organizationRepository.save(org);
 
-        createAccount(email, name + " Admin", org.getId());
+        createAccount(email, name + " Admin", org.getId(), "PARTNER_ADMIN");
 
         for (int i = 1; i <= branchCount; i++) {
             Branch b = new Branch();
@@ -220,7 +220,7 @@ public class SeedRunner implements CommandLineRunner {
         org.setArchived(false);
         organizationRepository.save(org);
 
-        createAccount(email, name + " Admin", org.getId());
+        createAccount(email, name + " Admin", org.getId(), "PARTNER_ADMIN");
 
         // Branch 1: Auto Service
         Branch b1 = new Branch();
@@ -237,6 +237,7 @@ public class SeedRunner implements CommandLineRunner {
         loc1.setCoordinates(Arrays.asList(69.28 + jitter, 41.30 + jitter));
         b1.setLocation(loc1);
 
+        b1.setMobileService(true);
         b1.setArchived(false);
         branchRepository.save(b1);
 
@@ -266,12 +267,12 @@ public class SeedRunner implements CommandLineRunner {
         System.out.println("Seeded Mixed Organization: " + name);
     }
 
-    private void createAccount(String email, String name, String orgId) {
+    private void createAccount(String email, String name, String orgId, String role) {
         Account acc = new Account();
         acc.setEmail(email);
         acc.setPasswordHash(passwordEncoder.encode("Partner1!"));
         acc.setFullName(name);
-        acc.setRole("PARTNER");
+        acc.setRole(role);
         acc.setOrgId(orgId);
         acc.setArchived(false);
         accountRepository.save(acc);

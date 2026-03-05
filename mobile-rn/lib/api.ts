@@ -202,4 +202,31 @@ export async function scanQr(token: string, code: string) {
   return data as { macId: string; branchId: string; kioskId: string; name: string };
 }
 
+export interface OnDemandOrder {
+  id?: string;
+  type: string; // MOBILE_WASH, EMERGENCY_SERVICE
+  status?: string;
+  userAddress: string;
+  userLat: number;
+  userLon: number;
+  carDetails: string;
+  description?: string;
+  providerId?: string;
+  createdAt?: string;
+}
+
+export async function createOnDemandOrder(token: string, order: OnDemandOrder) {
+  const { data } = await api.post('/api/v1/app/on-demand', order, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as OnDemandOrder;
+}
+
+export async function getOnDemandOrders(token: string) {
+  const { data } = await api.get('/api/v1/app/on-demand', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as OnDemandOrder[];
+}
+
 export default api;

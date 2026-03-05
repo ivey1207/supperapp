@@ -51,7 +51,8 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/v1/app/kiosk/**").permitAll()
                         .requestMatchers("/api/v1/admin/hardware-kiosks/*/top-up").permitAll()
-                        .requestMatchers("/api/v1/admin/**").hasAnyRole("SUPER_ADMIN", "PARTNER_ADMIN", "MANAGER")
+                        .requestMatchers("/api/v1/admin/**")
+                        .hasAnyRole("SUPER_ADMIN", "PARTNER_ADMIN", "MANAGER", "PARTNER")
                         .requestMatchers("/api/v1/app/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

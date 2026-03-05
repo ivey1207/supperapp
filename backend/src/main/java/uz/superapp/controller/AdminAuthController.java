@@ -44,7 +44,8 @@ public class AdminAuthController {
         }
         // Only allow admin roles
         String role = account.getRole();
-        if (!"SUPER_ADMIN".equals(role) && !"PARTNER_ADMIN".equals(role) && !"MANAGER".equals(role)) {
+        if (!"SUPER_ADMIN".equals(role) && !"PARTNER_ADMIN".equals(role) && !"MANAGER".equals(role)
+                && !"PARTNER".equals(role)) {
             return ResponseEntity.status(403).body(Map.of("message", "Access denied"));
         }
         String token = jwtUtil.generate(account.getId(), role);

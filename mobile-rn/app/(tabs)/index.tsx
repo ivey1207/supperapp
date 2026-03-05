@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar, useColorScheme, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
 import { getBranches, getPromotions, getServices, Promotion } from '@/lib/api';
@@ -189,13 +189,42 @@ export default function HomeScreen() {
                     index === 0 ? { backgroundColor: colors.primary } : { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }
                   ]}
                   activeOpacity={0.8}
-                  onPress={() => router.push({ pathname: '/(tabs)/map', params: { partnerType: cat.partnerType } } as any)}
+                  onPress={() => {
+                    router.push({ pathname: '/(tabs)/map', params: { partnerType: cat.partnerType } } as any);
+                  }}
                 >
                   <MaterialIcons name={cat.icon as any} size={20} color={index === 0 ? '#fff' : colors.primary} />
                   <Text style={[styles.categoryBtnText, { color: index === 0 ? '#fff' : colors.text }]}>{cat.name}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
+          </View>
+
+          {/* Prominent On-Demand Services */}
+          <View style={styles.featuredServicesRow}>
+            <TouchableOpacity
+              style={[styles.featuredServiceCard, { backgroundColor: '#10B981' }]}
+              onPress={() => router.push({ pathname: '/on-demand-request', params: { type: 'MOBILE_WASH' } } as any)}
+            >
+              <LinearGradient colors={['rgba(255,255,255,0.2)', 'transparent']} style={styles.cardGlow} />
+              <View style={styles.serviceIconCircle}>
+                <MaterialCommunityIcons name="car-wash" size={28} color="#10B981" />
+              </View>
+              <Text style={styles.featuredServiceTitle}>Мойка Домой</Text>
+              <Text style={styles.featuredServiceSub}>Выезд на место</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.featuredServiceCard, { backgroundColor: '#F43F5E' }]}
+              onPress={() => router.push({ pathname: '/on-demand-request', params: { type: 'EMERGENCY_SERVICE' } } as any)}
+            >
+              <LinearGradient colors={['rgba(255,255,255,0.2)', 'transparent']} style={styles.cardGlow} />
+              <View style={styles.serviceIconCircle}>
+                <MaterialCommunityIcons name="alert-octagon" size={28} color="#F43F5E" />
+              </View>
+              <Text style={styles.featuredServiceTitle}>SOS Помощь</Text>
+              <Text style={styles.featuredServiceSub}>Поломка в пути</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Hero Promo Banner (Recommended) */}
@@ -435,4 +464,46 @@ const styles = StyleSheet.create({
   categoryItem: { alignItems: 'center', width: 72 },
   categoryCircle: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', marginBottom: 8, elevation: 5 },
   categoryName: { color: '#cbd5e1', fontSize: 12, fontWeight: '600', textAlign: 'center' },
+  featuredServicesRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    gap: 12,
+    marginTop: 24,
+  },
+  featuredServiceCard: {
+    flex: 1,
+    height: 140,
+    borderRadius: 24,
+    padding: 16,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  cardGlow: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  serviceIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 'auto',
+  },
+  featuredServiceTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  featuredServiceSub: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
+  },
 });

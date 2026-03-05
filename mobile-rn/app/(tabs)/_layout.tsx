@@ -16,20 +16,24 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.card,
           borderTopWidth: 0,
-          elevation: 10,
+          elevation: 20,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.2,
           shadowRadius: 10,
-          height: Platform.OS === 'ios' ? 88 : 64,
-          paddingTop: 8,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+          height: Platform.OS === 'ios' ? 95 : 90, // Increased height
+          paddingTop: 10,
+          paddingBottom: Platform.OS === 'ios' ? 35 : 30, // Much more padding for OS buttons
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '700',
-          marginTop: -4,
-          marginBottom: Platform.OS === 'ios' ? 0 : 4,
+          marginTop: 2,
+          marginBottom: 0,
         },
         headerStyle: {
           backgroundColor: colors.background,
@@ -47,7 +51,7 @@ export default function TabLayout() {
           title: 'Home',
           tabBarLabel: 'Home',
           headerShown: false,
-          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "home" : "home-outline"} size={22} color={color} />
         }}
       />
       <Tabs.Screen
@@ -55,7 +59,34 @@ export default function TabLayout() {
         options={{
           title: 'Explorer',
           tabBarLabel: 'Explorer',
-          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "map" : "map-outline"} size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "map" : "map-outline"} size={22} color={color} />
+        }}
+      />
+      <Tabs.Screen
+        name="scanner"
+        options={{
+          title: 'Scan',
+          tabBarLabel: 'Scan',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{
+              width: 58,
+              height: 58,
+              backgroundColor: colors.primary,
+              borderRadius: 29,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: -50, // Lifted even higher to clear text & OS buttons
+              borderWidth: 4,
+              borderColor: colors.card,
+              shadowColor: colors.primary,
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.4,
+              shadowRadius: 12,
+              elevation: 10,
+            }}>
+              <Ionicons name="qr-code-outline" size={30} color="#fff" />
+            </View>
+          )
         }}
       />
       <Tabs.Screen
@@ -63,7 +94,7 @@ export default function TabLayout() {
         options={{
           title: 'Activity',
           tabBarLabel: 'Activity',
-          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "receipt" : "receipt-outline"} size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "receipt" : "receipt-outline"} size={22} color={color} />
         }}
       />
       <Tabs.Screen
@@ -71,7 +102,7 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "person" : "person-outline"} size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "person" : "person-outline"} size={22} color={color} />
         }}
       />
     </Tabs>
