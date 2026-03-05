@@ -11,7 +11,7 @@ const conn = new Client();
 
 conn.on('ready', () => {
     console.log('Client :: ready');
-    conn.exec('cd /root/uz-superapp && echo "=== FORCING WAL SWITCH ===" && docker exec uz-superapp-postgres-master-1 psql -U user -d superapp -c "SELECT pg_switch_wal();" && sleep 2 && echo "=== WAL ARCHIVE CHECK ===" && docker exec uz-superapp-postgres-master-1 ls -lh /archives/', (err, stream) => {
+    conn.exec('cd /root/uz-superapp && mkdir -p backups/wal_archives && chmod 777 backups/wal_archives && echo "=== WAL PERMISSIONS CHECK ===" && docker exec uz-superapp-postgres-master-1 ls -la /archives && echo "=== FORCING WAL SWITCH AGAIN ===" && docker exec uz-superapp-postgres-master-1 psql -U user -d superapp -c "SELECT pg_switch_wal();" && sleep 5 && echo "=== WAL ARCHIVE FINAL CHECK ===" && ls -lh backups/wal_archives', (err, stream) => {
         if (err) throw err;
         stream.on('close', (code, signal) => {
             console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
