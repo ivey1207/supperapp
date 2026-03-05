@@ -42,7 +42,7 @@ public class AdminBranchController {
 
     @Operation(summary = "Get list of items")
     @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> list(
+    public ResponseEntity<?> list(
             @RequestParam(required = false) String orgId,
             @RequestParam(required = false) String partnerType,
             Authentication auth) {
@@ -78,7 +78,8 @@ public class AdminBranchController {
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Error loading branches: " + e.getMessage()));
         }
     }
 
