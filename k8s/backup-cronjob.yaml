@@ -1,0 +1,75 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup
+  namespace: superapp
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: postgres:16-alpine
+            envFrom:
+            - configMapRef:
+                name: superapp-config
+            - secretRef:
+                name: superapp-secrets
+            command: ["sh", "/usr/local/bin/backup.sh"]
+            volumeMounts:
+            - name: backups
+              mountPath: /backups
+            - name: uploads
+              mountPath: /app/uploads
+              readOnly: true
+            - name: script
+              mountPath: /usr/local/bin/backup.sh
+              subPath: backup.sh
+          restartPolicy: OnFailure
+          volumes:
+          - name: backups
+            persistentVolumeClaim:
+              claimName: backups-pvc
+          - name: uploads
+            persistentVolumeClaim:
+              claimName: uploads-pvc
+          - name: script
+            configMap:
+              name: backup-scripts
+              defaultMode: 0777
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-scripts
+  namespace: superapp
+data:
+  backup.sh: |
+    #!/bin/sh
+    BACKUP_DIR="/backups"
+    DB_BACKUP_DIR="${BACKUP_DIR}/db"
+    UPLOADS_BACKUP_DIR="${BACKUP_DIR}/uploads"
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    KEEP_DAYS=7
+    mkdir -p "${DB_BACKUP_DIR}" "${UPLOADS_BACKUP_DIR}"
+    echo "Dumping database..."
+    FILENAME="${DB_BACKUP_DIR}/db_backup_${TIMESTAMP}.sql.gz"
+    PGPASSWORD="${POSTGRES_PASSWORD}" pg_dump -h postgres-master -U user -d superapp | gzip > "${FILENAME}"
+    if [ -n "${TELEGRAM_BOT_TOKEN}" ]; then
+        curl -v -F "chat_id=${TELEGRAM_CHAT_ID}" -F "document=@${FILENAME}" "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
+    fi
+    find "${DB_BACKUP_DIR}" -name "*.gz" -mtime +"${KEEP_DAYS}" -delete
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backups-pvc
+  namespace: superapp
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

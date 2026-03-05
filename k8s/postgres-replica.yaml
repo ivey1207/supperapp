@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-replica
+  namespace: superapp
+spec:
+  serviceName: "postgres-replica"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-replica
+  template:
+    metadata:
+      labels:
+        app: postgres-replica
+    spec:
+      initContainers:
+      - name: init-replica
+        image: postgres:16-alpine
+        envFrom:
+        - configMapRef:
+            name: superapp-config
+        - secretRef:
+            name: superapp-secrets
+        command: ["sh", "-c"]
+        args:
+        - |
+          if [ -z "$(ls -A /var/lib/postgresql/data)" ]; then
+            export PGPASSWORD=repl_password
+            pg_basebackup -h postgres-master -D /var/lib/postgresql/data -U replicator -v -P -X stream -C -S replica_slot
+            touch /var/lib/postgresql/data/standby.signal
+          fi
+        volumeMounts:
+        - name: pg-replica-data
+          mountPath: /var/lib/postgresql/data
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        envFrom:
+        - configMapRef:
+            name: superapp-config
+        - secretRef:
+            name: superapp-secrets
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: pg-replica-data
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: pg-replica-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-replica
+  namespace: superapp
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: postgres-replica

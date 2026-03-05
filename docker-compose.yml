@@ -38,7 +38,7 @@ services:
       PGPASSWORD: repl_password
     volumes:
       - postgres_replica_data:/var/lib/postgresql/data
-      - wal_archives:/archives
+      - ./backups/wal_archives:/archives
       - ./postgres/init-replica.sh:/usr/local/bin/init-replica.sh:ro
     entrypoint: [ "sh", "/usr/local/bin/init-replica.sh" ]
     depends_on:
@@ -144,6 +144,8 @@ services:
       POSTGRES_DB: superapp
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
+      TELEGRAM_BOT_TOKEN: 8655090544:AAEfY-2OB1lljMIwp-Se1bq2pH1R-rCyoD4
+      TELEGRAM_CHAT_ID: 6642477034
     volumes:
       - ./backups:/backups
       - ./backend/uploads:/app/uploads:ro

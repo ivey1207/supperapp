@@ -11,7 +11,7 @@ const conn = new Client();
 
 conn.on('ready', () => {
     console.log('Client :: ready');
-    conn.exec('cd /root/uz-superapp && echo "=== UPDATING CONFIG ===" && docker compose up -d backup && sleep 2 && echo "=== TRIGGERING MANUAL BACKUP ===" && docker exec uz-superapp-backup-1 sh /usr/local/bin/backup.sh', (err, stream) => {
+    conn.exec('cd /root/uz-superapp && echo "=== BACKUP SERVICE LOGS ===" && docker logs uz-superapp-backup-1 --tail 20 && echo "=== WAL ARCHIVE FINAL CHECK ===" && ls -lh backups/wal_archives && echo "=== REPLICATION STATUS ===" && docker exec uz-superapp-postgres-master-1 psql -U user -d superapp -c "select * from pg_stat_replication;"', (err, stream) => {
         if (err) throw err;
         stream.on('close', (code, signal) => {
             console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);

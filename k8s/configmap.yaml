@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: superapp-config
+  namespace: superapp
+data:
+  POSTGRES_DB: superapp
+  POSTGRES_USER: user
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-master:5432/superapp
+  SPRING_DATA_REDIS_HOST: redis
+  SPRING_DATA_REDIS_PORT: "6379"
+  VITE_API_URL: http://api.superapp.uz

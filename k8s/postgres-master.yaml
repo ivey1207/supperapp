@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-master
+  namespace: superapp
+spec:
+  serviceName: "postgres-master"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-master
+  template:
+    metadata:
+      labels:
+        app: postgres-master
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        envFrom:
+        - configMapRef:
+            name: superapp-config
+        - secretRef:
+            name: superapp-secrets
+        args:
+        - "postgres"
+        - "-c"
+        - "wal_level=replica"
+        - "-c"
+        - "archive_mode=on"
+        - "-c"
+        - "archive_command=test ! -f /archives/%f && cp %p /archives/%f"
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: pg-data
+          mountPath: /var/lib/postgresql/data
+        - name: pg-archives
+          mountPath: /archives
+        livenessProbe:
+          exec:
+            command: ["pg_isready", "-U", "user", "-d", "superapp"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: pg-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+  - metadata:
+      name: pg-archives
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-master
+  namespace: superapp
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: postgres-master
