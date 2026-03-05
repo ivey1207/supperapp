@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Promotion;
@@ -13,17 +12,20 @@ import uz.superapp.repository.AccountRepository;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @Tag(name = "Admin Promotion API")
 @RestController
 @RequestMapping("/api/v1/admin/promotions")
 public class AdminPromotionController {
 
-    @Autowired
-    private PromotionRepository promotionRepository;
+    private final PromotionRepository promotionRepository;
+    private final AccountRepository accountRepository;
 
-    @Autowired
-    private AccountRepository accountRepository;
+    public AdminPromotionController(PromotionRepository promotionRepository, AccountRepository accountRepository) {
+        this.promotionRepository = promotionRepository;
+        this.accountRepository = accountRepository;
+    }
 
     @Operation(summary = "Execute getAll operation")
     @GetMapping
@@ -32,7 +34,14 @@ public class AdminPromotionController {
             @RequestParam(required = false) String orgId,
             @RequestParam(required = false) String branchId) {
 
-        Account account = accountRepository.findById(principal.getName()).orElseThrow();
+        if (principal == null || principal.getName() == null)
+            return List.of();
+
+        Optional<Account> accountOpt = accountRepository.findById(principal.getName());
+        if (accountOpt.isEmpty())
+            return List.of();
+
+        Account account = accountOpt.get();
         String effectiveOrgId = "SUPER_ADMIN".equals(account.getRole()) ? orgId : account.getOrgId();
 
         if (effectiveOrgId != null && !effectiveOrgId.isEmpty()) {

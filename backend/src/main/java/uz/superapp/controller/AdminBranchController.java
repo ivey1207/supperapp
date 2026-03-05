@@ -58,23 +58,28 @@ public class AdminBranchController {
             }
         }
         List<Branch> all;
-        if (effectiveOrgId != null && !effectiveOrgId.isBlank()) {
-            if (partnerType != null && !partnerType.isBlank()) {
-                all = branchRepository.findByOrgIdAndPartnerTypeAndArchivedFalse(effectiveOrgId, partnerType);
+        try {
+            if (effectiveOrgId != null && !effectiveOrgId.isBlank()) {
+                if (partnerType != null && !partnerType.isBlank()) {
+                    all = branchRepository.findByOrgIdAndPartnerTypeAndArchivedFalse(effectiveOrgId, partnerType);
+                } else {
+                    all = branchRepository.findByOrgIdAndArchivedFalse(effectiveOrgId);
+                }
             } else {
-                all = branchRepository.findByOrgIdAndArchivedFalse(effectiveOrgId);
+                if (partnerType != null && !partnerType.isBlank()) {
+                    all = branchRepository.findByPartnerTypeAndArchivedFalse(partnerType);
+                } else {
+                    all = branchRepository.findByArchivedFalse();
+                }
             }
-        } else {
-            if (partnerType != null && !partnerType.isBlank()) {
-                all = branchRepository.findByPartnerTypeAndArchivedFalse(partnerType);
-            } else {
-                all = branchRepository.findByArchivedFalse();
-            }
+            List<Map<String, Object>> result = all.stream()
+                    .map(this::buildBranchMap)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        List<Map<String, Object>> result = all.stream()
-                .map(this::buildBranchMap)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "Create a new item")
@@ -296,8 +301,12 @@ public class AdminBranchController {
         Double lon = null;
         if (branch.getLocation() != null && branch.getLocation().getCoordinates() != null
                 && branch.getLocation().getCoordinates().size() >= 2) {
-            lon = branch.getLocation().getCoordinates().get(0);
-            lat = branch.getLocation().getCoordinates().get(1);
+            try {
+                lon = branch.getLocation().getCoordinates().get(0);
+                lat = branch.getLocation().getCoordinates().get(1);
+            } catch (Exception e) {
+                // Ignore parsing errors for coordinates
+            }
         }
         m.put("latitude", lat);
         m.put("longitude", lon);
