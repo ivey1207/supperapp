@@ -71,7 +71,7 @@ services:
       SPRING_DATA_REDIS_PORT: "6379"
       JWT_SECRET: superapp-jwt-secret-change-in-production-min-256-bits
       SPRING_MAIL_USERNAME: "avazovaadiba1@gmail.com"
-      SPRING_MAIL_PASSWORD: "CHANGE_ME_TO_GMAIL_APP_PASSWORD"
+      SPRING_MAIL_PASSWORD: "qdlcxsujfyezwcjo"
       FORCE_RESEED: "false"
     volumes:
       - ./backend/uploads:/app/uploads
