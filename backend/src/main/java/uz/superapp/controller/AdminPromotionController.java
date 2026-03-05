@@ -3,6 +3,7 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Promotion;
@@ -12,6 +13,7 @@ import uz.superapp.repository.AccountRepository;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Admin Promotion API")
@@ -29,33 +31,40 @@ public class AdminPromotionController {
 
     @Operation(summary = "Execute getAll operation")
     @GetMapping
-    public List<Promotion> getAll(
+    public ResponseEntity<?> getAll(
             Principal principal,
             @RequestParam(required = false) String orgId,
             @RequestParam(required = false) String branchId) {
 
-        if (principal == null || principal.getName() == null)
-            return List.of();
+        try {
+            if (principal == null || principal.getName() == null)
+                return ResponseEntity.ok(List.of());
 
-        Optional<Account> accountOpt = accountRepository.findById(principal.getName());
-        if (accountOpt.isEmpty())
-            return List.of();
+            Optional<Account> accountOpt = accountRepository.findById(principal.getName());
+            if (accountOpt.isEmpty())
+                return ResponseEntity.ok(List.of());
 
-        Account account = accountOpt.get();
-        String effectiveOrgId = "SUPER_ADMIN".equals(account.getRole()) ? orgId : account.getOrgId();
+            Account account = accountOpt.get();
+            String effectiveOrgId = "SUPER_ADMIN".equals(account.getRole()) ? orgId : account.getOrgId();
 
-        if (effectiveOrgId != null && !effectiveOrgId.isEmpty()) {
-            if (branchId != null && !branchId.isEmpty()) {
-                return promotionRepository.findByOrgIdAndBranchIdAndArchivedFalse(effectiveOrgId, branchId);
+            if (effectiveOrgId != null && !effectiveOrgId.isEmpty()) {
+                if (branchId != null && !branchId.isEmpty()) {
+                    return ResponseEntity
+                            .ok(promotionRepository.findByOrgIdAndBranchIdAndArchivedFalse(effectiveOrgId, branchId));
+                }
+                return ResponseEntity.ok(promotionRepository.findByOrgIdAndArchivedFalse(effectiveOrgId));
             }
-            return promotionRepository.findByOrgIdAndArchivedFalse(effectiveOrgId);
-        }
 
-        if (branchId != null && !branchId.isEmpty()) {
-            return promotionRepository.findByBranchIdAndArchivedFalse(branchId);
-        }
+            if (branchId != null && !branchId.isEmpty()) {
+                return ResponseEntity.ok(promotionRepository.findByBranchIdAndArchivedFalse(branchId));
+            }
 
-        return promotionRepository.findAll();
+            return ResponseEntity.ok(promotionRepository.findAll());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Error loading promotions: " + e.getMessage()));
+        }
     }
 
     @Operation(summary = "Create a new item")
