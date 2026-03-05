@@ -51,9 +51,14 @@ jobs:
           fi
 
           echo "Cleaning up old containers..."
+          # Stop and remove project containers more reliably
           docker compose down --remove-orphans || true
-          # Force remove any stuck containers related to this project
-          docker ps -a --filter "name=uz-superapp-" -q | xargs -r docker rm -f || true
+          
+          # Force remove any containers with the project label
+          docker ps -a --filter "label=com.docker.compose.project=uz-superapp" -q | xargs -r docker rm -f || true
+          
+          # Explicitly remove the default network to avoid "network already exists" errors
+          docker network rm uz-superapp_default || true
           
           echo "Building backend-1..."
           docker compose build backend-1
@@ -65,11 +70,16 @@ jobs:
           docker compose build admin-super
           
           echo "Starting containers..."
+          # Use --force-recreate to be sure, and don't exit 0 if it fails before logging
           if ! docker compose up -d --remove-orphans --force-recreate; then
-            echo "Deploy failed! Printing logs of backend-2-1:"
-            docker logs uz-superapp-backend-2-1 || true
-            echo "Printing logs of backend-1-1:"
+            echo "Deploy failed! Printing all containers and logs..."
+            docker ps -a
+            echo "Logs of backend-1:"
             docker logs uz-superapp-backend-1-1 || true
+            echo "Logs of backend-2:"
+            docker logs uz-superapp-backend-2-1 || true
+            echo "Logs of redis:"
+            docker logs uz-superapp-redis-1 || true
             exit 1
           fi
           echo "Deploy completed!"
