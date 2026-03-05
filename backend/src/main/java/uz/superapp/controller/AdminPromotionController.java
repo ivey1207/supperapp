@@ -69,34 +69,59 @@ public class AdminPromotionController {
 
     @Operation(summary = "Create a new item")
     @PostMapping
-    public Promotion create(@RequestBody Promotion promotion, Principal principal) {
-        Account account = accountRepository.findById(principal.getName()).orElseThrow();
+    public ResponseEntity<?> create(@RequestBody Promotion promotion, Principal principal) {
+        if (principal == null || principal.getName() == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Account> accountOpt = accountRepository.findById(principal.getName());
+        if (accountOpt.isEmpty())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Account account = accountOpt.get();
         if (!"SUPER_ADMIN".equals(account.getRole())) {
             promotion.setOrgId(account.getOrgId());
         }
-        return promotionRepository.save(promotion);
+        return ResponseEntity.ok(promotionRepository.save(promotion));
     }
 
     @Operation(summary = "Update an existing item")
     @PutMapping("/{id}")
-    public Promotion update(@PathVariable String id, @RequestBody Promotion promotion, Principal principal) {
-        Account account = accountRepository.findById(principal.getName()).orElseThrow();
-        Promotion existing = promotionRepository.findById(id).orElseThrow();
+    public ResponseEntity<?> update(@PathVariable String id, @RequestBody Promotion promotion, Principal principal) {
+        if (principal == null || principal.getName() == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Account> accountOpt = accountRepository.findById(principal.getName());
+        if (accountOpt.isEmpty())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Account account = accountOpt.get();
+        Optional<Promotion> existingOpt = promotionRepository.findById(id);
+        if (existingOpt.isEmpty())
+            return ResponseEntity.notFound().build();
 
         promotion.setId(id);
         if (!"SUPER_ADMIN".equals(account.getRole())) {
             promotion.setOrgId(account.getOrgId());
         }
-        // serviceId will be handled automatically by @RequestBody mapping
-        return promotionRepository.save(promotion);
+        return ResponseEntity.ok(promotionRepository.save(promotion));
     }
 
     @Operation(summary = "Delete an item")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id, Principal principal) {
-        System.out.println("DEBUG: AdminPromotionController.delete called for id: " + id);
-        Account account = accountRepository.findById(principal.getName()).orElseThrow();
-        Promotion existing = promotionRepository.findById(id).orElseThrow();
+        if (principal == null || principal.getName() == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<Account> accountOpt = accountRepository.findById(principal.getName());
+        if (accountOpt.isEmpty())
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Account account = accountOpt.get();
+        Optional<Promotion> existingOpt = promotionRepository.findById(id);
+        if (existingOpt.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        Promotion existing = existingOpt.get();
 
         if (!"SUPER_ADMIN".equals(account.getRole())
                 && (existing.getOrgId() == null || !existing.getOrgId().equals(account.getOrgId()))) {
