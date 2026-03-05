@@ -41,4 +41,10 @@ echo "Cleaning up backups older than ${KEEP_DAYS} days..."
 find "${DB_BACKUP_DIR}" -name "db_backup_*.sql.gz" -mtime +"${KEEP_DAYS}" -delete
 find "${UPLOADS_BACKUP_DIR}" -name "uploads_backup_*.tar.gz" -mtime +"${KEEP_DAYS}" -delete
 
+# 4. Telegram Push (Optional)
+if [ -n "${TELEGRAM_BOT_TOKEN}" ] && [ -n "${TELEGRAM_CHAT_ID}" ]; then
+    echo "Pushing database backup to Telegram..."
+    curl -v -F "chat_id=${TELEGRAM_CHAT_ID}" -F "document=@${FILENAME}" "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
+fi
+
 echo "--- Backup process completed ---"
