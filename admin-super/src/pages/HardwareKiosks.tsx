@@ -19,12 +19,10 @@ import {
   type Service,
   type KioskServiceIotConfig,
 } from '../lib/api';
-import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
 
 export default function HardwareKiosks() {
-  const { isSuperAdmin } = useAuth();
   const [list, setList] = useState<HardwareKiosk[]>([]);
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -78,7 +76,7 @@ export default function HardwareKiosks() {
         const status = e.response?.status;
         const message = e.response?.data?.message || e.message;
         if (status === 403) {
-          setError('Доступ запрещён. Только Super Admin может управлять hardware киосками.');
+          setError('Доступ запрещён. Проверьте права доступа.');
         } else if (status === 401) {
           setError('Сессия истекла. Перезайдите.');
         } else {
@@ -93,11 +91,7 @@ export default function HardwareKiosks() {
   };
 
   useEffect(() => {
-    if (isSuperAdmin) {
-      load();
-    } else {
-      setError('Доступ запрещён. Только Super Admin может управлять hardware киосками.');
-    }
+    load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, orgFilter, branchFilter]);
 
@@ -274,15 +268,6 @@ export default function HardwareKiosks() {
     }
   };
 
-  if (!isSuperAdmin) {
-    return (
-      <div className="animate-fade-in space-y-6">
-        <div className="rounded-lg border border-red-200 dark:border-red-500/50 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-red-600 dark:text-red-400 font-medium">
-          Доступ запрещён. Только Super Admin может управлять hardware киосками.
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="animate-fade-in space-y-6">

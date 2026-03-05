@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -55,9 +54,12 @@ public class AdminDeviceController {
             }
         }
 
-        List<Device> all = effectiveOrgId != null && !effectiveOrgId.isBlank()
-                ? deviceRepository.findByOrgIdAndBranchIdIsNullAndArchivedFalse(effectiveOrgId)
-                : deviceRepository.findByBranchIdIsNullAndArchivedFalse();
+        List<Device> all;
+        if (effectiveOrgId != null && !effectiveOrgId.isBlank()) {
+            all = deviceRepository.findByOrgIdAndArchivedFalse(effectiveOrgId);
+        } else {
+            all = deviceRepository.findByBranchIdIsNullAndArchivedFalse();
+        }
 
         List<Map<String, Object>> result = all.stream()
                 .map(d -> {
