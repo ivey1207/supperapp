@@ -25,7 +25,6 @@ const partnerNav = [
   { to: '/', label: 'Панель управления', icon: LayoutDashboard },
   { to: '/companies', label: 'Моя компания', icon: Store },
   { to: '/branches', label: 'Мои филиалы', icon: GitBranch },
-  { to: '/devices', label: 'Девайсы', icon: Smartphone },
   { to: '/hardware-kiosks', label: 'Hardware Киоски', icon: Cpu },
   { to: '/users', label: 'Пользователи', icon: Users },
   { to: '/rfid', label: 'RFID Карты', icon: CreditCard },
