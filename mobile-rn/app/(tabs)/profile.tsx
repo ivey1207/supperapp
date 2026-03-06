@@ -1,11 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useColorScheme, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useColorScheme, Platform, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
-import { getMe } from '@/lib/api';
+import { getMe, getFileUrl, uploadImage, updateProfile } from '@/lib/api';
 import Colors from '@/constants/Colors';
+import * as ImagePicker from 'expo-image-picker';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Image } from 'react-native';
 
 function ProfileMenuItem({ icon, label, onPress, colors, isLast = false, isDestructive = false }: any) {
   return (
@@ -29,15 +32,49 @@ export default function ProfileScreen() {
   const { token, logout } = useAuth();
   const router = useRouter();
 
+  const queryClient = useQueryClient();
   const { data: user } = useQuery({
     queryKey: ['me', token],
     queryFn: () => getMe(token!),
     enabled: !!token,
   });
 
+  const [buster, setBuster] = React.useState(Date.now());
+
+  const mutation = useMutation({
+    mutationFn: (newAvatarUrl: string) => updateProfile(token!, { avatarUrl: newAvatarUrl }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+      setBuster(Date.now());
+      alert('Profile picture updated!');
+    },
+  });
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0].uri) {
+      try {
+        const { url } = await uploadImage(token!, result.assets[0].uri);
+        mutation.mutate(url);
+      } catch (error) {
+        console.error('Failed to upload avatar:', error);
+        alert('Failed to upload image');
+      }
+    }
+  };
+
   const handleLogout = () => {
     logout().then(() => router.replace('/login' as any));
   };
+
+  const rawAvatar = getFileUrl(user?.avatarUrl);
+  const userAvatar = rawAvatar ? `${rawAvatar}${rawAvatar.includes('?') ? '&' : '?'}t=${buster}` : null;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -45,11 +82,23 @@ export default function ProfileScreen() {
         {/* Profile Header */}
         <View style={styles.header}>
           <View style={[styles.avatarContainer, { backgroundColor: colors.card, borderColor: colors.primary }]}>
-            <Text style={[styles.avatarText, { color: colors.primary }]}>
-              {(user?.fullName || user?.phone || 'U').charAt(0).toUpperCase()}
-            </Text>
-            <TouchableOpacity style={[styles.editAvatarBtn, { backgroundColor: colors.primary, borderColor: colors.background }]}>
-              <Ionicons name="camera" size={16} color="#fff" />
+            {userAvatar ? (
+              <Image source={{ uri: userAvatar }} style={styles.avatarImage} />
+            ) : (
+              <Text style={[styles.avatarText, { color: colors.primary }]}>
+                {(user?.fullName || user?.phone || 'U').charAt(0).toUpperCase()}
+              </Text>
+            )}
+            <TouchableOpacity
+              style={[styles.editAvatarBtn, { backgroundColor: colors.primary, borderColor: colors.background }]}
+              onPress={pickImage}
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Ionicons name="camera" size={16} color="#fff" />
+              )}
             </TouchableOpacity>
           </View>
 
@@ -126,9 +175,10 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { paddingBottom: 120, paddingTop: 60 },
   header: { alignItems: 'center', marginBottom: 32 },
-  avatarContainer: { width: 100, height: 100, borderRadius: 34, alignItems: 'center', justifyContent: 'center', borderWidth: 4, borderColor: '#fff', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, position: 'relative' },
+  avatarContainer: { width: 100, height: 100, borderRadius: 34, alignItems: 'center', justifyContent: 'center', borderWidth: 4, borderColor: '#fff', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, position: 'relative', overflow: 'hidden' },
+  avatarImage: { width: '100%', height: '100%', resizeMode: 'cover' },
   avatarText: { fontSize: 40, fontWeight: '900' },
-  editAvatarBtn: { position: 'absolute', bottom: -4, right: -4, backgroundColor: '#3B82F6', width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: '#fff' },
+  editAvatarBtn: { position: 'absolute', bottom: -4, right: -4, backgroundColor: '#3B82F6', width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: '#fff', zIndex: 10 },
   userName: { fontSize: 24, fontWeight: '800', marginTop: 20 },
   userPhone: { fontSize: 14, fontWeight: '600', marginTop: 4 },
   carBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F1F5F9', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginTop: 12 },

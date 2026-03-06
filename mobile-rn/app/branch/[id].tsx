@@ -230,12 +230,31 @@ export default function BranchDetailsScreen() {
                         </TouchableOpacity>
                     </View>
 
+                    {/* Services Section */}
+                    {services.length > 0 && (
+                        <View style={styles.section}>
+                            <View style={styles.sectionHeader}>
+                                <Text style={[styles.sectionTitle, { color: colors.text }]}>Services</Text>
+                                <Text style={{ color: colors.textSecondary, fontSize: 13 }}>{services.length} items</Text>
+                            </View>
+                            <View style={styles.servicesList}>
+                                {services.map((service: any) => (
+                                    <ServiceCard key={service.id} service={service} colors={colors} />
+                                ))}
+                            </View>
+                        </View>
+                    )}
+
                     {/* Location Section */}
                     <View style={styles.section}>
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>Location</Text>
                         <TouchableOpacity
                             style={[styles.locationCard, { backgroundColor: colors.card }]}
                             activeOpacity={0.9}
+                            onPress={() => router.push({
+                                pathname: '/(tabs)/map',
+                                params: { branchId: branch.id }
+                            } as any)}
                         >
                             <Ionicons name="location" size={24} color={colors.primary} />
                             <Text style={[styles.addressText, { color: colors.text }]}>
@@ -426,7 +445,7 @@ const styles = StyleSheet.create({
     locationCard: { flexDirection: 'row', alignItems: 'center', gap: 16, padding: 16, borderRadius: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 1 },
     addressText: { flex: 1, fontSize: 15, fontWeight: '600', lineHeight: 22 },
 
-    servicesGrid: { gap: 16 },
+    servicesList: { gap: 16 },
     serviceCard: { padding: 20, borderRadius: 28, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 12, elevation: 2 },
     serviceMain: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
     serviceText: { flex: 1, marginRight: 16 },

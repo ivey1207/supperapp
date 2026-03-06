@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.AppUser;
 import uz.superapp.domain.UserStory;
 import uz.superapp.domain.UserStoryLike;
+import uz.superapp.domain.StoryComment;
 import uz.superapp.repository.AppUserRepository;
 import uz.superapp.repository.UserStoryLikeRepository;
 import uz.superapp.repository.UserStoryRepository;
+import uz.superapp.repository.StoryCommentRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,12 +29,14 @@ public class AppUserStoryController {
     private final UserStoryRepository userStoryRepository;
     private final AppUserRepository appUserRepository;
     private final UserStoryLikeRepository userStoryLikeRepository;
+    private final StoryCommentRepository storyCommentRepository;
 
     public AppUserStoryController(UserStoryRepository userStoryRepository, AppUserRepository appUserRepository,
-            UserStoryLikeRepository userStoryLikeRepository) {
+            UserStoryLikeRepository userStoryLikeRepository, StoryCommentRepository storyCommentRepository) {
         this.userStoryRepository = userStoryRepository;
         this.appUserRepository = appUserRepository;
         this.userStoryLikeRepository = userStoryLikeRepository;
+        this.storyCommentRepository = storyCommentRepository;
     }
 
     @Operation(summary = "Get active user stories")
@@ -46,6 +50,7 @@ public class AppUserStoryController {
             map.put("id", s.getId());
             map.put("userId", s.getUser().getId());
             map.put("userName", s.getUser().getFullName());
+            map.put("userAvatarUrl", s.getUser().getAvatarUrl());
             map.put("imageUrl", s.getImageUrl());
             map.put("createdAt", s.getCreatedAt());
             map.put("likeCount", s.getLikeCount() != null ? s.getLikeCount() : 0);
@@ -138,5 +143,53 @@ public class AppUserStoryController {
         userStoryRepository.save(story);
 
         return ResponseEntity.ok(Map.of("message", "Story created successfully", "id", story.getId()));
+    }
+
+    @Operation(summary = "Add a comment to a story")
+    @PostMapping("/{storyId}/comments")
+    @PreAuthorize("hasRole('APP_USER')")
+    public ResponseEntity<?> commentOnStory(Authentication auth, @PathVariable String storyId,
+            @RequestBody Map<String, String> body) {
+        String userId = auth.getName();
+        String content = body.get("content");
+
+        if (content == null || content.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Comment content is required"));
+        }
+
+        UserStory story = userStoryRepository.findById(storyId).orElse(null);
+        if (story == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        AppUser user = appUserRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
+        }
+
+        StoryComment comment = new StoryComment();
+        comment.setStory(story);
+        comment.setUser(user);
+        comment.setContent(content);
+        comment.setCreatedAt(LocalDateTime.now());
+
+        storyCommentRepository.save(comment);
+
+        return ResponseEntity.ok(Map.of("message", "Comment added successfully", "id", comment.getId()));
+    }
+
+    @Operation(summary = "Get comments for a story")
+    @GetMapping("/{storyId}/comments")
+    public ResponseEntity<List<Map<String, Object>>> getStoryComments(@PathVariable String storyId) {
+        List<StoryComment> comments = storyCommentRepository.findByStoryIdOrderByCreatedAtDesc(storyId);
+        List<Map<String, Object>> result = comments.stream().map(c -> {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", c.getId());
+            map.put("userName", c.getUser().getFullName());
+            map.put("content", c.getContent());
+            map.put("createdAt", c.getCreatedAt());
+            return map;
+        }).collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 }

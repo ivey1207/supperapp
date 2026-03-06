@@ -38,12 +38,26 @@ export default function TabScannerScreen() {
         setScanned(true);
 
         try {
-            const qrData = await scanQr(token!, data);
+            let code = data;
+            // Handle if data is a URL (e.g. https://domain.com/scan?code=123)
+            if (data.includes('code=')) {
+                const match = data.match(/code=([^&]+)/);
+                if (match && match[1]) {
+                    code = match[1];
+                }
+            } else if (data.includes('/')) {
+                // Handle if it's a path like .../123
+                const parts = data.split('/');
+                code = parts[parts.length - 1];
+            }
+
+            const qrData = await scanQr(token!, code);
             router.replace({
                 pathname: '/(tabs)',
                 params: { branchId: qrData.branchId, macId: qrData.macId, kioskName: qrData.name } as any
             });
         } catch (error) {
+            console.error('Scan error:', error);
             alert('Scan Error: Kiosk not found');
             setScanned(false);
         }

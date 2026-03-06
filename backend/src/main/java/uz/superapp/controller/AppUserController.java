@@ -52,6 +52,8 @@ public class AppUserController {
             user.setCarModel(body.get("carModel"));
         if (body.containsKey("carNumber"))
             user.setCarNumber(body.get("carNumber"));
+        if (body.containsKey("avatarUrl"))
+            user.setAvatarUrl(body.get("avatarUrl"));
         if (body.containsKey("email")) {
             String email = body.get("email");
             if (email != null && !email.isBlank()) {

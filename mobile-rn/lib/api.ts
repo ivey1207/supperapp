@@ -48,6 +48,22 @@ export function getFileUrl(filename?: string): string | null {
   return `${getBaseUrl()}/api/v1/files/${cleanFilename}`;
 }
 
+export function formatTimeAgo(dateString?: string): string {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d`;
+  return `${Math.floor(days / 7)}w`;
+}
+
 export function setAuthToken(token: string | null) {
   if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   else delete api.defaults.headers.common['Authorization'];
@@ -76,6 +92,7 @@ export type User = {
   fullName: string;
   carModel?: string;
   carNumber?: string;
+  avatarUrl?: string;
 };
 
 export async function forgotPassword(identifier: { email?: string; phone?: string }) {
@@ -191,6 +208,7 @@ export type UserStory = {
   id: string;
   userId: string;
   userName: string;
+  userAvatarUrl?: string;
   imageUrl: string;
   createdAt: string;
   likeCount: number;
@@ -308,6 +326,13 @@ export async function likeUserStory(token: string, storyId: string) {
 
 export async function unlikeUserStory(token: string, storyId: string) {
   const { data } = await api.post(`/api/v1/app/user-stories/${storyId}/unlike`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}
+
+export async function commentOnUserStory(token: string, storyId: string, content: string) {
+  const { data } = await api.post(`/api/v1/app/user-stories/${storyId}/comments`, { content }, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return data;

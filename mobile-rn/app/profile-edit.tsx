@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/lib/auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMe, updateProfile } from '@/lib/api';
+import { getMe, updateProfile, getFileUrl, uploadImage } from '@/lib/api';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import { Image } from 'react-native';
 
 export default function ProfileEditScreen() {
     const scheme = useColorScheme() ?? 'light';
@@ -17,6 +19,8 @@ export default function ProfileEditScreen() {
 
     const [fullName, setFullName] = useState('');
     const [carModel, setCarModel] = useState('');
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+    const [buster, setBuster] = useState(Date.now());
 
     const { data: user, isLoading } = useQuery({
         queryKey: ['me', token],
@@ -28,11 +32,32 @@ export default function ProfileEditScreen() {
         if (user) {
             setFullName(user.fullName || '');
             setCarModel(user.carModel || '');
+            setAvatarUrl(user.avatarUrl || null);
         }
     }, [user]);
 
+    const pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets[0].uri) {
+            try {
+                const { url } = await uploadImage(token!, result.assets[0].uri);
+                setAvatarUrl(url);
+                setBuster(Date.now());
+            } catch (error) {
+                console.error('Failed to upload avatar:', error);
+                Alert.alert('Error', 'Failed to upload image');
+            }
+        }
+    };
+
     const updateMutation = useMutation({
-        mutationFn: (data: { fullName: string; carModel: string }) => updateProfile(token!, data),
+        mutationFn: (data: { fullName: string; carModel: string; avatarUrl?: string | null }) => updateProfile(token!, { ...data, avatarUrl: data.avatarUrl ?? undefined }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['me'] });
             Alert.alert('Success', 'Profile updated successfully', [{ text: 'OK', onPress: () => router.back() }]);
@@ -42,9 +67,13 @@ export default function ProfileEditScreen() {
         }
     });
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!fullName.trim()) return Alert.alert('Error', 'Name cannot be empty');
-        updateMutation.mutate({ fullName, carModel });
+        try {
+            await updateMutation.mutateAsync({ fullName, carModel, avatarUrl });
+        } catch (e) {
+            console.error('Save failed:', e);
+        }
     };
 
     if (isLoading) {
@@ -73,9 +102,19 @@ export default function ProfileEditScreen() {
             >
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     <View style={styles.avatarSection}>
-                        <View style={[styles.avatarPlaceholder, { backgroundColor: colors.primary + '10' }]}>
-                            <Ionicons name="person" size={60} color={colors.primary} />
-                            <TouchableOpacity style={[styles.editAvatarBtn, { backgroundColor: colors.primary }]}>
+                        <View style={[styles.avatarPlaceholder, { backgroundColor: colors.card, borderColor: colors.primary, borderWidth: 4, overflow: 'hidden' }]}>
+                            {avatarUrl ? (
+                                <Image
+                                    source={{ uri: `${getFileUrl(avatarUrl)}${getFileUrl(avatarUrl)?.includes('?') ? '&' : '?'}t=${buster}` }}
+                                    style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
+                                />
+                            ) : (
+                                <Ionicons name="person" size={60} color={colors.primary} />
+                            )}
+                            <TouchableOpacity
+                                style={[styles.editAvatarBtn, { backgroundColor: colors.primary }]}
+                                onPress={pickImage}
+                            >
                                 <Ionicons name="camera" size={20} color="#fff" />
                             </TouchableOpacity>
                         </View>

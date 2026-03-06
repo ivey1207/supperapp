@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar, useColorScheme, Alert, TextInput, Modal, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome, Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
@@ -68,12 +69,20 @@ export default function HomeScreen() {
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
   const [selectedMacId, setSelectedMacId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
+  const [address, setAddress] = useState<string>('Detecting location...');
+  const [seenStories, setSeenStories] = useState<string[]>([]);
 
   const { data: user } = useQuery({
     queryKey: ['me', token],
     queryFn: () => getMe(token!),
     enabled: !!token,
   });
+
+  useEffect(() => {
+    AsyncStorage.getItem('seen_stories').then(val => {
+      if (val) setSeenStories(JSON.parse(val));
+    });
+  }, []);
 
   useEffect(() => {
     if (params.branchId) {
@@ -88,12 +97,26 @@ export default function HomeScreen() {
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') return;
+      if (status !== 'granted') {
+        setAddress('Location disabled');
+        return;
+      }
       try {
         let location = await Location.getCurrentPositionAsync({});
         setUserLocation(location);
+
+        // Reverse geocode
+        const rev = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude
+        });
+        if (rev && rev.length > 0) {
+          const addr = rev[0];
+          setAddress(`${addr.city || addr.region || ''}, ${addr.street || addr.name || ''}`);
+        }
       } catch (e) {
         console.log('Error getting location on home:', e);
+        setAddress('Tashkent');
       }
     })();
   }, []);
@@ -116,15 +139,42 @@ export default function HomeScreen() {
     ...promotions.map(p => ({ ...p, type: 'PROMO', displayName: p.title })),
     ...userStories.map(s => ({ ...s, type: 'USER', displayName: s.userName }))
   ];
-  const finalStories = combinedStories.length > 0 ? combinedStories : MOCK_STORIES.map(s => ({ ...s, type: 'MOCK', displayName: s.title }));
+
+  // SORTING: Unseen first, then Promos, then User stories
+  const finalStories = (combinedStories.length > 0 ? combinedStories : MOCK_STORIES.map(s => ({ ...s, type: 'MOCK', displayName: s.title })))
+    .sort((a: any, b: any) => {
+      const aSeen = seenStories.includes(a.id);
+      const bSeen = seenStories.includes(b.id);
+      if (aSeen && !bSeen) return 1;
+      if (!aSeen && bSeen) return -1;
+      if (a.type === 'PROMO' && b.type !== 'PROMO') return -1;
+      if (a.type !== 'PROMO' && b.type === 'PROMO') return 1;
+      return 0;
+    });
+
+  // IG Style: Filter out self stories from main tray and show them on the "Your Story" bubble
+  const otherStories = finalStories.filter((s: any) => s.type !== 'USER' || s.userId !== user?.id);
+  const myStories = userStories.filter((s: any) => s.userId === user?.id);
+  const hasMyStories = myStories.length > 0;
+  const allMyStoriesSeen = hasMyStories && myStories.every((s: any) => seenStories.includes(s.id));
+
+  const markStorySeen = async (id: string) => {
+    if (seenStories.includes(id)) return;
+    const newSeen = [...seenStories, id];
+    setSeenStories(newSeen);
+    await AsyncStorage.setItem('seen_stories', JSON.stringify(newSeen));
+  };
+
+  const userAvatar = getFileUrl(user?.avatarUrl) || `https://ui-avatars.com/api/?name=${user?.fullName || 'U'}&background=3b82f6&color=fff`;
 
   const [selectedStoryUri, setSelectedStoryUri] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isPostingStory, setIsPostingStory] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions.All, // Support video too
       allowsEditing: true,
       aspect: [9, 16],
       quality: 0.8,
@@ -155,6 +205,7 @@ export default function HomeScreen() {
 
   const closeStoryModal = () => {
     setIsModalVisible(false);
+    setShowGrid(false);
     // keep image rendered while slide animation completes to prevent unmounting crash on Android
     setTimeout(() => setSelectedStoryUri(null), 400);
   };
@@ -178,8 +229,16 @@ export default function HomeScreen() {
     enabled: !!token && (!!selectedBranchId || !!selectedMacId),
   });
 
-  const onRefresh = () => { };
-  const isRefreshing = false;
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const onRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([
+      refetchPromos(),
+      refetchUserStories(),
+      refetchBranches()
+    ]);
+    setIsRefreshing(false);
+  };
 
   const handleComingSoon = () => Alert.alert('В разработке', 'Этот раздел скоро появится!');
 
@@ -192,14 +251,14 @@ export default function HomeScreen() {
           <View style={styles.userInfoRow}>
             <TouchableOpacity style={[styles.profileBadge, { borderColor: colors.border }]} onPress={() => router.push('/(tabs)/profile' as any)}>
               <Image
-                source={{ uri: `https://ui-avatars.com/api/?name=${user?.fullName || 'U'}&background=3b82f6&color=fff` }}
+                source={{ uri: userAvatar }}
                 style={styles.avatar}
               />
             </TouchableOpacity>
             <View style={styles.userTextContainer}>
               <Text style={styles.locationLabel}>LOCATION</Text>
-              <TouchableOpacity style={styles.locationWrapper} onPress={handleComingSoon}>
-                <Text style={[styles.locationText, { color: colors.text }]}>Downtown, SF</Text>
+              <TouchableOpacity style={styles.locationWrapper} onPress={() => router.push('/(tabs)/map' as any)}>
+                <Text style={[styles.locationText, { color: colors.text }]}>{address}</Text>
                 <Ionicons name="chevron-down" size={14} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
@@ -283,7 +342,7 @@ export default function HomeScreen() {
 
           {/* Hero Promo Banner (Recommended) */}
           <View style={styles.recommendedSection}>
-            <TouchableOpacity style={styles.recommendedCard} activeOpacity={0.9} onPress={handleComingSoon}>
+            <TouchableOpacity style={styles.recommendedCard} activeOpacity={0.9} onPress={() => router.push('/(tabs)/map' as any)}>
               <Image
                 source={{ uri: getFileUrl(displayPromos[0]?.imageUrl) || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800' }}
                 style={styles.recommendedImage}
@@ -305,33 +364,69 @@ export default function HomeScreen() {
           {/* Preserving stories since user said "stories ... vsyo doyediogo ostav" (leave as is) */}
           <View style={styles.storiesContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
-              {/* Add Story Button - More Prominent Style */}
-              <TouchableOpacity style={styles.addStoryBtn} onPress={pickImage}>
-                <LinearGradient
-                  colors={['#3b82f6', '#8b5cf6', '#f43f5e']}
-                  style={styles.addStoryGradient}
-                >
-                  <View style={[styles.addStoryInner, { backgroundColor: colors.background }]}>
-                    <Ionicons name="add" size={32} color={colors.primary} />
+              {/* Your Story / Add Story - Instagram Style */}
+              <TouchableOpacity
+                style={styles.addStoryBtn}
+                onPress={() => {
+                  if (hasMyStories) {
+                    // Mark as seen on open
+                    myStories.forEach((s: any) => markStorySeen(s.id));
+                    router.push({
+                      pathname: '/story-view',
+                      params: {
+                        stories: JSON.stringify(myStories),
+                        initialIndex: '0'
+                      }
+                    } as any);
+                  } else {
+                    pickImage();
+                  }
+                }}
+              >
+                <View style={[styles.yourStoryWrapper, { width: 72, height: 72 }]}>
+                  {hasMyStories && (
+                    <LinearGradient
+                      colors={allMyStoriesSeen ? ['#334155', '#334155'] : ['#833ab4', '#fd1d1d', '#fcb045']}
+                      style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 36 }}
+                    />
+                  )}
+                  <View style={[styles.yourStoryAvatarFrame, {
+                    borderColor: colors.background,
+                    borderWidth: hasMyStories ? 2 : 0,
+                    backgroundColor: colors.background,
+                  }]}>
+                    <View style={{ width: 62, height: 62, borderRadius: 31, overflow: 'hidden' }}>
+                      <Image source={{ uri: userAvatar }} style={styles.yourStoryAvatar} />
+                    </View>
                   </View>
-                </LinearGradient>
-                <Text style={[styles.addStoryText, { color: colors.textSecondary }]}>Add Story</Text>
+                  {!hasMyStories && (
+                    <View style={[styles.addBadge, { borderColor: colors.background }]}>
+                      <Ionicons name="add" size={14} color="#fff" />
+                    </View>
+                  )}
+                </View>
+                <Text style={[styles.addStoryText, { color: colors.textSecondary }]}>Your story</Text>
               </TouchableOpacity>
 
-              {finalStories.map((item: any) => (
+              {otherStories.map((item: any) => (
                 <StoryCircle
                   key={item.id}
                   item={{
                     id: item.id,
-                    name: item.displayName || item.title,
-                    image: getFileUrl(item.imageUrl) || 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=200'
+                    name: item.displayName || item.title || item.userName,
+                    image: item.type === 'USER' && item.userAvatarUrl
+                      ? getFileUrl(item.userAvatarUrl)!
+                      : (getFileUrl(item.imageUrl) || 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=200'),
+                    seen: seenStories.includes(item.id),
+                    type: item.type
                   }}
                   onPress={() => {
+                    markStorySeen(item.id);
                     router.push({
                       pathname: '/story-view',
                       params: {
-                        stories: JSON.stringify(finalStories),
-                        initialIndex: finalStories.indexOf(item).toString()
+                        stories: JSON.stringify(otherStories),
+                        initialIndex: otherStories.indexOf(item).toString()
                       }
                     } as any);
                   }}
@@ -377,37 +472,123 @@ export default function HomeScreen() {
         <Ionicons name="camera" size={24} color="#fff" />
       </TouchableOpacity>
 
-      {/* Story Preview Modal */}
       <Modal visible={isModalVisible} transparent={false} animationType="slide">
         <View style={{ flex: 1, backgroundColor: '#000' }}>
-          <SafeAreaView style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16, alignItems: 'center' }}>
-              <TouchableOpacity onPress={closeStoryModal}>
-                <Ionicons name="close" size={30} color="#fff" />
-              </TouchableOpacity>
-              <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>New Story</Text>
-              <View style={{ width: 30 }} />
+          <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, position: 'relative' }}>
+              <Image
+                source={{ uri: selectedStoryUri || undefined }}
+                style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
+              />
+
+              {/* Grid Overlay */}
+              {showGrid && (
+                <View style={{ ...StyleSheet.absoluteFillObject, pointerEvents: 'none' }}>
+                  <View style={{ position: 'absolute', top: '33.3%', left: 0, right: 0, height: 1, backgroundColor: 'rgba(255,255,255,0.4)' }} />
+                  <View style={{ position: 'absolute', top: '66.6%', left: 0, right: 0, height: 1, backgroundColor: 'rgba(255,255,255,0.4)' }} />
+                  <View style={{ position: 'absolute', left: '33.3%', top: 0, bottom: 0, width: 1, backgroundColor: 'rgba(255,255,255,0.4)' }} />
+                  <View style={{ position: 'absolute', left: '66.6%', top: 0, bottom: 0, width: 1, backgroundColor: 'rgba(255,255,255,0.4)' }} />
+                </View>
+              )}
             </View>
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Image source={{ uri: selectedStoryUri || undefined }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
+
+            {/* Header Overlay */}
+            <SafeAreaView style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16, alignItems: 'center' }}>
+                <TouchableOpacity
+                  onPress={closeStoryModal}
+                  style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Ionicons name="close" size={28} color="#fff" />
+                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: 12 }}>
+                  <TouchableOpacity onPress={() => setShowGrid(!showGrid)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="grid-outline" size={20} color="#fff" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="crop-outline" size={22} color="#fff" />
+                  </TouchableOpacity>
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="text" size={20} color="#fff" />
+                  </View>
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="happy-outline" size={24} color="#fff" />
+                  </View>
+                </View>
+              </View>
+            </SafeAreaView>
+
+            {/* Filters/Modes Bar (Bottom-middle) */}
+            <View style={{ position: 'absolute', bottom: 120, left: 0, right: 0 }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: width / 2 - 25, gap: 15 }}>
+                {['Normal', 'Retro', 'B&W', 'Vibrant', 'Warm', 'Cold'].map((filter, i) => (
+                  <View key={i} style={{ alignItems: 'center', gap: 6 }}>
+                    <View style={{
+                      width: 50,
+                      height: 50,
+                      borderRadius: 25,
+                      borderWidth: i === 0 ? 3 : 1,
+                      borderColor: i === 0 ? '#3b82f6' : '#fff',
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                      overflow: 'hidden'
+                    }}>
+                      <Image source={{ uri: selectedStoryUri || undefined }} style={{ width: '100%', height: '100%', opacity: 0.6 }} blurRadius={i * 2} />
+                    </View>
+                    <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700' }}>{filter}</Text>
+                  </View>
+                ))}
+              </ScrollView>
             </View>
-            <View style={{ padding: 20, paddingBottom: Platform.OS === 'ios' ? 40 : 20 }}>
-              <TouchableOpacity
-                style={{ backgroundColor: colors.primary, padding: 16, borderRadius: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}
-                onPress={postStory}
-                disabled={isPostingStory}
-              >
-                {isPostingStory ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <>
-                    <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold', marginRight: 8 }}>Publish Story</Text>
-                    <Ionicons name="send" size={20} color="#fff" />
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
-          </SafeAreaView>
+
+            {/* Footer Overlay */}
+            <SafeAreaView style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+              <View style={{ padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingBottom: Platform.OS === 'ios' ? 40 : 20 }}>
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    paddingVertical: 10,
+                    paddingHorizontal: 16,
+                    borderRadius: 25,
+                    gap: 10,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.3)'
+                  }}
+                  onPress={postStory}
+                  disabled={isPostingStory}
+                >
+                  <View style={{ width: 28, height: 28, borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: '#fff' }}>
+                    <Image source={{ uri: userAvatar }} style={{ width: '100%', height: '100%' }} />
+                  </View>
+                  <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>Your story</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#fff',
+                    paddingVertical: 12,
+                    paddingHorizontal: 24,
+                    borderRadius: 25,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 8
+                  }}
+                  onPress={postStory}
+                  disabled={isPostingStory}
+                >
+                  {isPostingStory ? (
+                    <ActivityIndicator color="#000" size="small" />
+                  ) : (
+                    <>
+                      <Text style={{ color: '#000', fontSize: 14, fontWeight: '700' }}>Share</Text>
+                      <Ionicons name="send" size={16} color="#000" />
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </SafeAreaView>
+          </View>
         </View>
       </Modal>
     </View>
@@ -634,27 +815,50 @@ const styles = StyleSheet.create({
   },
   addStoryBtn: {
     alignItems: 'center',
-    gap: 8,
-    marginRight: 8,
+    marginRight: 12,
+    width: 76,
   },
-  addStoryGradient: {
+  yourStoryWrapper: {
     width: 72,
     height: 72,
-    borderRadius: 36,
-    padding: 2,
-    alignItems: 'center',
+    position: 'relative',
+    marginBottom: 6,
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  addStoryInner: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+  yourStoryAvatarFrame: {
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    borderWidth: 1.5,
+    padding: 2,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  yourStoryAvatar: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 31,
+  },
+  addBadge: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    backgroundColor: '#3b82f6',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 10,
   },
   addStoryText: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   fab: {
     position: 'absolute',

@@ -40,10 +40,11 @@ export default function QRScannerScreen() {
 
         try {
             const qrData = await scanQr(token!, data);
+            // Navigate directly to the branch details with the specific macId
             router.replace({
-                pathname: '/(tabs)',
-                params: { branchId: qrData.branchId, macId: qrData.macId, kioskName: qrData.name }
-            });
+                pathname: `/branch/${qrData.branchId}`,
+                params: { macId: qrData.macId, kioskName: qrData.name }
+            } as any);
         } catch (error) {
             alert('Scan Error: Kiosk not found');
             setScanned(false);

@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -38,7 +37,9 @@ public class AppMeController {
         return ResponseEntity.ok(Map.of(
                 "id", user.getId(),
                 "phone", user.getPhone() != null ? user.getPhone() : "",
-                "fullName", user.getFullName() != null ? user.getFullName() : ""
-        ));
+                "fullName", user.getFullName() != null ? user.getFullName() : "",
+                "avatarUrl", user.getAvatarUrl() != null ? user.getAvatarUrl() : "",
+                "carModel", user.getCarModel() != null ? user.getCarModel() : "",
+                "carNumber", user.getCarNumber() != null ? user.getCarNumber() : ""));
     }
 }

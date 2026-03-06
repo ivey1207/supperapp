@@ -1,6 +1,6 @@
 import React from 'react';
-import YaMap, { Marker, Polyline, Animation } from 'react-native-yamap';
-import { ClusteredYamap } from './CustomClusteredYamap';
+import YaMap, { Marker, Polyline, Animation, ClusteredYamap } from 'react-native-yamap';
+// import { ClusteredYamap } from './CustomClusteredYamap';
 import { StyleSheet } from 'react-native';
 import type { Branch } from '@/lib/api';
 import { getFileUrl } from '@/lib/api';
@@ -97,40 +97,57 @@ const MANEUVER_ICONS: Record<string, string> = {
     'WAYPOINT': 'flag-checkered',
 };
 
+import { Audio } from 'expo-av';
+
 // Alisa-like voice settings
-const speakAlisa = (text: string) => {
+const speakAlisa = async (text: string) => {
     console.log('Alisa attempt:', text);
-    Speech.isSpeakingAsync().then((isSpeaking) => {
+    try {
+        // Ensure audio session is correct for voice (prevents silent mode issues)
+        await Audio.setAudioModeAsync({
+            allowsRecordingIOS: false,
+            playsInSilentModeIOS: true,
+            staysActiveInBackground: true,
+            shouldDuckAndroid: true,
+            playThroughEarpieceAndroid: false
+        });
+
+        const isSpeaking = await Speech.isSpeakingAsync();
         if (isSpeaking) {
-            Speech.stop().then(() => {
-                Speech.speak(text, {
-                    language: 'ru-RU',
-                    pitch: 1.0,
-                    rate: 0.9,
-                    onStart: () => console.log('Speech started'),
-                    onDone: () => console.log('Speech done'),
-                    onError: (err) => console.log('Speech error:', err),
-                });
-            });
-        } else {
+            await Speech.stop();
+        }
+
+        // Add a tiny delay to ensure stop completes and audio session is ready
+        setTimeout(() => {
             Speech.speak(text, {
                 language: 'ru-RU',
-                pitch: 1.0,
-                rate: 0.9,
-                onStart: () => console.log('Speech started'),
+                pitch: 1.05,
+                rate: 0.95,
+                onStart: () => console.log('Speech started:', text),
                 onDone: () => console.log('Speech done'),
                 onError: (err) => console.log('Speech error:', err),
             });
-        }
-    });
+        }, 100);
+    } catch (e) {
+        console.error('Alisa speech failed:', e);
+    }
 };
 
 const formatDistanceVoice = (meters: number): string => {
     if (meters >= 1000) {
         const km = Math.round(meters / 100) / 10;
-        return `${km} ${km === 1 ? 'километр' : km < 5 ? 'километра' : 'километров'}`;
+        const lastDigit = Math.floor(km) % 10;
+        const lastTwoDigits = Math.floor(km) % 100;
+
+        let unit = 'километров';
+        if (lastTwoDigits < 10 || lastTwoDigits > 20) {
+            if (lastDigit === 1) unit = 'километр';
+            else if (lastDigit >= 2 && lastDigit <= 4) unit = 'километра';
+        }
+        return `${km} ${unit}`;
     }
-    const rounded = Math.round(meters / 100) * 100;
+    const rounded = Math.round(meters / 50) * 50; // Round to 50 for realistic feel
+    if (rounded < 50) return 'совсем скоро';
     return `${rounded} метров`;
 };
 
@@ -178,6 +195,7 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
     const mapRef = React.useRef<YaMap>(null);
     const [userLoc, setUserLoc] = React.useState<Location.LocationObjectCoords | null>(null);
     const [hasCenteredOnUser, setHasCenteredOnUser] = React.useState(false);
+    const [isTrafficVisible, setIsTrafficVisible] = React.useState(true);
     const [maneuvers, setManeuvers] = React.useState<Maneuver[]>([]);
     const [nextManeuverIdx, setNextManeuverIdx] = React.useState(0);
     const [lastSpokenDist, setLastSpokenDist] = React.useState<number | null>(null);
@@ -194,17 +212,26 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
             const { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') return;
 
+            // Get initial lock faster
+            try {
+                const initial = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+                setUserLoc(initial.coords);
+            } catch (e) {
+                console.log('Fast fix failed, waiting for watch...');
+            }
+
             // Start watching
             subscription = await Location.watchPositionAsync(
                 {
-                    accuracy: Location.Accuracy.High,
+                    accuracy: Location.Accuracy.BestForNavigation,
                     timeInterval: 1000,
-                    distanceInterval: 2,
+                    distanceInterval: 1,
                 },
                 (location) => {
+                    console.log('Location Update:', location.coords.latitude, location.coords.longitude);
                     setUserLoc(location.coords);
 
-                    // Auto-center on first reliable fix if not already navigating
+                    // Auto-center on first fix if not already navigating
                     if (!hasCenteredOnUser && !isNavigating && mapRef.current) {
                         mapRef.current.setCenter({
                             lat: location.coords.latitude,
@@ -219,7 +246,7 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
         return () => {
             if (subscription) subscription.remove();
         };
-    }, [hasCenteredOnUser, isNavigating]); // Include dependencies
+    }, [hasCenteredOnUser, isNavigating]);
 
     const jumpToUserLocation = () => {
         if (userLoc && mapRef.current) {
@@ -263,6 +290,11 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
             setDistToDestination(totalDist);
             navStartTimeRef.current = new Date();
 
+            // Zoom into nav mode
+            if (mapRef.current) {
+                mapRef.current.setCenter(start, 17, 0, 45, 1000, Animation.SMOOTH);
+            }
+
             // Fit the route
             if (mapRef.current) {
                 mapRef.current.fitMarkers([start, end]);
@@ -284,19 +316,19 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                 console.log('Voice Nav Event:', JSON.stringify(event));
                 if (event && event.status === 'success' && event.routes && event.routes.length > 0) {
                     const route = event.routes[0];
-                    // Some versions return maneuvers in a different property or nested
                     const allManeuvers: Maneuver[] = route.maneuvers || route.sections?.[0]?.maneuvers || [];
-                    setManeuvers(allManeuvers);
-                    setNextManeuverIdx(0);
-                    setLastSpokenDist(null);
 
-                    if (allManeuvers.length === 0) {
-                        console.log('Voice Nav: Route success but no maneuvers found in event');
-                    } else {
+                    if (allManeuvers.length > 0) {
+                        setManeuvers(allManeuvers);
+                        setNextManeuverIdx(0);
+                        setLastSpokenDist(null);
                         console.log(`Voice Nav Success: ${allManeuvers.length} maneuvers`);
+                    } else {
+                        // Fallback maneuvers if MapKit is stingy
+                        console.log('No maneuvers from MapKit, trying sections...');
+                        const fallbackManeuvers = route.sections?.flatMap((s: any) => s.maneuvers || []) || [];
+                        setManeuvers(fallbackManeuvers);
                     }
-                } else if (event && event.status === 'error') {
-                    console.error('Voice Nav: Router error', event.message);
                 }
             });
         } else if (!isNavigating) {
@@ -395,7 +427,7 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                             data: branch
                         }))
                 }
-                renderMarker={(info, index) => {
+                renderMarker={(info: any) => {
                     const branch = info.data as Branch;
                     const isSelected = selectedBranchId === branch.id;
                     return (
@@ -465,11 +497,13 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                 )}
                 {routePoints && routePoints.length > 0 && (
                     <Polyline
+                        key={`route-main-${routePoints.length}-${selectedBranchId || 'none'}`}
                         points={routePoints.map(p => ({ lat: p.latitude, lon: p.longitude }))}
-                        strokeColor="#3B82F6"
-                        strokeWidth={6}
-                        outlineColor="rgba(59, 130, 246, 0.3)"
+                        strokeColor="#10B981"
+                        strokeWidth={12}
+                        outlineColor="#FFFFFF"
                         outlineWidth={2}
+                        zIndex={200}
                     />
                 )}
             </ClusteredYamap>
@@ -540,6 +574,20 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
 
             {!isNavigating && (
                 <View style={styles.floatingControls}>
+                    <TouchableOpacity
+                        style={styles.mapControlBtn}
+                        onPress={() => {
+                            const newState = !isTrafficVisible;
+                            setIsTrafficVisible(newState);
+                            mapRef.current?.setTrafficVisible(newState);
+                        }}
+                    >
+                        <MaterialCommunityIcons
+                            name={isTrafficVisible ? "traffic-light" : "traffic-light-outline"}
+                            size={24}
+                            color={isTrafficVisible ? "#10B981" : "#64748B"}
+                        />
+                    </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.mapControlBtn}
                         onPress={jumpToUserLocation}
@@ -708,5 +756,19 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 5,
+    },
+    yandexExternalBtn: {
+        backgroundColor: '#fff',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 2,
+    },
+    yandexExternalText: {
+        fontSize: 8,
+        fontWeight: '900',
+        color: '#000',
     }
 });

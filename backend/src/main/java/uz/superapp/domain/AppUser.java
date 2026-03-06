@@ -27,6 +27,7 @@ public class AppUser {
     private String carModel;
     private String carNumber;
     private String passwordHash;
+    private String avatarUrl;
     private boolean blocked = false;
 
     public String getId() {
@@ -107,5 +108,13 @@ public class AppUser {
 
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }
