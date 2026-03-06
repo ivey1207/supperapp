@@ -152,10 +152,14 @@ export default function BranchDetailsScreen() {
                             <Ionicons name="chevron-back" size={24} color="#fff" />
                         </TouchableOpacity>
                         <View style={styles.navRight}>
-                            <TouchableOpacity style={styles.blurBtn}>
+                            <TouchableOpacity style={styles.blurBtn} onPress={() => {
+                                import('react-native').then(rn => {
+                                    rn.Share.share({ message: `Check out ${branch.name} on SuperApp!` });
+                                });
+                            }}>
                                 <Ionicons name="share-outline" size={22} color="#fff" />
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.blurBtn}>
+                            <TouchableOpacity style={styles.blurBtn} onPress={() => Alert.alert('Coming soon', 'Add to favorites will be available soon.')}>
                                 <Ionicons name="heart-outline" size={22} color="#fff" />
                             </TouchableOpacity>
                         </View>
@@ -178,7 +182,7 @@ export default function BranchDetailsScreen() {
                         <View style={styles.metaRow}>
                             <View style={styles.ratingBox}>
                                 <Ionicons name="star" size={16} color="#FBBF24" />
-                                <Text style={styles.ratingVal}>{branch.rating || '0.0'}</Text>
+                                <Text style={styles.ratingVal}>{(branch.rating !== undefined && branch.rating !== null) ? branch.rating.toFixed(1) : '0.0'}</Text>
                                 <Text style={styles.ratingCount}>({branch.reviewCount || 0})</Text>
                             </View>
                             <View style={styles.metaDivider} />
@@ -206,13 +210,19 @@ export default function BranchDetailsScreen() {
                             </View>
                             <Text style={[styles.actionLabel, { color: colors.text }]}>Directions</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card }]}>
+                        <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card }]} onPress={() => {
+                            if (branch.phone) {
+                                import('react-native').then(rn => rn.Linking.openURL(`tel:${branch.phone}`));
+                            } else {
+                                Alert.alert('No phone', 'This branch has no phone number listed.');
+                            }
+                        }}>
                             <View style={[styles.actionIcon, { backgroundColor: '#DCFCE7' }]}>
                                 <Ionicons name="call-outline" size={22} color="#16A34A" />
                             </View>
                             <Text style={[styles.actionLabel, { color: colors.text }]}>Call</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card }]}>
+                        <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card }]} onPress={() => Alert.alert('Coming soon', 'Chat feature will be available soon.')}>
                             <View style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}>
                                 <Ionicons name="chatbubble-outline" size={22} color="#D97706" />
                             </View>
