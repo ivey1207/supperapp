@@ -217,7 +217,7 @@ export type Promotion = {
   serviceId?: string;
   title: string;
   description: string;
-  images?: string[];
+  imageUrl?: string;
   discountValue: string;
   startDate: string;
   endDate: string;
