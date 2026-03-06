@@ -2,6 +2,7 @@ package uz.superapp.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +32,13 @@ public class AdminOnDemandOrderController {
     @Operation(summary = "List on-demand orders for the current user's organization")
     @GetMapping
     public ResponseEntity<List<OnDemandOrder>> list(Authentication auth) {
-        Optional<Account> currentAccount = accountRepository.findById(auth.getName());
+        String name = auth.getName();
+        if (name == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Optional<Account> currentAccount = accountRepository.findById(name);
         if (currentAccount.isEmpty())
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         String role = currentAccount.get().getRole();
         String orgId = currentAccount.get().getOrgId();
@@ -55,13 +60,15 @@ public class AdminOnDemandOrderController {
 
     @Operation(summary = "Update order status (Accept, Complete, etc.)")
     @PutMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(@PathVariable String id, @RequestBody Map<String, String> body,
+    public ResponseEntity<?> updateStatus(@PathVariable String id, @RequestBody Map<String, Object> body,
             Authentication auth) {
-        if (auth == null || auth.getName() == null)
-            return ResponseEntity.status(401).build();
-        Optional<Account> currentAccount = accountRepository.findById(auth.getName());
+        String name = auth.getName();
+        if (name == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Optional<Account> currentAccount = accountRepository.findById(name);
         if (currentAccount.isEmpty())
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         String orgId = currentAccount.get().getOrgId();
         String role = currentAccount.get().getRole();
@@ -71,7 +78,8 @@ public class AdminOnDemandOrderController {
             return ResponseEntity.notFound().build();
 
         OnDemandOrder order = orderOpt.get();
-        String newStatus = body.get("status");
+        Object newStatusObj = body.get("status");
+        String newStatus = newStatusObj instanceof String ? (String) newStatusObj : order.getStatus();
 
         // If a partner accepts a pending order, assign it to their organization
         if ("ACCEPTED".equals(newStatus) && "PENDING".equals(order.getStatus()) && !"SUPER_ADMIN".equals(role)) {
@@ -80,12 +88,18 @@ public class AdminOnDemandOrderController {
 
         // Logic to restrict updates only to assigned partners or super admin
         if (!"SUPER_ADMIN".equals(role) && (order.getOrgId() != null && !order.getOrgId().equals(orgId))) {
-            return ResponseEntity.status(403).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         order.setStatus(newStatus);
         if (body.containsKey("providerId")) {
-            order.setProviderId(body.get("providerId"));
+            order.setProviderId((String) body.get("providerId"));
+        }
+        if (body.containsKey("providerLat")) {
+            order.setProviderLat(Double.valueOf(body.get("providerLat").toString()));
+        }
+        if (body.containsKey("providerLon")) {
+            order.setProviderLon(Double.valueOf(body.get("providerLon").toString()));
         }
 
         onDemandOrderRepository.save(order);

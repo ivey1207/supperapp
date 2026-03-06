@@ -7,7 +7,7 @@ import { getOrders, getOnDemandOrders } from '@/lib/api';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 
-type Order = { id: string; status: string; totalAmount: number; currency: string; createdAt?: string; description?: string };
+type Order = { id: string; status: string; totalAmount: number; currency: string; createdAt?: string; description?: string; userAddress?: string; type?: string };
 
 function OrderItem({ item, colors }: { item: Order, colors: any }) {
   const date = item.createdAt ? new Date(item.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
@@ -18,7 +18,16 @@ function OrderItem({ item, colors }: { item: Order, colors: any }) {
   const statusBg = isCompleted ? '#D1FAE5' : isPending ? '#FEF3C7' : '#FEE2E2';
 
   return (
-    <TouchableOpacity style={[styles.card, { backgroundColor: colors.card }]} activeOpacity={0.8}>
+    <TouchableOpacity
+      style={[styles.card, { backgroundColor: colors.card }]}
+      activeOpacity={0.8}
+      onPress={() => {
+        if (item.userAddress) {
+          // @ts-ignore
+          router.push({ pathname: '/order-tracking', params: { orderId: item.id } });
+        }
+      }}
+    >
       <View style={styles.cardHeader}>
         <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>
           <Text style={[styles.statusText, { color: statusColor }]}>{item.status}</Text>

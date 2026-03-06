@@ -86,10 +86,11 @@ public class AdminBranchController {
     @Operation(summary = "Create a new item")
     @PostMapping
     public ResponseEntity<Map<String, Object>> create(@RequestBody Map<String, Object> body, Authentication auth) {
-        if (auth == null || auth.getName() == null) {
+        String name = auth != null ? auth.getName() : null;
+        if (name == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findById(name);
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -102,20 +103,18 @@ public class AdminBranchController {
         if (!"SUPER_ADMIN".equals(role) && (userOrgId == null || !userOrgId.equals(orgId))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        String name = (String) body.get("name");
-        if (name == null || name.isBlank()) {
+        String branchName = (String) body.get("name");
+        if (branchName == null || branchName.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("message", "name is required"));
         }
         Branch branch = new Branch();
         branch.setOrgId(orgId);
-        branch.setName(name);
+        branch.setName(branchName);
         branch.setAddress(getString(body, "address", ""));
         branch.setPhone(getString(body, "phone", ""));
         branch.setStatus(getString(body, "status", "OPEN"));
         String partnerType = getString(body, "partnerType", "");
         branch.setPartnerType(partnerType);
-        branch.setPhotoUrl(getString(body, "photoUrl", ""));
-
         branch.setPhotoUrl(getString(body, "photoUrl", ""));
 
         branch.setIs24x7(getBoolean(body, "is24x7", false));
@@ -187,10 +186,11 @@ public class AdminBranchController {
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> update(@PathVariable String id, @RequestBody Map<String, Object> body,
             Authentication auth) {
-        if (auth == null || auth.getName() == null) {
+        String name = auth != null ? auth.getName() : null;
+        if (name == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findById(name);
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -256,11 +256,11 @@ public class AdminBranchController {
     @Operation(summary = "Delete an item")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id, Authentication auth) {
-        System.out.println("DEBUG: AdminBranchController.delete called for id: " + id);
-        if (auth == null || auth.getName() == null) {
+        String name = auth != null ? auth.getName() : null;
+        if (name == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findById(name);
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -279,7 +279,6 @@ public class AdminBranchController {
         return ResponseEntity.noContent().build();
     }
 
-    @SuppressWarnings("null")
     private Map<String, Object> buildBranchMap(Branch branch) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", branch.getId());

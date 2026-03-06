@@ -37,10 +37,12 @@ public class AdminPromotionController {
             @RequestParam(required = false) String branchId) {
 
         try {
-            if (principal == null || principal.getName() == null)
+            String name = principal.getName();
+            if (name == null) {
                 return ResponseEntity.ok(List.of());
+            }
 
-            Optional<Account> accountOpt = accountRepository.findById(principal.getName());
+            Optional<Account> accountOpt = accountRepository.findById(name);
             if (accountOpt.isEmpty())
                 return ResponseEntity.ok(List.of());
 

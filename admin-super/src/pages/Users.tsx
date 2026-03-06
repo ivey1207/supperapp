@@ -78,6 +78,7 @@ export default function Users() {
       SUPER_ADMIN: 'bg-amber-500/20 text-amber-400',
       PARTNER_ADMIN: 'bg-violet-500/20 text-violet-400',
       MANAGER: 'bg-blue-500/20 text-blue-400',
+      MASTER: 'bg-emerald-500/20 text-emerald-400',
     };
     return styles[role] || 'bg-slate-500/20 text-slate-300';
   };
@@ -342,11 +343,13 @@ export default function Users() {
                   className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-white focus:border-cyan-500 focus:outline-none cursor-pointer"
                 >
                   <option value="">Без компании</option>
-                  {orgs.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.name}
-                    </option>
-                  ))}
+                  {orgs
+                    .filter(o => form.role !== 'MASTER' || (o as any).partnerType === 'SERVICE')
+                    .map((o) => (
+                      <option key={o.id} value={o.id}>
+                        {o.name} {(o as any).partnerType ? `(${(o as any).partnerType})` : ''}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div>
@@ -358,6 +361,7 @@ export default function Users() {
                 >
                   <option value="MANAGER">MANAGER</option>
                   <option value="PARTNER_ADMIN">PARTNER_ADMIN</option>
+                  <option value="MASTER">MASTER (Сервис)</option>
                   <option value="SUPER_ADMIN">SUPER_ADMIN</option>
                 </select>
               </div>

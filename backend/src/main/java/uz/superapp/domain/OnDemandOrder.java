@@ -1,15 +1,13 @@
 package uz.superapp.domain;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.GenericGenerator;
 import java.time.Instant;
 
 @Entity
 @Table(name = "on_demand_orders")
 public class OnDemandOrder {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     private String userId;
@@ -24,6 +22,8 @@ public class OnDemandOrder {
 
     private String carDetails;
     private String description;
+    private Double providerLat;
+    private Double providerLon;
     private Instant createdAt = Instant.now();
 
     public String getId() {
@@ -112,6 +112,22 @@ public class OnDemandOrder {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Double getProviderLat() {
+        return providerLat;
+    }
+
+    public void setProviderLat(Double providerLat) {
+        this.providerLat = providerLat;
+    }
+
+    public Double getProviderLon() {
+        return providerLon;
+    }
+
+    public void setProviderLon(Double providerLon) {
+        this.providerLon = providerLon;
     }
 
     public Instant getCreatedAt() {

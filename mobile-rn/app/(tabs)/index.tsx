@@ -220,9 +220,9 @@ export default function HomeScreen() {
             >
               <LinearGradient colors={['rgba(255,255,255,0.2)', 'transparent']} style={styles.cardGlow} />
               <View style={styles.serviceIconCircle}>
-                <MaterialCommunityIcons name="alert-octagon" size={28} color="#F43F5E" />
+                <MaterialCommunityIcons name="wrench" size={28} color="#F43F5E" />
               </View>
-              <Text style={styles.featuredServiceTitle}>SOS Помощь</Text>
+              <Text style={styles.featuredServiceTitle}>Вызов мастера</Text>
               <Text style={styles.featuredServiceSub}>Поломка в пути</Text>
             </TouchableOpacity>
           </View>

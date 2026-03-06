@@ -53,6 +53,8 @@ public class AppOnDemandOrderController {
         m.put("carDetails", o.getCarDetails());
         m.put("description", o.getDescription());
         m.put("providerId", o.getProviderId());
+        m.put("providerLat", o.getProviderLat());
+        m.put("providerLon", o.getProviderLon());
         m.put("createdAt", o.getCreatedAt().toString());
         return m;
     }

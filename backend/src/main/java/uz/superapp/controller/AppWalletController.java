@@ -3,6 +3,7 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -30,7 +31,10 @@ public class AppWalletController {
     @GetMapping
     @PreAuthorize("hasRole('APP_USER') or hasRole('USER')")
     public ResponseEntity<Map<String, Object>> get(Authentication auth) {
-        String userId = auth.getName(); // JWT 'sub' stores the user ID, not phone
+        String userId = auth.getName();
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         Wallet w = appUserRepository.findById(userId)
                 .map(uz.superapp.domain.AppUser::getWallet)
                 .orElse(null);

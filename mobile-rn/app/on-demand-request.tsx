@@ -80,7 +80,7 @@ export default function OnDemandRequestScreen() {
                     <Ionicons name="arrow-back" size={24} color={colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>
-                    {type === 'MOBILE_WASH' ? 'Mobile Wash' : 'Emergency Help'}
+                    {type === 'MOBILE_WASH' ? 'Mobile Wash' : 'Вызов мастера'}
                 </Text>
                 <View style={{ width: 24 }} />
             </View>

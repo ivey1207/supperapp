@@ -22,10 +22,14 @@ import java.util.stream.Collectors;
 public class AdminAccountController {
 
     private final AccountRepository accountRepository;
+    private final uz.superapp.repository.OrganizationRepository organizationRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminAccountController(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
+    public AdminAccountController(AccountRepository accountRepository,
+            uz.superapp.repository.OrganizationRepository organizationRepository,
+            PasswordEncoder passwordEncoder) {
         this.accountRepository = accountRepository;
+        this.organizationRepository = organizationRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -86,11 +90,24 @@ public class AdminAccountController {
         if (accountRepository.findFirstByEmailAndArchivedFalse(email).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "email already exists"));
         }
+        String targetRole = body.getOrDefault("role", "MANAGER");
+        // Validation for MASTER role: only allowed for SERVICE type organizations
+        if ("MASTER".equals(targetRole)) {
+            if (targetOrgId == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Organization is required for MASTER role"));
+            }
+            Optional<uz.superapp.domain.Organization> org = organizationRepository.findById(targetOrgId);
+            if (org.isEmpty() || !"SERVICE".equals(org.get().getPartnerType())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("message", "MASTER role is only allowed for Service (Avtoservisi) organizations"));
+            }
+        }
+
         Account account = new Account();
         account.setEmail(email);
         account.setPasswordHash(passwordEncoder.encode(password));
         account.setFullName(body.getOrDefault("fullName", ""));
-        account.setRole(body.getOrDefault("role", "MANAGER"));
+        account.setRole(targetRole);
         account.setOrgId(targetOrgId);
         account.setArchived(false);
         accountRepository.save(account);
@@ -127,7 +144,20 @@ public class AdminAccountController {
             account.setFullName(body.get("fullName"));
         }
         if (body.containsKey("role") && "SUPER_ADMIN".equals(role)) {
-            account.setRole(body.get("role"));
+            String newRole = body.get("role");
+            if ("MASTER".equals(newRole)) {
+                String orgId = account.getOrgId();
+                if (orgId == null) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("message", "Account must be attached to an organization for MASTER role"));
+                }
+                Optional<uz.superapp.domain.Organization> org = organizationRepository.findById(orgId);
+                if (org.isEmpty() || !"SERVICE".equals(org.get().getPartnerType())) {
+                    return ResponseEntity.badRequest().body(
+                            Map.of("message", "MASTER role is only allowed for Service (Avtoservisi) organizations"));
+                }
+            }
+            account.setRole(newRole);
         }
         if (body.containsKey("password") && !body.get("password").isBlank()) {
             account.setPasswordHash(passwordEncoder.encode(body.get("password")));

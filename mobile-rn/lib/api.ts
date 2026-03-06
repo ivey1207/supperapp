@@ -212,6 +212,8 @@ export interface OnDemandOrder {
   carDetails: string;
   description?: string;
   providerId?: string;
+  providerLat?: number;
+  providerLon?: number;
   createdAt?: string;
 }
 

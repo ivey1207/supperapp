@@ -208,56 +208,63 @@ export default function Services() {
           {isSuperAdmin ? 'Услуги (шаблоны)' : 'Услуги'}
         </h1>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-4 bg-white dark:bg-slate-900/60 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
-            {isSuperAdmin && (
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => handleOrgChange('')}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${!orgId
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
-                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+          <div className="flex items-center gap-3">
+            {isSuperAdmin ? (
+              <div className="flex items-center gap-3">
+                <select
+                  value={orgId}
+                  onChange={(e) => handleOrgChange(e.target.value)}
+                  className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
                 >
-                  Все орг.
-                </button>
-                {orgs.map((o) => (
+                  <option value="">Все компании</option>
+                  {orgs.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={branchId}
+                  onChange={(e) => setBranchId(e.target.value)}
+                  className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="">Все филиалы</option>
+                  {filterBranches.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4 bg-white dark:bg-slate-900/60 p-1 rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto max-w-[500px] no-scrollbar">
+                <div className="flex items-center gap-1">
                   <button
-                    key={o.id}
-                    onClick={() => handleOrgChange(o.id)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${orgId === o.id
+                    onClick={() => setBranchId('')}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex-shrink-0 ${!branchId
                       ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
                       : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                   >
-                    {o.name}
+                    Все филиалы
                   </button>
-                ))}
-                <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-1" />
+                  {filterBranches.map((b) => (
+                    <button
+                      key={b.id}
+                      onClick={() => setBranchId(b.id)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex-shrink-0 ${branchId === b.id
+                        ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
+                        : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                    >
+                      {b.name}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setBranchId('')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${!branchId
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-              >
-                Все филиалы
-              </button>
-              {filterBranches.map((b) => (
-                <button
-                  key={b.id}
-                  onClick={() => setBranchId(b.id)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${branchId === b.id
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
-                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-                >
-                  {b.name}
-                </button>
-              ))}
-            </div>
+            <button onClick={openAdd} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500">
+              <Plus className="h-4 w-4" /> Добавить сервис
+            </button>
           </div>
-          <button onClick={openAdd} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500">
-            <Plus className="h-4 w-4" /> Добавить сервис
-          </button>
         </div>
       </div>
 
