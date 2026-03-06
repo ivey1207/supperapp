@@ -119,6 +119,7 @@ export default function HomeScreen() {
   const finalStories = combinedStories.length > 0 ? combinedStories : MOCK_STORIES.map(s => ({ ...s, type: 'MOCK', displayName: s.title }));
 
   const [selectedStoryUri, setSelectedStoryUri] = useState<string | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isPostingStory, setIsPostingStory] = useState(false);
 
   const pickImage = async () => {
@@ -131,6 +132,7 @@ export default function HomeScreen() {
 
     if (!result.canceled) {
       setSelectedStoryUri(result.assets[0].uri);
+      setIsModalVisible(true);
     }
   };
 
@@ -141,13 +143,20 @@ export default function HomeScreen() {
       const { url } = await uploadImage(token!, selectedStoryUri);
       await createUserStory(token!, url);
       Alert.alert('Success', 'Your story has been posted!');
-      setSelectedStoryUri(null);
+      closeStoryModal();
       refetchUserStories();
     } catch (err) {
+      console.error('Story post error:', err);
       Alert.alert('Error', 'Failed to upload story');
     } finally {
       setIsPostingStory(false);
     }
+  };
+
+  const closeStoryModal = () => {
+    setIsModalVisible(false);
+    // keep image rendered while slide animation completes to prevent unmounting crash on Android
+    setTimeout(() => setSelectedStoryUri(null), 400);
   };
 
   const { data: branches = [], refetch: refetchBranches, isRefetching: isRefetchingBranches } = useQuery({
@@ -369,20 +378,18 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       {/* Story Preview Modal */}
-      <Modal visible={!!selectedStoryUri} transparent={false} animationType="slide">
+      <Modal visible={isModalVisible} transparent={false} animationType="slide">
         <View style={{ flex: 1, backgroundColor: '#000' }}>
           <SafeAreaView style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16, alignItems: 'center' }}>
-              <TouchableOpacity onPress={() => setSelectedStoryUri(null)}>
+              <TouchableOpacity onPress={closeStoryModal}>
                 <Ionicons name="close" size={30} color="#fff" />
               </TouchableOpacity>
               <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>New Story</Text>
               <View style={{ width: 30 }} />
             </View>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              {selectedStoryUri && (
-                <Image source={{ uri: selectedStoryUri }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
-              )}
+              <Image source={{ uri: selectedStoryUri || undefined }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
             </View>
             <View style={{ padding: 20, paddingBottom: Platform.OS === 'ios' ? 40 : 20 }}>
               <TouchableOpacity

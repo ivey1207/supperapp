@@ -19,11 +19,14 @@ public class AppUserController {
 
     private final AppUserRepository appUserRepository;
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     public AppUserController(AppUserRepository appUserRepository,
-            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
+            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder,
+            org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
         this.appUserRepository = appUserRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Operation(summary = "Get current user profile")
@@ -69,5 +72,13 @@ public class AppUserController {
         }
 
         return ResponseEntity.ok(appUserRepository.save(user));
+    }
+
+    @Operation(summary = "Wipe all mobile users from database (admin/dev fast action)")
+    @DeleteMapping("/wipe")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<?> wipeAllAppUsers() {
+        jdbcTemplate.execute("TRUNCATE TABLE app_users CASCADE");
+        return ResponseEntity.ok(Map.of("message", "All mobile users deleted via cascade"));
     }
 }
