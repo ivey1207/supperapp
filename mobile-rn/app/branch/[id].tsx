@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, useColorSc
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { getBranchById, getServices, getFileUrl } from '@/lib/api';
+import { getBranchById, getServices, getFileUrl, getReviews, createReview } from '@/lib/api';
+import { Modal, TextInput, Alert } from 'react-native';
 import { useAuth } from '@/lib/auth';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -65,6 +66,34 @@ export default function BranchDetailsScreen() {
         queryFn: () => getServices(token!, id),
         enabled: !!token && !!id,
     });
+
+    const { data: reviews = [], refetch: refetchReviews } = useQuery({
+        queryKey: ['reviews', id],
+        queryFn: () => getReviews(token!, id!),
+        enabled: !!token && !!id,
+    });
+
+    const [isReviewModalVisible, setIsReviewModalVisible] = React.useState(false);
+    const [userRating, setUserRating] = React.useState(5);
+    const [userComment, setUserComment] = React.useState('');
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    const handleSubmitReview = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+        try {
+            await createReview(token!, { branchId: id!, rating: userRating, comment: userComment });
+            Alert.alert('Success', 'Your review has been submitted!');
+            setIsReviewModalVisible(false);
+            setUserRating(5);
+            setUserComment('');
+            refetchReviews();
+        } catch (err) {
+            Alert.alert('Error', 'Failed to submit review');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     if (isBranchLoading) {
         return (
@@ -136,8 +165,8 @@ export default function BranchDetailsScreen() {
                         <View style={styles.metaRow}>
                             <View style={styles.ratingBox}>
                                 <Ionicons name="star" size={16} color="#FBBF24" />
-                                <Text style={styles.ratingVal}>4.8</Text>
-                                <Text style={styles.ratingCount}>(120+)</Text>
+                                <Text style={styles.ratingVal}>{branch.rating || '0.0'}</Text>
+                                <Text style={styles.ratingCount}>({branch.reviewCount || 0})</Text>
                             </View>
                             <View style={styles.metaDivider} />
                             <View style={styles.distanceBox}>
@@ -192,27 +221,40 @@ export default function BranchDetailsScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    {/* Services Section */}
+                    {/* Reviews Section */}
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
-                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Our Services</Text>
-                            <TouchableOpacity>
-                                <Text style={{ color: colors.primary, fontWeight: '700' }}>See all</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Reviews</Text>
+                            <TouchableOpacity onPress={() => setIsReviewModalVisible(true)}>
+                                <Text style={{ color: colors.primary, fontWeight: '700' }}>Write Review</Text>
                             </TouchableOpacity>
                         </View>
 
-                        {isServicesLoading ? (
-                            <ActivityIndicator color={colors.primary} style={{ marginTop: 20 }} />
-                        ) : services.length > 0 ? (
-                            <View style={styles.servicesGrid}>
-                                {services.map((service) => (
-                                    <ServiceCard key={service.id} service={service} colors={colors} />
+                        {reviews.length > 0 ? (
+                            <View style={styles.reviewsList}>
+                                {reviews.map((review: any) => (
+                                    <View key={review.id} style={[styles.reviewCard, { backgroundColor: colors.card }]}>
+                                        <View style={styles.reviewHeader}>
+                                            <Text style={[styles.reviewUser, { color: colors.text }]}>{review.userName}</Text>
+                                            <View style={styles.reviewRating}>
+                                                {[1, 2, 3, 4, 5].map((s) => (
+                                                    <Ionicons
+                                                        key={s}
+                                                        name={s <= review.rating ? "star" : "star-outline"}
+                                                        size={14}
+                                                        color="#FBBF24"
+                                                    />
+                                                ))}
+                                            </View>
+                                        </View>
+                                        <Text style={[styles.reviewComment, { color: colors.textSecondary }]}>{review.comment}</Text>
+                                        <Text style={styles.reviewDate}>{new Date(review.createdAt).toLocaleDateString()}</Text>
+                                    </View>
                                 ))}
                             </View>
                         ) : (
-                            <View style={[styles.emptyState, { backgroundColor: colors.card }]}>
-                                <Ionicons name="construct-outline" size={48} color="#CBD5E1" />
-                                <Text style={styles.emptyText}>No services available at the moment.</Text>
+                            <View style={[styles.emptyState, { backgroundColor: colors.card, height: 100, justifyContent: 'center' }]}>
+                                <Text style={styles.emptyText}>No reviews yet. Be the first!</Text>
                             </View>
                         )}
                     </View>
@@ -242,6 +284,60 @@ export default function BranchDetailsScreen() {
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Review Modal */}
+            <Modal
+                visible={isReviewModalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setIsReviewModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+                        <View style={styles.modalHeader}>
+                            <Text style={[styles.modalTitle, { color: colors.text }]}>Write a Review</Text>
+                            <TouchableOpacity onPress={() => setIsReviewModalVisible(false)}>
+                                <Ionicons name="close" size={24} color={colors.text} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <Text style={[styles.ratingLabel, { color: colors.textSecondary }]}>Rate your experience</Text>
+                        <View style={styles.starRow}>
+                            {[1, 2, 3, 4, 5].map((s) => (
+                                <TouchableOpacity key={s} onPress={() => setUserRating(s)}>
+                                    <Ionicons
+                                        name={s <= userRating ? "star" : "star-outline"}
+                                        size={40}
+                                        color="#FBBF24"
+                                    />
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <TextInput
+                            style={[styles.reviewInput, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
+                            placeholder="Tell us about your experience..."
+                            placeholderTextColor={colors.textSecondary}
+                            multiline
+                            numberOfLines={4}
+                            value={userComment}
+                            onChangeText={setUserComment}
+                        />
+
+                        <TouchableOpacity
+                            style={[styles.submitBtn, { backgroundColor: colors.primary }]}
+                            onPress={handleSubmitReview}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.submitBtnText}>Submit Review</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -315,5 +411,25 @@ const styles = StyleSheet.create({
     footerPrice: { fontSize: 24, fontWeight: '900' },
     footerCurrency: { fontSize: 14, fontWeight: '700' },
     bookBtn: { flex: 1, marginLeft: 24, height: 60, borderRadius: 20, alignItems: 'center', justifyContent: 'center', shadowColor: '#3B82F6', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 15, elevation: 8 },
-    bookBtnText: { color: '#fff', fontSize: 18, fontWeight: '900' }
+    bookBtnText: { color: '#fff', fontSize: 18, fontWeight: '900' },
+
+    // Review Styles
+    reviewsList: { gap: 12 },
+    reviewCard: { padding: 16, borderRadius: 20 },
+    reviewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+    reviewUser: { fontSize: 15, fontWeight: '700' },
+    reviewRating: { flexDirection: 'row', gap: 2 },
+    reviewComment: { fontSize: 14, lineHeight: 20, marginBottom: 8 },
+    reviewDate: { fontSize: 12, color: '#94A3B8', fontWeight: '600' },
+
+    // Modal Styles
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    modalContent: { borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 40 },
+    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
+    modalTitle: { fontSize: 24, fontWeight: '800' },
+    ratingLabel: { fontSize: 16, fontWeight: '600', marginBottom: 12, textAlign: 'center' },
+    starRow: { flexDirection: 'row', justifyContent: 'center', gap: 12, marginBottom: 24 },
+    reviewInput: { borderRadius: 20, padding: 16, fontSize: 16, height: 120, textAlignVertical: 'top', borderWidth: 1, marginBottom: 24 },
+    submitBtn: { height: 60, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+    submitBtnText: { color: '#fff', fontSize: 18, fontWeight: '800' }
 });

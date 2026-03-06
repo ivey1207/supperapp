@@ -171,6 +171,22 @@ export type Promotion = {
   endDate: string;
 };
 
+export type Review = {
+  id: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+};
+
+export type UserStory = {
+  id: string;
+  userId: string;
+  userName: string;
+  imageUrl: string;
+  createdAt: string;
+};
+
 export async function getBranchById(token: string, branchId: string) {
   const { data } = await api.get(`/api/v1/app/branches/${branchId}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -229,6 +245,55 @@ export async function getOnDemandOrders(token: string) {
     headers: { Authorization: `Bearer ${token}` },
   });
   return data as OnDemandOrder[];
+}
+
+export async function getReviews(token: string, branchId: string) {
+  const { data } = await api.get(`/api/v1/app/reviews/branch/${branchId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as Review[];
+}
+
+export async function createReview(token: string, review: { branchId: string; rating: number; comment: string }) {
+  const { data } = await api.post('/api/v1/app/reviews', review, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}
+
+export async function getUserStories(token: string) {
+  const { data } = await api.get('/api/v1/app/user-stories', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as UserStory[];
+}
+
+export async function createUserStory(token: string, imageUrl: string) {
+  const { data } = await api.post('/api/v1/app/user-stories', { imageUrl }, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}
+
+export async function uploadImage(token: string, uri: string) {
+  const formData = new FormData();
+  const filename = uri.split('/').pop();
+  const match = /\.(\w+)$/.exec(filename || '');
+  const type = match ? `image/${match[1]}` : `image`;
+
+  formData.append('file', {
+    uri,
+    name: filename,
+    type,
+  } as any);
+
+  const { data } = await api.post('/api/v1/files/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return data as { url: string };
 }
 
 export default api;

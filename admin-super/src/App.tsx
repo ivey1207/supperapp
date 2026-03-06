@@ -16,6 +16,7 @@ import Promotions from './pages/Promotions';
 import WashSessions from './pages/WashSessions';
 import PaymentReports from './pages/PaymentReports';
 import AppUsers from './pages/AppUsers';
+import Reviews from './pages/Reviews';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token, isLoading } = useAuth();
@@ -43,6 +44,7 @@ function AppRoutes() {
         <Route path="promotions" element={<Promotions />} />
         <Route path="wash-sessions" element={<WashSessions />} />
         <Route path="payment-reports" element={<PaymentReports />} />
+        <Route path="reviews" element={<Reviews />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -217,12 +217,21 @@ export type Promotion = {
   serviceId?: string;
   title: string;
   description: string;
-  imageUrl?: string;
+  images?: string[];
   discountValue: string;
   startDate: string;
   endDate: string;
   active: boolean;
 };
+
+export interface ReviewAdmin {
+  id: string;
+  userName: string;
+  branchName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
 
 export async function getPromotions(orgId?: string, branchId?: string): Promise<Promotion[]> {
   const { data } = await api.get('/api/v1/admin/promotions', {
@@ -244,6 +253,16 @@ export async function updatePromotion(id: string, payload: Partial<Promotion>): 
 export async function deletePromotion(id: string): Promise<void> {
   await api.delete(`/api/v1/admin/promotions/${id}`);
 }
+
+export const getReviews = async () => {
+  const { data } = await api.get('/api/v1/admin/reviews');
+  return data as ReviewAdmin[];
+};
+
+export const deleteReview = async (id: string) => {
+  const { data } = await api.delete(`/api/v1/admin/reviews/${id}`);
+  return data;
+};
 
 export async function getDevices(orgId?: string) {
   const { data } = await api.get('/api/v1/admin/devices', { params: orgId ? { orgId } : {} });

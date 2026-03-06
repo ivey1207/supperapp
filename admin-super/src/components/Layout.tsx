@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
-import { LayoutDashboard, Users, Building2, Smartphone, CreditCard, FileText, Settings, LogOut, Globe, Shield, Store, Sliders, Cpu, GitBranch, Tag, Droplets, Receipt, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, Smartphone, CreditCard, FileText, Settings, LogOut, Globe, Shield, Store, Sliders, Cpu, GitBranch, Tag, Droplets, Receipt, Sun, Moon, MessageSquare } from 'lucide-react';
 import { playClick } from '../lib/sound';
 import { useTheme } from '../lib/theme';
 
@@ -18,6 +18,7 @@ const superAdminNav = [
   { to: '/services', label: 'Услуги (шаблоны)', icon: Settings },
   { to: '/wash-sessions', label: 'Сеансы мойки 🚿', icon: Droplets },
   { to: '/payment-reports', label: 'Отчёты по оплатам', icon: Receipt },
+  { to: '/reviews', label: 'Отзывы и оценки', icon: MessageSquare },
   { to: '/settings', label: 'Настройки платформы', icon: Sliders },
 ];
 
@@ -30,6 +31,7 @@ const partnerNav = [
   { to: '/rfid', label: 'RFID Карты', icon: CreditCard },
   { to: '/reports', label: 'Отчёты', icon: FileText },
   { to: '/promotions', label: 'Мои акции', icon: Tag },
+  { to: '/reviews', label: 'Отзывы', icon: MessageSquare },
   { to: '/services', label: 'Услуги', icon: Settings },
 ];
 

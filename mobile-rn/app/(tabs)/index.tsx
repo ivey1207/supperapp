@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome, Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
-import { getBranches, getPromotions, getServices, Promotion, getFileUrl } from '@/lib/api';
+import { getBranches, getPromotions, getServices, Promotion, getFileUrl, getUserStories, createUserStory, uploadImage } from '@/lib/api';
+import * as ImagePicker from 'expo-image-picker';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import QuickActions from '@/components/QuickActions';
@@ -103,8 +104,39 @@ export default function HomeScreen() {
     enabled: !!token,
   });
 
+  const { data: userStories = [], refetch: refetchUserStories } = useQuery({
+    queryKey: ['userStories', token],
+    queryFn: () => getUserStories(token!),
+    enabled: !!token,
+  });
+
   const displayPromos = promotions.length > 0 ? promotions : MOCK_PROMOS;
-  const displayStories = promotions.length > 0 ? promotions : MOCK_STORIES;
+
+  const combinedStories = [
+    ...promotions.map(p => ({ ...p, type: 'PROMO', displayName: p.title })),
+    ...userStories.map(s => ({ ...s, type: 'USER', displayName: s.userName }))
+  ];
+  const finalStories = combinedStories.length > 0 ? combinedStories : MOCK_STORIES.map(s => ({ ...s, type: 'MOCK', displayName: s.title }));
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [9, 16],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      try {
+        const { url } = await uploadImage(token!, result.assets[0].uri);
+        await createUserStory(token!, url);
+        Alert.alert('Success', 'Your story has been posted!');
+        refetchUserStories();
+      } catch (err) {
+        Alert.alert('Error', 'Failed to upload story');
+      }
+    }
+  };
 
   const { data: branches = [], refetch: refetchBranches, isRefetching: isRefetchingBranches } = useQuery({
     queryKey: ['branches', token, activeFilter, userLocation?.coords.latitude, userLocation?.coords.longitude],
@@ -252,19 +284,34 @@ export default function HomeScreen() {
           {/* Preserving stories since user said "stories ... vsyo doyediogo ostav" (leave as is) */}
           <View style={styles.storiesContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
-              {displayStories.map((item: any) => (
+              {/* Add Story Button */}
+              <TouchableOpacity style={styles.addStoryBtn} onPress={pickImage}>
+                <View style={[styles.addStoryCircle, { borderColor: colors.primary }]}>
+                  <Ionicons name="add" size={32} color={colors.primary} />
+                </View>
+                <Text style={[styles.addStoryText, { color: colors.textSecondary }]}>My Story</Text>
+              </TouchableOpacity>
+
+              {finalStories.map((item: any) => (
                 <StoryCircle
                   key={item.id}
                   item={{
                     id: item.id,
-                    name: item.title,
+                    name: item.displayName || item.title,
                     image: getFileUrl(item.imageUrl) || 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=200'
                   }}
                   onPress={() => {
-                    if (item.branchId) {
-                      router.push(`/branch/${item.branchId}` as any);
+                    if (item.type === 'PROMO') {
+                      if (item.branchId) {
+                        router.push(`/branch/${item.branchId}` as any);
+                      } else {
+                        Alert.alert(item.title, item.description);
+                      }
+                    } else if (item.type === 'USER') {
+                      // View user story
+                      Alert.alert(`Story by ${item.userName}`, 'Full story view coming soon!');
                     } else {
-                      Alert.alert(item.title, item.description);
+                      Alert.alert(item.title, 'Demo story');
                     }
                   }}
                 />
@@ -520,5 +567,23 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     marginTop: 2,
+  },
+  addStoryBtn: {
+    alignItems: 'center',
+    gap: 8,
+    marginRight: 4,
+  },
+  addStoryCircle: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addStoryText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
 });
