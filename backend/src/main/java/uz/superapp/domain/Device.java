@@ -1,7 +1,6 @@
 package uz.superapp.domain;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.GenericGenerator;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -10,8 +9,7 @@ import java.time.Instant;
 public class Device {
 
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     private String orgId;

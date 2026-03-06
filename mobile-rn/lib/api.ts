@@ -187,6 +187,8 @@ export type UserStory = {
   userName: string;
   imageUrl: string;
   createdAt: string;
+  likeCount: number;
+  isLiked?: boolean;
 };
 
 export async function getBranchById(token: string, branchId: string) {
@@ -286,6 +288,20 @@ export async function getUserStories(token: string) {
 
 export async function createUserStory(token: string, imageUrl: string) {
   const { data } = await api.post('/api/v1/app/user-stories', { imageUrl }, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}
+
+export async function likeUserStory(token: string, storyId: string) {
+  const { data } = await api.post(`/api/v1/app/user-stories/${storyId}/like`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}
+
+export async function unlikeUserStory(token: string, storyId: string) {
+  const { data } = await api.post(`/api/v1/app/user-stories/${storyId}/unlike`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return data;

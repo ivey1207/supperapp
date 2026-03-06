@@ -1,7 +1,6 @@
 package uz.superapp.domain;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Организация-партнёр (автомойка, АЗС, сервис и т.д.)
@@ -10,8 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "organizations")
 public class Organization {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     private String name;

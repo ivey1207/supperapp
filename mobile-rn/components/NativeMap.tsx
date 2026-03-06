@@ -262,6 +262,13 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
             setDistToDestination(totalDist);
             navStartTimeRef.current = new Date();
 
+            // Fit the route
+            if (mapRef.current) {
+                mapRef.current.fitMarkers([start, end]);
+                // If we want to fit all points of the polyline:
+                // mapRef.current.fitMarkers(routePoints.map(p => ({ lat: p.latitude, lon: p.longitude })));
+            }
+
             // Welcome announcement — Alisa style
             const distText = formatDistanceVoice(totalDist);
             const etaText = formatETA(totalDist);

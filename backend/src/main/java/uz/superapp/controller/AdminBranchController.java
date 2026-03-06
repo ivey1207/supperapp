@@ -326,8 +326,7 @@ public class AdminBranchController {
         Object value = map.get(key);
         if (value instanceof Boolean) {
             return (Boolean) value;
-        }
-        if (value instanceof String) {
+        } else if (value instanceof String) {
             return Boolean.parseBoolean((String) value);
         }
         return defaultValue;

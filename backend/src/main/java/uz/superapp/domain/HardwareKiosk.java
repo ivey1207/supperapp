@@ -1,7 +1,6 @@
 package uz.superapp.domain;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -15,8 +14,7 @@ import java.util.Map;
 @Table(name = "hardware_kiosks")
 public class HardwareKiosk {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(unique = true, nullable = false)

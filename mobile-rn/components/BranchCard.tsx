@@ -16,7 +16,9 @@ export default function BranchCard({ branch, onPress, index, style }: BranchCard
     const scheme = useColorScheme() ?? 'light';
     const colors = Colors[scheme];
 
-    const rating = (4.5 + (index % 5) * 0.1).toFixed(1);
+    const rating = (branch.rating !== undefined && branch.rating !== null) ? branch.rating.toFixed(1) : '4.5';
+    const reviewCountDisplay = branch.reviewCount !== undefined ? `(${branch.reviewCount})` : '';
+
     const distance = branch.distance !== undefined
         ? (branch.distance < 1
             ? `${(branch.distance * 1000).toFixed(0)} ft` // Adapting to mockup's miles/ft style
@@ -40,7 +42,7 @@ export default function BranchCard({ branch, onPress, index, style }: BranchCard
 
                 <View style={styles.ratingBadge}>
                     <FontAwesome name="star" size={10} color="#FFD700" />
-                    <Text style={styles.ratingText}>{rating}</Text>
+                    <Text style={styles.ratingText}>{rating} {reviewCountDisplay}</Text>
                 </View>
 
                 {index === 0 && (

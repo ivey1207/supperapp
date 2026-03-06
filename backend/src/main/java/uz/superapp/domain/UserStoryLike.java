@@ -3,17 +3,17 @@ package uz.superapp.domain;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "review_likes", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "review_id", "user_id" })
+@Table(name = "user_story_likes", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "story_id", "user_id" })
 })
-public class ReviewLike {
+public class UserStoryLike {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "review_id", nullable = false)
-    private Review review;
+    @JoinColumn(name = "story_id", nullable = false)
+    private UserStory story;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -27,12 +27,12 @@ public class ReviewLike {
         this.id = id;
     }
 
-    public Review getReview() {
-        return review;
+    public UserStory getStory() {
+        return story;
     }
 
-    public void setReview(Review review) {
-        this.review = review;
+    public void setStory(UserStory story) {
+        this.story = story;
     }
 
     public AppUser getUser() {

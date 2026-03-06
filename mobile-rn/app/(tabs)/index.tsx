@@ -284,12 +284,17 @@ export default function HomeScreen() {
           {/* Preserving stories since user said "stories ... vsyo doyediogo ostav" (leave as is) */}
           <View style={styles.storiesContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
-              {/* Add Story Button */}
+              {/* Add Story Button - More Prominent Style */}
               <TouchableOpacity style={styles.addStoryBtn} onPress={pickImage}>
-                <View style={[styles.addStoryCircle, { borderColor: colors.primary }]}>
-                  <Ionicons name="add" size={32} color={colors.primary} />
-                </View>
-                <Text style={[styles.addStoryText, { color: colors.textSecondary }]}>My Story</Text>
+                <LinearGradient
+                  colors={['#3b82f6', '#8b5cf6', '#f43f5e']}
+                  style={styles.addStoryGradient}
+                >
+                  <View style={[styles.addStoryInner, { backgroundColor: colors.background }]}>
+                    <Ionicons name="add" size={32} color={colors.primary} />
+                  </View>
+                </LinearGradient>
+                <Text style={[styles.addStoryText, { color: colors.textSecondary }]}>Add Story</Text>
               </TouchableOpacity>
 
               {finalStories.map((item: any) => (
@@ -341,6 +346,15 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      {/* Floating Action Button for quick story upload */}
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: colors.primary }]}
+        onPress={pickImage}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="camera" size={24} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -566,19 +580,40 @@ const styles = StyleSheet.create({
   addStoryBtn: {
     alignItems: 'center',
     gap: 8,
-    marginRight: 4,
+    marginRight: 8,
   },
-  addStoryCircle: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 2,
-    borderStyle: 'dashed',
+  addStoryGradient: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    padding: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addStoryInner: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     alignItems: 'center',
     justifyContent: 'center',
   },
   addStoryText: {
     fontSize: 12,
     fontWeight: '700',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 100,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
   },
 });

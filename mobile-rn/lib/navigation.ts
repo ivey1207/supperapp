@@ -59,7 +59,7 @@ export const fetchRoute = async (
     endLon: number
 ): Promise<RoutePoint[]> => {
     try {
-        const url = `http://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=polyline`;
+        const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=polyline`;
         const response = await fetch(url);
         const data = await response.json();
 

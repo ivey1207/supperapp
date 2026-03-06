@@ -1,15 +1,13 @@
 package uz.superapp.domain;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.GenericGenerator;
 import java.util.Set;
 
 @Entity
 @Table(name = "accounts")
 public class Account {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(unique = true, nullable = false)

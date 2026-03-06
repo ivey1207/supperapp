@@ -1,15 +1,13 @@
 package uz.superapp.domain;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.GenericGenerator;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_stories")
 public class UserStory {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @ManyToOne
@@ -23,6 +21,7 @@ public class UserStory {
     private LocalDateTime expiresAt = LocalDateTime.now().plusHours(24);
 
     private boolean archived = false;
+    private Integer likeCount = 0;
 
     public String getId() {
         return id;
@@ -70,5 +69,13 @@ public class UserStory {
 
     public void setArchived(boolean archived) {
         this.archived = archived;
+    }
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
     }
 }
