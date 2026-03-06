@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome, Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
-import { getBranches, getPromotions, getServices, Promotion } from '@/lib/api';
+import { getBranches, getPromotions, getServices, Promotion, getFileUrl } from '@/lib/api';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import QuickActions from '@/components/QuickActions';
@@ -26,10 +26,10 @@ const CATEGORIES = [
   { id: 4, name: 'Шины', partnerType: 'TIRES', icon: 'settings-input-component', color: '#8b5cf6', image: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?w=400' },
 ];
 
-const STORIES = [
-  { id: 1, name: 'Счастливые', image: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=200' },
-  { id: 2, name: 'Новая точка', image: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=200' },
-  { id: 3, name: 'Розыгрыш', image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200' },
+const MOCK_STORIES = [
+  { id: 's1', title: 'Счастливые', imageUrl: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=200' },
+  { id: 's2', title: 'Новая точка', imageUrl: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=200' },
+  { id: 's3', title: 'Розыгрыш', imageUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200' },
 ];
 
 const MOCK_PROMOS: any[] = [
@@ -104,6 +104,7 @@ export default function HomeScreen() {
   });
 
   const displayPromos = promotions.length > 0 ? promotions : MOCK_PROMOS;
+  const displayStories = promotions.length > 0 ? promotions : MOCK_STORIES;
 
   const { data: branches = [], refetch: refetchBranches, isRefetching: isRefetchingBranches } = useQuery({
     queryKey: ['branches', token, activeFilter, userLocation?.coords.latitude, userLocation?.coords.longitude],
@@ -231,7 +232,7 @@ export default function HomeScreen() {
           <View style={styles.recommendedSection}>
             <TouchableOpacity style={styles.recommendedCard} activeOpacity={0.9} onPress={handleComingSoon}>
               <Image
-                source={{ uri: displayPromos[0]?.imageUrl || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800' }}
+                source={{ uri: getFileUrl(displayPromos[0]?.imageUrl) || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800' }}
                 style={styles.recommendedImage}
               />
               <LinearGradient
@@ -251,8 +252,22 @@ export default function HomeScreen() {
           {/* Preserving stories since user said "stories ... vsyo doyediogo ostav" (leave as is) */}
           <View style={styles.storiesContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
-              {STORIES.map(item => (
-                <StoryCircle key={item.id} item={item} onPress={handleComingSoon} />
+              {displayStories.map((item: any) => (
+                <StoryCircle
+                  key={item.id}
+                  item={{
+                    id: item.id,
+                    name: item.title,
+                    image: getFileUrl(item.imageUrl) || 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=200'
+                  }}
+                  onPress={() => {
+                    if (item.branchId) {
+                      router.push(`/branch/${item.branchId}` as any);
+                    } else {
+                      Alert.alert(item.title, item.description);
+                    }
+                  }}
+                />
               ))}
             </ScrollView>
           </View>
