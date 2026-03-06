@@ -24,7 +24,7 @@ import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
 
 export default function HardwareKiosks() {
-  const { isSuperAdmin, user } = useAuth();
+  const { isSuperAdmin } = useAuth();
   const [list, setList] = useState<HardwareKiosk[]>([]);
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
