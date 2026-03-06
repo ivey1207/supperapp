@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar, useColorScheme, Alert, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar, useColorScheme, Alert, TextInput, Modal, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome, Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
@@ -118,6 +118,9 @@ export default function HomeScreen() {
   ];
   const finalStories = combinedStories.length > 0 ? combinedStories : MOCK_STORIES.map(s => ({ ...s, type: 'MOCK', displayName: s.title }));
 
+  const [selectedStoryUri, setSelectedStoryUri] = useState<string | null>(null);
+  const [isPostingStory, setIsPostingStory] = useState(false);
+
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -127,14 +130,23 @@ export default function HomeScreen() {
     });
 
     if (!result.canceled) {
-      try {
-        const { url } = await uploadImage(token!, result.assets[0].uri);
-        await createUserStory(token!, url);
-        Alert.alert('Success', 'Your story has been posted!');
-        refetchUserStories();
-      } catch (err) {
-        Alert.alert('Error', 'Failed to upload story');
-      }
+      setSelectedStoryUri(result.assets[0].uri);
+    }
+  };
+
+  const postStory = async () => {
+    if (!selectedStoryUri) return;
+    setIsPostingStory(true);
+    try {
+      const { url } = await uploadImage(token!, selectedStoryUri);
+      await createUserStory(token!, url);
+      Alert.alert('Success', 'Your story has been posted!');
+      setSelectedStoryUri(null);
+      refetchUserStories();
+    } catch (err) {
+      Alert.alert('Error', 'Failed to upload story');
+    } finally {
+      setIsPostingStory(false);
     }
   };
 
@@ -355,6 +367,42 @@ export default function HomeScreen() {
       >
         <Ionicons name="camera" size={24} color="#fff" />
       </TouchableOpacity>
+
+      {/* Story Preview Modal */}
+      <Modal visible={!!selectedStoryUri} transparent={false} animationType="slide">
+        <View style={{ flex: 1, backgroundColor: '#000' }}>
+          <SafeAreaView style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 16, alignItems: 'center' }}>
+              <TouchableOpacity onPress={() => setSelectedStoryUri(null)}>
+                <Ionicons name="close" size={30} color="#fff" />
+              </TouchableOpacity>
+              <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>New Story</Text>
+              <View style={{ width: 30 }} />
+            </View>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              {selectedStoryUri && (
+                <Image source={{ uri: selectedStoryUri }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
+              )}
+            </View>
+            <View style={{ padding: 20, paddingBottom: Platform.OS === 'ios' ? 40 : 20 }}>
+              <TouchableOpacity
+                style={{ backgroundColor: colors.primary, padding: 16, borderRadius: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}
+                onPress={postStory}
+                disabled={isPostingStory}
+              >
+                {isPostingStory ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold', marginRight: 8 }}>Publish Story</Text>
+                    <Ionicons name="send" size={20} color="#fff" />
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </View>
+      </Modal>
     </View>
   );
 }
