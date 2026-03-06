@@ -15,7 +15,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
-  const [loginMode, setLoginMode] = useState<'otp' | 'password'>('otp');
+  const [loginMode, setLoginMode] = useState<'password' | 'otp'>('password');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const scheme = useColorScheme() ?? 'light';
@@ -100,8 +100,8 @@ export default function LoginScreen() {
               <Text style={[styles.title, { color: colors.text }]}>Welcome Back</Text>
               <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
                 {loginMode === 'password'
-                  ? 'Login with email/phone and password'
-                  : step === 'phone' ? 'Log in to manage your car services' : 'Enter the code sent to your email'}
+                  ? 'Login with phone/email and password'
+                  : step === 'phone' ? 'Registration: Enter details to get code' : 'Enter the code sent to your email'}
               </Text>
             </View>
 
@@ -145,9 +145,15 @@ export default function LoginScreen() {
                     {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Login</Text>}
                   </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => setLoginMode('otp')} style={styles.toggleLink}>
-                    <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>Use OTP/Code login</Text>
-                  </TouchableOpacity>
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 24, gap: 12 }}>
+                    <TouchableOpacity onPress={() => setLoginMode('otp')}>
+                      <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>Sign Up</Text>
+                    </TouchableOpacity>
+                    <Text style={{ color: colors.textSecondary }}>|</Text>
+                    <TouchableOpacity onPress={() => router.push('/forgot-password' as any)}>
+                      <Text style={[styles.toggleText, { color: colors.textSecondary }]}>Forgot password?</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               ) : step === 'phone' ? (
                 <View style={styles.form}>
@@ -190,7 +196,7 @@ export default function LoginScreen() {
                       <ActivityIndicator color="#fff" />
                     ) : (
                       <>
-                        <Text style={styles.btnText}>Continue</Text>
+                        <Text style={styles.btnText}>Send Code</Text>
                         <Ionicons name="arrow-forward" size={20} color="#fff" />
                       </>
                     )}
@@ -229,7 +235,7 @@ export default function LoginScreen() {
                     disabled={loading}
                     activeOpacity={0.8}
                   >
-                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Verify & Login</Text>}
+                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Verify & Proceed</Text>}
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => setStep('phone')} style={styles.toggleLink}>
