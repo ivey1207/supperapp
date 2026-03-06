@@ -64,18 +64,9 @@ export default function MapScreen() {
     })();
   }, []);
 
-  // Fetch route when branch is selected
   useEffect(() => {
-    if (selectedBranch && userLocation && selectedBranch.location?.coordinates?.[1]) {
-      const startLat = userLocation.coords.latitude;
-      const startLon = userLocation.coords.longitude;
-      const endLat = selectedBranch.location.coordinates[1];
-      const endLon = selectedBranch.location.coordinates[0];
-
-      fetchRoute(startLat, startLon, endLat, endLon).then(setRoutePoints);
-    } else {
+    if (!selectedBranch || !userLocation) {
       setRoutePoints([]);
-      setIsNavigating(false);
     }
   }, [selectedBranch, userLocation]);
 

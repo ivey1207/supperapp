@@ -202,6 +202,7 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
     const [totalRouteDist, setTotalRouteDist] = React.useState(0);
     const [distToNextManeuver, setDistToNextManeuver] = React.useState(0);
     const [distToDestination, setDistToDestination] = React.useState(0);
+    const [yandexRoutePoints, setYandexRoutePoints] = React.useState<{ latitude: number, longitude: number }[]>([]);
     const navStartTimeRef = React.useRef<Date | null>(null);
 
     // Continuous High Accuracy Location Tracking
@@ -316,6 +317,15 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                 console.log('Voice Nav Event:', JSON.stringify(event));
                 if (event && event.status === 'success' && event.routes && event.routes.length > 0) {
                     const route = event.routes[0];
+
+                    // Unified Points for Polyline
+                    const points = route.points || route.sections?.[0]?.points || [];
+                    if (points.length > 0) {
+                        setYandexRoutePoints(points.map((p: any) => ({ latitude: p.lat, longitude: p.lon })));
+                    } else if (routePoints && routePoints.length > 0) {
+                        setYandexRoutePoints(routePoints);
+                    }
+
                     const allManeuvers: Maneuver[] = route.maneuvers || route.sections?.[0]?.maneuvers || [];
 
                     if (allManeuvers.length > 0) {
@@ -324,16 +334,15 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                         setLastSpokenDist(null);
                         console.log(`Voice Nav Success: ${allManeuvers.length} maneuvers`);
                     } else {
-                        // Fallback maneuvers if MapKit is stingy
-                        console.log('No maneuvers from MapKit, trying sections...');
-                        const fallbackManeuvers = route.sections?.flatMap((s: any) => s.maneuvers || []) || [];
-                        setManeuvers(fallbackManeuvers);
+                        console.log('No maneuvers from MapKit');
+                        setManeuvers([]);
                     }
                 }
             });
         } else if (!isNavigating) {
             Speech.stop();
             setManeuvers([]);
+            setYandexRoutePoints([]);
             setNextManeuverIdx(0);
             setTotalRouteDist(0);
             setDistToDestination(0);
@@ -406,84 +415,103 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
 
     }, [userLoc, isNavigating, maneuvers, nextManeuverIdx, lastSpokenDist, routePoints]);
 
-    return (
-        <View style={styles.outerContainer}>
-            <ClusteredYamap
-                ref={mapRef as any}
-                style={styles.map}
-                initialRegion={{
-                    lat: INITIAL_POINT.lat,
-                    lon: INITIAL_POINT.lon,
-                    zoom: 12,
-                }}
-                showUserPosition={!isNavigating}
-                nightMode={scheme === 'dark'}
-                clusterColor="#3B82F6"
-                clusteredMarkers={
-                    branches
-                        .filter((b) => b.location?.coordinates && b.location.coordinates.length >= 2)
-                        .map((branch) => ({
-                            point: { lat: branch.location!.coordinates[1], lon: branch.location!.coordinates[0] },
-                            data: branch
-                        }))
-                }
-                renderMarker={(info: any) => {
-                    const branch = info.data as Branch;
-                    const isSelected = selectedBranchId === branch.id;
-                    return (
-                        <Marker
-                            key={branch.id}
-                            point={info.point}
-                            onPress={() => onBranchSelect?.(branch)}
-                        >
-                            <View style={styles.markerWrapper}>
-                                <View style={[
-                                    styles.markerContainer,
-                                    { backgroundColor: isSelected ? '#3B82F6' : 'white' },
-                                    isSelected && styles.selectedMarker
-                                ]}>
-                                    <View style={styles.imageInnerContainer}>
-                                        {(branch.photoUrl || (branch.images && branch.images.length > 0)) ? (
-                                            <Image
-                                                source={{ uri: getFileUrl(branch.photoUrl || branch.images![0]) as string }}
-                                                style={styles.markerImage}
-                                            />
-                                        ) : (
-                                            <View style={[styles.fallbackContent, { backgroundColor: getMarkerColor(branch.partnerType) }]}>
-                                                <MaterialCommunityIcons
-                                                    name={getMarkerIcon(branch.partnerType) as any}
-                                                    size={isSelected ? 20 : 16}
-                                                    color="white"
-                                                />
-                                            </View>
-                                        )}
-                                    </View>
-                                </View>
-                                {/* Pointer Tail */}
-                                <View style={[styles.markerTail, { borderTopColor: isSelected ? '#3B82F6' : 'white' }]} />
+    const MapComponent: any = isNavigating ? YaMap : ClusteredYamap;
+    const activeRoutePoints = isNavigating && yandexRoutePoints.length > 0 ? yandexRoutePoints : routePoints;
 
-                                {/* Quick Nav Button when selected */}
-                                {isSelected && (
-                                    <View style={styles.quickNavWrapper}>
-                                        <TouchableOpacity
-                                            style={styles.quickNavBtn}
-                                            onPress={() => onStartNavigation?.(branch)}
-                                        >
-                                            <Text style={styles.quickNavText}>GO</Text>
-                                            <MaterialCommunityIcons name="chevron-right" size={16} color="#fff" />
-                                        </TouchableOpacity>
+    const mapProps: any = {
+        ref: mapRef,
+        style: styles.map,
+        initialRegion: {
+            lat: INITIAL_POINT.lat,
+            lon: INITIAL_POINT.lon,
+            zoom: 12,
+        },
+        showUserPosition: !isNavigating,
+        nightMode: scheme === 'dark',
+    };
+
+    if (!isNavigating) {
+        mapProps.clusterColor = "#3B82F6";
+        mapProps.clusteredMarkers = branches
+            .filter((b) => b.location?.coordinates && b.location.coordinates.length >= 2)
+            .map((branch) => ({
+                point: { lat: branch.location!.coordinates[1], lon: branch.location!.coordinates[0] },
+                data: branch
+            }));
+        mapProps.renderMarker = (info: any) => {
+            const branch = info.data as Branch;
+            const isSelected = selectedBranchId === branch.id;
+            return (
+                <Marker
+                    key={branch.id}
+                    point={info.point}
+                    onPress={() => onBranchSelect?.(branch)}
+                >
+                    <View style={styles.markerWrapper}>
+                        <View style={[
+                            styles.markerContainer,
+                            { backgroundColor: isSelected ? '#3B82F6' : 'white' },
+                            isSelected && styles.selectedMarker
+                        ]}>
+                            <View style={styles.imageInnerContainer}>
+                                {(branch.photoUrl || (branch.images && branch.images.length > 0)) ? (
+                                    <Image
+                                        source={{ uri: getFileUrl(branch.photoUrl || branch.images![0]) as string }}
+                                        style={styles.markerImage}
+                                    />
+                                ) : (
+                                    <View style={[styles.fallbackContent, { backgroundColor: getMarkerColor(branch.partnerType) }]}>
+                                        <MaterialCommunityIcons
+                                            name={getMarkerIcon(branch.partnerType) as any}
+                                            size={isSelected ? 20 : 16}
+                                            color="white"
+                                        />
                                     </View>
                                 )}
                             </View>
+                        </View>
+                        <View style={[styles.markerTail, { borderTopColor: isSelected ? '#3B82F6' : 'white' }]} />
+                        {isSelected && (
+                            <View style={styles.quickNavWrapper}>
+                                <TouchableOpacity
+                                    style={styles.quickNavBtn}
+                                    onPress={() => onStartNavigation?.(branch)}
+                                >
+                                    <Text style={styles.quickNavText}>GO</Text>
+                                    <MaterialCommunityIcons name="chevron-right" size={16} color="#fff" />
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </View>
+                </Marker>
+            );
+        };
+    }
+
+    return (
+        <View style={styles.outerContainer}>
+            <MapComponent {...mapProps}>
+                {/* Always show destination marker if navigating */}
+                {isNavigating && branches.find(b => b.id === selectedBranchId) && (() => {
+                    const b = branches.find(b => b.id === selectedBranchId)!;
+                    return (
+                        <Marker
+                            point={{ lat: b.location!.coordinates[1], lon: b.location!.coordinates[0] }}
+                            zIndex={300}
+                        >
+                            <View style={[styles.markerContainer, { backgroundColor: '#EF4444' }]}>
+                                <MaterialCommunityIcons name="flag-checkered" size={24} color="white" />
+                            </View>
                         </Marker>
                     );
-                }}
-            >
+                })()}
+
                 {isNavigating && userLoc && (
                     <Marker
                         point={{ lat: userLoc.latitude, lon: userLoc.longitude }}
                         scale={1.4}
                         anchor={{ x: 0.5, y: 0.5 }}
+                        zIndex={500}
                     >
                         <View style={styles.arrowMarker}>
                             <MaterialCommunityIcons
@@ -495,18 +523,19 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                         </View>
                     </Marker>
                 )}
-                {routePoints && routePoints.length > 0 && (
+
+                {activeRoutePoints && activeRoutePoints.length > 0 && (
                     <Polyline
-                        key={`route-main-${routePoints.length}-${selectedBranchId || 'none'}`}
-                        points={routePoints.map(p => ({ lat: p.latitude, lon: p.longitude }))}
+                        key={`route-main-${activeRoutePoints.length}-${selectedBranchId || 'none'}`}
+                        points={activeRoutePoints.map(p => ({ lat: p.latitude, lon: p.longitude }))}
                         strokeColor="#10B981"
-                        strokeWidth={12}
+                        strokeWidth={14}
                         outlineColor="#FFFFFF"
-                        outlineWidth={2}
+                        outlineWidth={3}
                         zIndex={200}
                     />
                 )}
-            </ClusteredYamap>
+            </MapComponent>
 
             {isNavigating && (
                 <>
