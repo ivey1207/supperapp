@@ -27,6 +27,8 @@ public class Review {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    private Integer likeCount = 0;
+
     public String getId() {
         return id;
     }
@@ -73,5 +75,13 @@ public class Review {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
     }
 }

@@ -301,18 +301,13 @@ export default function HomeScreen() {
                     image: getFileUrl(item.imageUrl) || 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=200'
                   }}
                   onPress={() => {
-                    if (item.type === 'PROMO') {
-                      if (item.branchId) {
-                        router.push(`/branch/${item.branchId}` as any);
-                      } else {
-                        Alert.alert(item.title, item.description);
+                    router.push({
+                      pathname: '/story-view',
+                      params: {
+                        stories: JSON.stringify(finalStories),
+                        initialIndex: finalStories.indexOf(item).toString()
                       }
-                    } else if (item.type === 'USER') {
-                      // View user story
-                      Alert.alert(`Story by ${item.userName}`, 'Full story view coming soon!');
-                    } else {
-                      Alert.alert(item.title, 'Demo story');
-                    }
+                    } as any);
                   }}
                 />
               ))}

@@ -177,6 +177,8 @@ export type Review = {
   rating: number;
   comment: string;
   createdAt: string;
+  likeCount: number;
+  isLiked?: boolean;
 };
 
 export type UserStory = {
@@ -256,6 +258,20 @@ export async function getReviews(token: string, branchId: string) {
 
 export async function createReview(token: string, review: { branchId: string; rating: number; comment: string }) {
   const { data } = await api.post('/api/v1/app/reviews', review, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}
+
+export async function likeReview(token: string, reviewId: string) {
+  const { data } = await api.post(`/api/v1/app/reviews/${reviewId}/like`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}
+
+export async function unlikeReview(token: string, reviewId: string) {
+  const { data } = await api.post(`/api/v1/app/reviews/${reviewId}/unlike`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return data;

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, useColorSc
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { getBranchById, getServices, getFileUrl, getReviews, createReview } from '@/lib/api';
+import { getBranchById, getServices, getFileUrl, getReviews, createReview, likeReview, unlikeReview } from '@/lib/api';
 import { Modal, TextInput, Alert } from 'react-native';
 import { useAuth } from '@/lib/auth';
 import Colors from '@/constants/Colors';
@@ -77,6 +77,19 @@ export default function BranchDetailsScreen() {
     const [userRating, setUserRating] = React.useState(5);
     const [userComment, setUserComment] = React.useState('');
     const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    const handleToggleLike = async (review: any) => {
+        try {
+            if (review.isLiked) {
+                await unlikeReview(token!, review.id);
+            } else {
+                await likeReview(token!, review.id);
+            }
+            refetchReviews();
+        } catch (err) {
+            console.error('Error toggling like:', err);
+        }
+    };
 
     const handleSubmitReview = async () => {
         if (isSubmitting) return;
@@ -248,7 +261,22 @@ export default function BranchDetailsScreen() {
                                             </View>
                                         </View>
                                         <Text style={[styles.reviewComment, { color: colors.textSecondary }]}>{review.comment}</Text>
-                                        <Text style={styles.reviewDate}>{new Date(review.createdAt).toLocaleDateString()}</Text>
+                                        <View style={styles.reviewFooter}>
+                                            <Text style={styles.reviewDate}>{new Date(review.createdAt).toLocaleDateString()}</Text>
+                                            <TouchableOpacity
+                                                style={styles.likeBtn}
+                                                onPress={() => handleToggleLike(review)}
+                                            >
+                                                <Ionicons
+                                                    name={review.isLiked ? "heart" : "heart-outline"}
+                                                    size={16}
+                                                    color={review.isLiked ? "#F43F5E" : colors.textSecondary}
+                                                />
+                                                <Text style={[styles.likeCount, { color: review.isLiked ? "#F43F5E" : colors.textSecondary }]}>
+                                                    {review.likeCount || 0}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
                                 ))}
                             </View>
@@ -420,7 +448,10 @@ const styles = StyleSheet.create({
     reviewUser: { fontSize: 15, fontWeight: '700' },
     reviewRating: { flexDirection: 'row', gap: 2 },
     reviewComment: { fontSize: 14, lineHeight: 20, marginBottom: 8 },
+    reviewFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     reviewDate: { fontSize: 12, color: '#94A3B8', fontWeight: '600' },
+    likeBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, padding: 4 },
+    likeCount: { fontSize: 13, fontWeight: '700' },
 
     // Modal Styles
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
