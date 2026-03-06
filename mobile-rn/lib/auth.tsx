@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { requestOtp as apiRequestOtp, verifyOtp as apiVerifyOtp, setAuthToken } from './api';
+import { requestOtp as apiRequestOtp, verifyOtp as apiVerifyOtp, loginWithPassword as apiLoginWithPassword, setAuthToken } from './api';
 
 const TOKEN_KEY = 'app_token';
 
@@ -8,6 +8,7 @@ type AuthContextType = {
   token: string | null;
   isLoading: boolean;
   login: (phone: string, otp: string) => Promise<{ isNewUser: boolean }>;
+  loginWithPassword: (identifier: string, password: string) => Promise<void>;
   requestOtp: (phone: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -40,6 +41,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { isNewUser };
   }, []);
 
+  const loginWithPassword = useCallback(async (identifier: string, password: string) => {
+    const { accessToken } = await apiLoginWithPassword(identifier, password);
+    await AsyncStorage.setItem(TOKEN_KEY, accessToken);
+    setAuthToken(accessToken);
+    setToken(accessToken);
+  }, []);
+
   const logout = useCallback(async () => {
     await AsyncStorage.removeItem(TOKEN_KEY);
     setAuthToken(null);
@@ -47,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, isLoading, login, requestOtp, logout }}>
+    <AuthContext.Provider value={{ token, isLoading, login, loginWithPassword, requestOtp, logout }}>
       {children}
     </AuthContext.Provider>
   );

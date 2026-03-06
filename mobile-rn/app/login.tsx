@@ -8,12 +8,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function LoginScreen() {
-  const { requestOtp, login } = useAuth();
+  const { requestOtp, login, loginWithPassword } = useAuth();
   const router = useRouter();
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [loginMode, setLoginMode] = useState<'otp' | 'password'>('otp');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const scheme = useColorScheme() ?? 'light';
@@ -54,6 +56,23 @@ export default function LoginScreen() {
     }
   };
 
+  const handlePasswordLogin = async () => {
+    const identifier = email || phone;
+    if (!identifier.trim()) { setError('Enter your email or phone number'); return; }
+    if (!password.trim()) { setError('Enter your password'); return; }
+    setError('');
+    setLoading(true);
+    try {
+      await loginWithPassword(identifier.trim(), password.trim());
+      router.replace('/(tabs)' as any);
+    } catch (e: unknown) {
+      const msg = (e as { message?: string })?.message ?? '';
+      setError(msg || 'Invalid credentials');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} />
@@ -80,12 +99,57 @@ export default function LoginScreen() {
               </View>
               <Text style={[styles.title, { color: colors.text }]}>Welcome Back</Text>
               <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                {step === 'phone' ? 'Log in to manage your car services' : 'Enter the code sent to your email'}
+                {loginMode === 'password'
+                  ? 'Login with email/phone and password'
+                  : step === 'phone' ? 'Log in to manage your car services' : 'Enter the code sent to your email'}
               </Text>
             </View>
 
             <View style={[styles.card, { backgroundColor: colors.card }]}>
-              {step === 'phone' ? (
+              {loginMode === 'password' ? (
+                <View style={styles.form}>
+                  <Text style={[styles.label, { color: colors.textSecondary }]}>Email or Phone</Text>
+                  <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                    <Ionicons name="person-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+                    <TextInput
+                      style={[styles.input, { color: colors.text }]}
+                      placeholder="email@example.com or +998..."
+                      placeholderTextColor="#94A3B8"
+                      value={email}
+                      onChangeText={setEmail}
+                      autoCapitalize="none"
+                      editable={!loading}
+                    />
+                  </View>
+
+                  <Text style={[styles.label, { color: colors.textSecondary }]}>Password</Text>
+                  <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                    <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+                    <TextInput
+                      style={[styles.input, { color: colors.text }]}
+                      placeholder="Minimum 6 characters"
+                      placeholderTextColor="#94A3B8"
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry
+                      editable={!loading}
+                    />
+                  </View>
+
+                  <TouchableOpacity
+                    style={[styles.mainBtn, { backgroundColor: colors.primary }]}
+                    onPress={handlePasswordLogin}
+                    disabled={loading}
+                    activeOpacity={0.8}
+                  >
+                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Login</Text>}
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => setLoginMode('otp')} style={styles.toggleLink}>
+                    <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>Use OTP/Code login</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : step === 'phone' ? (
                 <View style={styles.form}>
                   <Text style={[styles.label, { color: colors.textSecondary }]}>Phone Number</Text>
                   <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
@@ -130,6 +194,10 @@ export default function LoginScreen() {
                         <Ionicons name="arrow-forward" size={20} color="#fff" />
                       </>
                     )}
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => setLoginMode('password')} style={styles.toggleLink}>
+                    <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>Login with Password</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => router.push('/register' as any)} style={styles.toggleLink}>

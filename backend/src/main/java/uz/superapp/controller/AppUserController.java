@@ -52,7 +52,8 @@ public class AppUserController {
         if (body.containsKey("email")) {
             String email = body.get("email");
             if (email != null && !email.isBlank()) {
-                if (appUserRepository.findByEmail(email).isPresent() && !user.getEmail().equals(email)) {
+                if (appUserRepository.findByEmail(email).isPresent()
+                        && !java.util.Objects.equals(user.getEmail(), email)) {
                     return ResponseEntity.badRequest().body(Map.of("message", "Email already in use"));
                 }
                 user.setEmail(email);

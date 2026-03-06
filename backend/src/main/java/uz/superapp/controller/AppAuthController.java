@@ -113,6 +113,54 @@ public class AppAuthController {
                 "isNewUser", isNewUser));
     }
 
+    @Operation(summary = "Login with password")
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+        String identifier = body.get("email");
+        if (identifier == null)
+            identifier = body.get("phone");
+        String password = body.get("password");
+
+        if (identifier == null || password == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email/Phone and password required"));
+        }
+
+        Optional<AppUser> userOpt = body.containsKey("email")
+                ? appUserRepository.findByEmail(identifier)
+                : appUserRepository.findByPhone(identifier);
+
+        if (userOpt.isEmpty()) {
+            // Also try phone if email was provided but not found (and vice versa) for
+            // convenience
+            if (body.containsKey("email")) {
+                userOpt = appUserRepository.findByPhone(identifier);
+            } else {
+                userOpt = appUserRepository.findByEmail(identifier);
+            }
+        }
+
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid credentials"));
+        }
+
+        AppUser user = userOpt.get();
+        if (user.getPasswordHash() == null || !passwordEncoder.matches(password, user.getPasswordHash())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid credentials"));
+        }
+
+        if (user.isBlocked()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Ваш аккаунт заблокирован. Пожалуйста, свяжитесь с поддержкой."));
+        }
+
+        String accessToken = jwtUtil.generate(user.getId(), "APP_USER");
+        String refreshToken = jwtUtil.generate(user.getId() + ":refresh", "APP_USER");
+        return ResponseEntity.ok(Map.of(
+                "accessToken", accessToken,
+                "refreshToken", refreshToken,
+                "user", user));
+    }
+
     @PostMapping("/password/forgot")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> body) {
         String identifier = body.get("email");

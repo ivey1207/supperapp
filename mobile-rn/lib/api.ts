@@ -63,6 +63,12 @@ export async function verifyOtp(phone: string, otp: string) {
   return data as { accessToken: string; refreshToken: string; isNewUser: boolean };
 }
 
+export async function loginWithPassword(identifier: string, password: string) {
+  // Use 'email' as the key; the backend now handles both email and phone in this field
+  const { data } = await api.post('/api/v1/app-auth/login', { email: identifier, password });
+  return data as { accessToken: string; refreshToken: string; user: User };
+}
+
 export type User = {
   id: string;
   phone: string;
