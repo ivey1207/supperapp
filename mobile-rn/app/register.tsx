@@ -3,14 +3,17 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/lib/auth';
+import { useTranslation } from 'react-i18next';
 import { updateProfile } from '@/lib/api';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import PolicyModal from '@/components/PolicyModal';
+import '@/lib/i18n';
 
 export default function RegisterScreen() {
     const { token } = useAuth();
+    const { t } = useTranslation();
     const router = useRouter();
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
@@ -24,10 +27,10 @@ export default function RegisterScreen() {
     const colors = Colors[scheme];
 
     const handleRegister = async () => {
-        if (!fullName.trim()) { setError('Please enter your full name'); return; }
-        if (!email.trim() || !email.includes('@')) { setError('Please enter a valid email'); return; }
-        if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
-        if (!agreedToPolicy) { setError('Please agree to the privacy policy'); return; }
+        if (!fullName.trim()) { setError(t('auth.enterName') || 'Enter name'); return; }
+        if (!email.trim() || !email.includes('@')) { setError(t('auth.enterEmail') || 'Enter email'); return; }
+        if (password.length < 6) { setError(t('auth.enterPassword') || 'Enter password'); return; }
+        if (!agreedToPolicy) { setError(t('auth.agreeTermsError') || 'Agree to terms'); return; }
         setError('');
         setLoading(true);
         try {
@@ -57,27 +60,24 @@ export default function RegisterScreen() {
                         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.card }]}>
                             <Ionicons name="chevron-back" size={24} color={colors.text} />
                         </TouchableOpacity>
-                        <Text style={[styles.headerTitle, { color: colors.text }]}>Join Us</Text>
+                        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('auth.signUp')}</Text>
                         <View style={{ width: 44 }} />
                     </View>
 
                     <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                         <View style={styles.introSection}>
-                            <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
-                            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                                Join our community for premium car services and exclusive offers.
-                            </Text>
+                            <Text style={[styles.title, { color: colors.text }]}>{t('auth.createAccount')}</Text>
                         </View>
 
                         <View style={[styles.card, { backgroundColor: colors.card }]}>
                             <View style={styles.form}>
                                 <View style={styles.inputWrapper}>
-                                    <Text style={[styles.label, { color: colors.textSecondary }]}>Full Name</Text>
+                                    <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.fullName')}</Text>
                                     <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                                         <Ionicons name="person-outline" size={20} color={colors.primary} style={styles.inputIcon} />
                                         <TextInput
                                             style={[styles.input, { color: colors.text }]}
-                                            placeholder="Your full name"
+                                            placeholder="..."
                                             placeholderTextColor="#94A3B8"
                                             value={fullName}
                                             onChangeText={setFullName}
@@ -86,12 +86,12 @@ export default function RegisterScreen() {
                                 </View>
 
                                 <View style={styles.inputWrapper}>
-                                    <Text style={[styles.label, { color: colors.textSecondary }]}>Email Address</Text>
+                                    <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.email')}</Text>
                                     <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                                         <Ionicons name="mail-outline" size={20} color={colors.primary} style={styles.inputIcon} />
                                         <TextInput
                                             style={[styles.input, { color: colors.text }]}
-                                            placeholder="example@mail.com"
+                                            placeholder="email@example.com"
                                             placeholderTextColor="#94A3B8"
                                             value={email}
                                             onChangeText={setEmail}
@@ -102,12 +102,12 @@ export default function RegisterScreen() {
                                 </View>
 
                                 <View style={styles.inputWrapper}>
-                                    <Text style={[styles.label, { color: colors.textSecondary }]}>Create Password</Text>
+                                    <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.password')}</Text>
                                     <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                                         <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={styles.inputIcon} />
                                         <TextInput
                                             style={[styles.input, { color: colors.text }]}
-                                            placeholder="Minimum 6 characters"
+                                            placeholder="••••••••"
                                             placeholderTextColor="#94A3B8"
                                             value={password}
                                             onChangeText={setPassword}
@@ -117,12 +117,12 @@ export default function RegisterScreen() {
                                 </View>
 
                                 <View style={styles.inputWrapper}>
-                                    <Text style={[styles.label, { color: colors.textSecondary }]}>Car Model (Recommended)</Text>
+                                    <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.carModel')}</Text>
                                     <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                                         <Ionicons name="car-outline" size={20} color={colors.primary} style={styles.inputIcon} />
                                         <TextInput
                                             style={[styles.input, { color: colors.text }]}
-                                            placeholder="e.g. Chevrolet Malibu"
+                                            placeholder="Chevrolet Malibu"
                                             placeholderTextColor="#94A3B8"
                                             value={carModel}
                                             onChangeText={setCarModel}
@@ -143,13 +143,7 @@ export default function RegisterScreen() {
                                         {agreedToPolicy && <Ionicons name="checkmark" size={16} color="#fff" />}
                                     </View>
                                     <Text style={[styles.policyText, { color: colors.textSecondary }]}>
-                                        I agree to the <Text
-                                            style={{ color: colors.primary, fontWeight: '800' }}
-                                            onPress={(e) => { e.stopPropagation(); setIsPolicyVisible(true); }}
-                                        >Terms</Text> and <Text
-                                            style={{ color: colors.primary, fontWeight: '800' }}
-                                            onPress={(e) => { e.stopPropagation(); setIsPolicyVisible(true); }}
-                                        >Privacy Policy</Text>
+                                        {t('auth.agreeTerms')}
                                     </Text>
                                 </TouchableOpacity>
 
@@ -164,13 +158,13 @@ export default function RegisterScreen() {
                                     {loading ? (
                                         <ActivityIndicator color="#fff" />
                                     ) : (
-                                        <Text style={styles.btnText}>Complete Registration</Text>
+                                        <Text style={styles.btnText}>{t('auth.completeRegistration')}</Text>
                                     )}
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={() => router.push('/login' as any)} style={styles.toggleLink}>
                                     <Text style={[styles.toggleText, { color: colors.textSecondary }]}>
-                                        Already have an account? <Text style={{ color: colors.primary, fontWeight: '800' }}>Log In</Text>
+                                        {t('auth.alreadyHaveAccount')} <Text style={{ color: colors.primary, fontWeight: '800' }}>{t('welcome.login')}</Text>
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -194,10 +188,10 @@ const styles = StyleSheet.create({
     headerTitle: { fontSize: 18, fontWeight: '800' },
     scrollContent: { paddingHorizontal: 24, paddingBottom: 40, paddingTop: 20 },
     introSection: { alignItems: 'center', marginBottom: 32 },
-    title: { fontSize: 32, fontWeight: '900', textAlign: 'center', marginBottom: 12 },
+    title: { fontSize: 28, fontWeight: '900', textAlign: 'center', marginBottom: 12 },
     subtitle: { fontSize: 16, textAlign: 'center', lineHeight: 24, color: '#64748B', paddingHorizontal: 20 },
     card: { borderRadius: 32, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.08, shadowRadius: 24, elevation: 10 },
-    form: { gap: 20 },
+    form: { gap: 16 },
     inputWrapper: { gap: 8 },
     label: { fontSize: 13, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4, marginLeft: 4 },
     inputBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1.5, borderRadius: 20, paddingHorizontal: 16, height: 60 },

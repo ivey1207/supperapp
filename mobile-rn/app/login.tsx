@@ -3,27 +3,30 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/lib/auth';
+import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import '@/lib/i18n';
 
 export default function LoginScreen() {
   const { requestOtp, login, loginWithPassword } = useAuth();
+  const { t } = useTranslation();
   const router = useRouter();
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
-  const [loginMode, setLoginMode] = useState<'password' | 'otp'>('password');
+  const [loginMode, setLoginMode] = useState<'password' | 'otp'>('otp');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const scheme = useColorScheme() ?? 'light';
   const colors = Colors[scheme];
 
   const handleSendOtp = async () => {
-    if (!phone.trim()) { setError('Enter your phone number'); return; }
-    if (!email.trim() || !email.includes('@')) { setError('Enter a valid email'); return; }
+    if (!phone.trim()) { setError(t('auth.enterPhone') || 'Enter phone'); return; }
+    if (!email.trim() || !email.includes('@')) { setError(t('auth.enterEmail') || 'Enter email'); return; }
     setError('');
     setLoading(true);
     try {
@@ -38,7 +41,7 @@ export default function LoginScreen() {
   };
 
   const handleVerify = async () => {
-    if (!otp.trim()) { setError('Enter the code'); return; }
+    if (!otp.trim()) { setError(t('auth.enterOtp')); return; }
     setError('');
     setLoading(true);
     try {
@@ -58,8 +61,8 @@ export default function LoginScreen() {
 
   const handlePasswordLogin = async () => {
     const identifier = email || phone;
-    if (!identifier.trim()) { setError('Enter your email or phone number'); return; }
-    if (!password.trim()) { setError('Enter your password'); return; }
+    if (!identifier.trim()) { setError(t('auth.emailOrPhone')); return; }
+    if (!password.trim()) { setError(t('auth.password')); return; }
     setError('');
     setLoading(true);
     try {
@@ -97,23 +100,23 @@ export default function LoginScreen() {
               <View style={[styles.logoContainer, { backgroundColor: colors.primary }]}>
                 <Ionicons name="car-sport" size={40} color="#fff" />
               </View>
-              <Text style={[styles.title, { color: colors.text }]}>Welcome Back</Text>
+              <Text style={[styles.title, { color: colors.text }]}>{t('auth.loginTitle')}</Text>
               <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
                 {loginMode === 'password'
-                  ? 'Login with phone/email and password'
-                  : step === 'phone' ? 'Registration: Enter details to get code' : 'Enter the code sent to your email'}
+                  ? t('auth.loginSubtitle')
+                  : step === 'phone' ? t('welcome.subtitle') : t('auth.otpSent')}
               </Text>
             </View>
 
             <View style={[styles.card, { backgroundColor: colors.card }]}>
               {loginMode === 'password' ? (
                 <View style={styles.form}>
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>Email or Phone</Text>
+                  <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.emailOrPhone')}</Text>
                   <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                     <Ionicons name="person-outline" size={20} color={colors.primary} style={styles.inputIcon} />
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
-                      placeholder="email@example.com or +998..."
+                      placeholder="email@example.com"
                       placeholderTextColor="#94A3B8"
                       value={email}
                       onChangeText={setEmail}
@@ -122,12 +125,12 @@ export default function LoginScreen() {
                     />
                   </View>
 
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>Password</Text>
+                  <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.password')}</Text>
                   <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                     <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={styles.inputIcon} />
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
-                      placeholder="Minimum 6 characters"
+                      placeholder="••••••••"
                       placeholderTextColor="#94A3B8"
                       value={password}
                       onChangeText={setPassword}
@@ -142,27 +145,23 @@ export default function LoginScreen() {
                     disabled={loading}
                     activeOpacity={0.8}
                   >
-                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Login</Text>}
+                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('welcome.login')}</Text>}
                   </TouchableOpacity>
 
                   <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 24, gap: 12 }}>
                     <TouchableOpacity onPress={() => setLoginMode('otp')}>
-                      <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>Sign Up</Text>
-                    </TouchableOpacity>
-                    <Text style={{ color: colors.textSecondary }}>|</Text>
-                    <TouchableOpacity onPress={() => router.push('/forgot-password' as any)}>
-                      <Text style={[styles.toggleText, { color: colors.textSecondary }]}>Forgot password?</Text>
+                      <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>{t('auth.loginWithOtp')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               ) : step === 'phone' ? (
                 <View style={styles.form}>
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>Phone Number</Text>
+                  <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.phone')}</Text>
                   <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                     <Ionicons name="call-outline" size={20} color={colors.primary} style={styles.inputIcon} />
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
-                      placeholder="+998 00 000 00 00"
+                      placeholder="+998"
                       placeholderTextColor="#94A3B8"
                       value={phone}
                       onChangeText={setPhone}
@@ -171,12 +170,12 @@ export default function LoginScreen() {
                     />
                   </View>
 
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>Email (for OTP)</Text>
+                  <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.email')}</Text>
                   <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                     <Ionicons name="mail-outline" size={20} color={colors.primary} style={styles.inputIcon} />
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
-                      placeholder="your@email.com"
+                      placeholder="email@example.com"
                       placeholderTextColor="#94A3B8"
                       value={email}
                       onChangeText={setEmail}
@@ -196,30 +195,24 @@ export default function LoginScreen() {
                       <ActivityIndicator color="#fff" />
                     ) : (
                       <>
-                        <Text style={styles.btnText}>Send Code</Text>
+                        <Text style={styles.btnText}>{t('auth.sendCode')}</Text>
                         <Ionicons name="arrow-forward" size={20} color="#fff" />
                       </>
                     )}
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => setLoginMode('password')} style={styles.toggleLink}>
-                    <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>Login with Password</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity onPress={() => router.push('/register' as any)} style={styles.toggleLink}>
-                    <Text style={[styles.toggleText, { color: colors.textSecondary }]}>
-                      New here? <Text style={{ color: colors.primary, fontWeight: '800' }}>Create account</Text>
-                    </Text>
+                    <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>{t('auth.loginWithPassword')}</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
                 <View style={styles.form}>
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>Verification Code</Text>
+                  <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.enterOtp')}</Text>
                   <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border, marginBottom: 24 }]}>
                     <Ionicons name="key-outline" size={20} color={colors.primary} style={styles.inputIcon} />
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
-                      placeholder="Enter 6-digit code"
+                      placeholder="000 000"
                       placeholderTextColor="#94A3B8"
                       value={otp}
                       onChangeText={setOtp}
@@ -235,15 +228,11 @@ export default function LoginScreen() {
                     disabled={loading}
                     activeOpacity={0.8}
                   >
-                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Verify & Proceed</Text>}
+                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('auth.verifyBtn')}</Text>}
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => setStep('phone')} style={styles.toggleLink}>
-                    <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>Change phone number</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity onPress={() => router.push('/forgot-password' as any)} style={{ marginTop: 16, alignItems: 'center' }}>
-                    <Text style={{ color: colors.textSecondary, fontSize: 14, fontWeight: '600' }}>Forgot password?</Text>
+                    <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>{t('auth.phone')}</Text>
                   </TouchableOpacity>
                 </View>
               )}
