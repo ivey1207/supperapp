@@ -14,7 +14,7 @@ import FilterPills from '@/components/FilterPills';
 import BranchCard from '@/components/BranchCard';
 import StoryCircle from '@/components/StoryCircle';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { getMe, getWallet, updateSpecialistStatus } from '@/lib/api';
+import { getMe, getWallet, updateSpecialistStatus, getAvailableOrders, acceptOrder } from '@/lib/api';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -92,14 +92,37 @@ export default function HomeScreen() {
     }
   }, [user]);
 
+  const { data: availableOrders = [], refetch: refetchAvailable } = useQuery({
+    queryKey: ['availableOrders', token, isOnline],
+    queryFn: () => getAvailableOrders(token!),
+    enabled: !!token && !!user?.isSpecialist && isOnline,
+    refetchInterval: 10000, // Refresh every 10s if online
+  });
+
   const toggleOnline = async () => {
     if (!token) return;
     try {
       const updated = await updateSpecialistStatus(token, !isOnline);
       setIsOnline(updated.isOnline || false);
+      if (!isOnline) {
+        refetchAvailable();
+      }
     } catch (err) {
       console.error('Failed to toggle status:', err);
-      Alert.alert('Ошибка', 'Не удалось изменить статус');
+      Alert.alert('Error', 'Failed to update status. Please check your connection.');
+    }
+  };
+
+  const handleAcceptOrder = async (orderId: string) => {
+    if (!token) return;
+    try {
+      await acceptOrder(token, orderId);
+      Alert.alert('Accepted', 'You have accepted the order. Redirecting to tracking...');
+      router.push({ pathname: '/order-tracking', params: { orderId } } as any);
+      refetchAvailable();
+    } catch (err) {
+      console.error('Accept error:', err);
+      Alert.alert('Error', 'Could not accept order');
     }
   };
 
@@ -291,7 +314,11 @@ export default function HomeScreen() {
 
           <View style={styles.headerRight}>
             {wallet && (
-              <TouchableOpacity style={styles.balancePill} activeOpacity={0.8} onPress={handleComingSoon}>
+              <TouchableOpacity
+                style={styles.balancePill}
+                activeOpacity={0.8}
+                onPress={() => router.push('/wallet' as any)}
+              >
                 <LinearGradient
                   colors={['#FF5F6D', '#FFC371', '#8E2DE2']}
                   start={{ x: 0, y: 0 }}
@@ -306,7 +333,10 @@ export default function HomeScreen() {
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity style={[styles.notificationButton, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]} onPress={handleComingSoon}>
+            <TouchableOpacity
+              style={[styles.notificationButton, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
+              onPress={handleComingSoon}
+            >
               <Ionicons name="notifications-outline" size={24} color={colors.text} />
               <View style={[styles.notificationBadge, { backgroundColor: colors.primary }]} />
             </TouchableOpacity>
@@ -478,6 +508,36 @@ export default function HomeScreen() {
               <Text style={styles.featuredServiceSub}>Поломка в пути</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Specialist Orders Section */}
+          {user?.isSpecialist && isOnline && availableOrders.length > 0 && (
+            <View style={styles.ordersSection}>
+              <Text style={[styles.sectionTitle, { color: colors.text, paddingHorizontal: 20, marginBottom: 12 }]}>
+                Available Orders ({availableOrders.length})
+              </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}>
+                {availableOrders.map((order: any) => (
+                  <TouchableOpacity
+                    key={order.id}
+                    style={[styles.orderCard, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
+                    onPress={() => handleAcceptOrder(order.id)}
+                  >
+                    <View style={styles.orderHeader}>
+                      <View style={[styles.orderTypeBadge, { backgroundColor: order.type === 'MOBILE_WASH' ? '#10B981' : '#F43F5E' }]}>
+                        <Text style={styles.orderTypeText}>{order.type === 'MOBILE_WASH' ? 'WASH' : 'REPAIR'}</Text>
+                      </View>
+                      <Text style={[styles.orderTime, { color: colors.textSecondary }]}>Just now</Text>
+                    </View>
+                    <Text style={[styles.orderAddress, { color: colors.text }]} numberOfLines={2}>{order.userAddress}</Text>
+                    <Text style={[styles.orderCar, { color: colors.textSecondary }]}>{order.carDetails}</Text>
+                    <TouchableOpacity style={styles.acceptButton} onPress={() => handleAcceptOrder(order.id)}>
+                      <Text style={styles.acceptButtonText}>ACCEPT ORDER</Text>
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
 
           {/* Hero Promo Banner (Recommended) */}
           <View style={styles.recommendedSection}>
@@ -681,14 +741,14 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
+    flexShrink: 0,
   },
   userInfoRow: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginRight: 10,
   },
   userTextContainer: {
     flexShrink: 1,
@@ -1010,5 +1070,70 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 90,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 100,
+  },
+  ordersSection: {
+    marginTop: 24,
+    marginBottom: 8,
+  },
+  orderCard: {
+    width: 280,
+    padding: 16,
+    borderRadius: 20,
+    gap: 10,
+  },
+  orderHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  orderTypeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  orderTypeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  orderTime: {
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  orderAddress: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  orderCar: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  acceptButton: {
+    backgroundColor: '#3B82F6',
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  acceptButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '800',
   },
 });
