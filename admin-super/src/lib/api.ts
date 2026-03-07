@@ -347,6 +347,7 @@ export type AppUser = {
   phone: string;
   fullName: string;
   blocked: boolean;
+  isSpecialist: boolean;
   carModel?: string;
   carNumber?: string;
 };
@@ -358,5 +359,10 @@ export async function getAppUsers(): Promise<AppUser[]> {
 
 export async function toggleBlockAppUser(id: string): Promise<{ id: string, blocked: boolean }> {
   const { data } = await api.post(`/api/v1/admin/app-users/${id}/toggle-block`);
+  return data;
+}
+
+export async function toggleSpecialistAppUser(id: string): Promise<{ id: string, isSpecialist: boolean }> {
+  const { data } = await api.post(`/api/v1/admin/app-users/${id}/toggle-specialist`);
   return data;
 }

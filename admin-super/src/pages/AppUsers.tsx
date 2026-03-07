@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Users as UsersIcon, RefreshCw, Search, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { Users as UsersIcon, RefreshCw, Search, ShieldAlert, ShieldCheck, Wrench, User } from 'lucide-react';
 import axios from 'axios';
-import { getAppUsers, toggleBlockAppUser, type AppUser } from '../lib/api';
+import { getAppUsers, toggleBlockAppUser, toggleSpecialistAppUser, type AppUser } from '../lib/api';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
 
@@ -46,6 +46,20 @@ export default function AppUsers() {
         } catch (err) {
             console.error(err);
             alert('Ошибка при смене статуса');
+        }
+    };
+
+    const handleToggleSpecialist = async (id: string, currentStatus: boolean) => {
+        playClick();
+        const action = currentStatus ? 'снять роль специалиста с' : 'сделать специалистом (мойщиком)';
+        if (!confirm(`Вы действительно хотите ${action} этого пользователя?`)) return;
+
+        try {
+            await toggleSpecialistAppUser(id);
+            setList(prev => prev.map(u => u.id === id ? { ...u, isSpecialist: !currentStatus } : u));
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка при смене роли специалиста');
         }
     };
 
@@ -106,8 +120,8 @@ export default function AppUsers() {
                                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Телефон</th>
                                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Имя</th>
                                     <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Автомобиль</th>
-                                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Статус</th>
-                                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400 text-right">Действия</th>
+                                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Роль</th>
+                                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400 text-right">Статус/Действия</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -131,17 +145,30 @@ export default function AppUsers() {
                                                 {u.carModel && u.carNumber ? `${u.carModel} (${u.carNumber})` : u.carModel || u.carNumber || '—'}
                                             </td>
                                             <td className="px-4 py-3">
-                                                {u.blocked ? (
-                                                    <span className="inline-flex rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-medium text-red-400">
-                                                        Заблокирован
+                                                {u.isSpecialist ? (
+                                                    <span className="inline-flex rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-medium text-amber-500">
+                                                        Специалист
                                                     </span>
                                                 ) : (
-                                                    <span className="inline-flex rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
-                                                        Активен
+                                                    <span className="inline-flex rounded-full bg-slate-500/20 px-2.5 py-0.5 text-xs font-medium text-slate-400">
+                                                        Клиент
                                                     </span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3 flex items-center justify-end gap-1.5">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleToggleSpecialist(u.id, u.isSpecialist)}
+                                                    className={`rounded p-1.5 transition-colors ${u.isSpecialist
+                                                        ? 'text-amber-500 hover:bg-amber-500/10'
+                                                        : 'text-slate-400 hover:bg-slate-500/10'}`}
+                                                    title={u.isSpecialist ? 'Снять роль специалиста' : 'Сделать специалистом'}
+                                                >
+                                                    {u.isSpecialist ? <Wrench className="h-5 w-5" /> : <User className="h-5 w-5" />}
+                                                </button>
+
+                                                <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
+
                                                 <button
                                                     type="button"
                                                     onClick={() => handleToggleBlock(u.id, u.blocked)}
