@@ -22,9 +22,15 @@ public class OnDemandOrder {
 
     private String carDetails;
     private String description;
+    private String contractorId; // Specialist/Washer ID
     private Double providerLat;
     private Double providerLon;
     private Instant createdAt = Instant.now();
+    private Instant acceptedAt;
+    private Instant completedAt;
+
+    @Version
+    private Long version;
 
     public String getId() {
         return id;
@@ -130,11 +136,43 @@ public class OnDemandOrder {
         this.providerLon = providerLon;
     }
 
+    public String getContractorId() {
+        return contractorId;
+    }
+
+    public void setContractorId(String contractorId) {
+        this.contractorId = contractorId;
+    }
+
+    public Instant getAcceptedAt() {
+        return acceptedAt;
+    }
+
+    public void setAcceptedAt(Instant acceptedAt) {
+        this.acceptedAt = acceptedAt;
+    }
+
+    public Instant getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(Instant completedAt) {
+        this.completedAt = completedAt;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

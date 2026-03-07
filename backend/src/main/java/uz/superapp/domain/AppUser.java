@@ -29,6 +29,11 @@ public class AppUser {
     private String passwordHash;
     private String avatarUrl;
     private boolean blocked = false;
+    private boolean isSpecialist = false; // "Курьер-мойщик"
+    private boolean isOnline = false;
+    private Double currentLat;
+    private Double currentLon;
+    private java.time.Instant lastLocationUpdate;
 
     public String getId() {
         return id;
@@ -116,5 +121,45 @@ public class AppUser {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public boolean isSpecialist() {
+        return isSpecialist;
+    }
+
+    public void setSpecialist(boolean specialist) {
+        isSpecialist = specialist;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    public void setOnline(boolean online) {
+        isOnline = online;
+    }
+
+    public Double getCurrentLat() {
+        return currentLat;
+    }
+
+    public void setCurrentLat(Double currentLat) {
+        this.currentLat = currentLat;
+    }
+
+    public Double getCurrentLon() {
+        return currentLon;
+    }
+
+    public void setCurrentLon(Double currentLon) {
+        this.currentLon = currentLon;
+    }
+
+    public java.time.Instant getLastLocationUpdate() {
+        return lastLocationUpdate;
+    }
+
+    public void setLastLocationUpdate(java.time.Instant lastLocationUpdate) {
+        this.lastLocationUpdate = lastLocationUpdate;
     }
 }

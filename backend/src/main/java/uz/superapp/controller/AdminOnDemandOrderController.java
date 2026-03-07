@@ -79,30 +79,56 @@ public class AdminOnDemandOrderController {
 
         OnDemandOrder order = orderOpt.get();
         Object newStatusObj = body.get("status");
-        String newStatus = newStatusObj instanceof String ? (String) newStatusObj : order.getStatus();
+        String currentStatus = order.getStatus() != null ? order.getStatus() : "PENDING";
+        String newStatus = (newStatusObj instanceof String) ? ((String) newStatusObj).toUpperCase() : currentStatus;
 
-        // If a partner accepts a pending order, assign it to their organization
-        if ("ACCEPTED".equals(newStatus) && "PENDING".equals(order.getStatus()) && !"SUPER_ADMIN".equals(role)) {
-            order.setOrgId(orgId);
-        }
-
-        // Logic to restrict updates only to assigned partners or super admin
-        if (!"SUPER_ADMIN".equals(role) && (order.getOrgId() != null && !order.getOrgId().equals(orgId))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        // Security check: only super-admin or assigned partner can update
+        if (!"SUPER_ADMIN".equals(role)) {
+            // If the order is PENDING, any partner can accept it
+            if ("PENDING".equals(currentStatus)) {
+                if ("ACCEPTED".equals(newStatus)) {
+                    order.setOrgId(orgId);
+                    order.setAcceptedAt(java.time.Instant.now());
+                }
+            } else {
+                // For non-pending orders, must belong to the partner's organization
+                String orderOrgId = order.getOrgId();
+                if (orderOrgId == null || !orderOrgId.equals(orgId)) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                }
+            }
+        } else {
+            // Super admin logic: set timestamps if transitioning status
+            if ("ACCEPTED".equals(newStatus) && order.getAcceptedAt() == null) {
+                order.setAcceptedAt(java.time.Instant.now());
+            }
         }
 
         order.setStatus(newStatus);
-        if (body.containsKey("providerId")) {
-            order.setProviderId((String) body.get("providerId"));
-        }
-        if (body.containsKey("providerLat")) {
-            order.setProviderLat(Double.valueOf(body.get("providerLat").toString()));
-        }
-        if (body.containsKey("providerLon")) {
-            order.setProviderLon(Double.valueOf(body.get("providerLon").toString()));
+
+        if ("COMPLETED".equals(newStatus) && order.getCompletedAt() == null) {
+            order.setCompletedAt(java.time.Instant.now());
         }
 
-        onDemandOrderRepository.save(order);
-        return ResponseEntity.ok(order);
+        if (body.get("contractorId") != null) {
+            order.setContractorId(body.get("contractorId").toString());
+        }
+        if (body.get("providerId") != null) {
+            order.setProviderId(body.get("providerId").toString());
+        }
+        if (body.get("providerLat") != null) {
+            try {
+                order.setProviderLat(Double.valueOf(body.get("providerLat").toString()));
+            } catch (Exception e) {
+            }
+        }
+        if (body.get("providerLon") != null) {
+            try {
+                order.setProviderLon(Double.valueOf(body.get("providerLon").toString()));
+            } catch (Exception e) {
+            }
+        }
+
+        return ResponseEntity.ok(onDemandOrderRepository.save(order));
     }
 }

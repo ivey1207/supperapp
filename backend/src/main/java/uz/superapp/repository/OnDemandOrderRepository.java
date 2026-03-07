@@ -13,4 +13,10 @@ public interface OnDemandOrderRepository extends JpaRepository<OnDemandOrder, St
     List<OnDemandOrder> findByOrgId(String orgId);
 
     List<OnDemandOrder> findByProviderIdAndStatus(String providerId, String status);
+
+    List<OnDemandOrder> findByStatus(String status);
+
+    List<OnDemandOrder> findByContractorId(String contractorId);
+
+    List<OnDemandOrder> findByContractorIdAndStatusIn(String contractorId, List<String> statuses);
 }

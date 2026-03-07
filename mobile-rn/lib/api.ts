@@ -93,6 +93,8 @@ export type User = {
   carModel?: string;
   carNumber?: string;
   avatarUrl?: string;
+  isSpecialist?: boolean;
+  isOnline?: boolean;
 };
 
 export async function forgotPassword(identifier: { email?: string; phone?: string }) {
@@ -256,9 +258,12 @@ export interface OnDemandOrder {
   carDetails: string;
   description?: string;
   providerId?: string;
+  contractorId?: string;
   providerLat?: number;
   providerLon?: number;
   createdAt?: string;
+  acceptedAt?: string;
+  completedAt?: string;
 }
 
 export async function createOnDemandOrder(token: string, order: OnDemandOrder) {
@@ -273,6 +278,52 @@ export async function getOnDemandOrders(token: string) {
     headers: { Authorization: `Bearer ${token}` },
   });
   return data as OnDemandOrder[];
+}
+
+export async function getAvailableOrders(token: string) {
+  const { data } = await api.get('/api/v1/app/on-demand/available', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as OnDemandOrder[];
+}
+
+export async function getActiveSpecialistOrder(token: string) {
+  const { data } = await api.get('/api/v1/app/on-demand/contractor/active', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const orders = data as OnDemandOrder[];
+  return orders.length > 0 ? orders[0] : null;
+}
+
+export async function acceptOrder(token: string, orderId: string) {
+  const { data } = await api.post(`/api/v1/app/on-demand/${orderId}/accept`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as OnDemandOrder;
+}
+
+export async function updateOrderStatus(token: string, orderId: string, status: string) {
+  const { data } = await api.post(`/api/v1/app/on-demand/${orderId}/status`, null, {
+    params: { status },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as OnDemandOrder;
+}
+
+export async function updateSpecialistStatus(token: string, online: boolean) {
+  const { data } = await api.post('/api/v1/app/user/specialist/status', null, {
+    params: { online },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as User;
+}
+
+export async function updateSpecialistLocation(token: string, lat: number, lon: number) {
+  const { data } = await api.post('/api/v1/app/user/specialist/location', null, {
+    params: { lat, lon },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as User;
 }
 
 export async function getReviews(token: string, branchId: string) {

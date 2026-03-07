@@ -144,6 +144,12 @@ export default function ProfileScreen() {
             colors={colors}
           />
           <ProfileMenuItem
+            icon="briefcase-outline"
+            label="Work in SuperApp"
+            onPress={() => router.push('/washer-dashboard' as never)}
+            colors={{ ...colors, primary: '#6366F1' }}
+          />
+          <ProfileMenuItem
             icon="notifications-outline"
             label="Notifications"
             onPress={() => { }}

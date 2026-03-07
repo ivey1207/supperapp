@@ -39,10 +39,12 @@
           "locationAlwaysAndWhenInUsePermission": "Разрешите приложению использовать вашу геолокацию.",
           "locationAlwaysPermission": "Разрешите приложению всегда использовать вашу геолокацию.",
           "locationWhenInUsePermission": "Разрешите приложению использовать геолокацию при использовании.",
-          "isIosBackgroundLocationEnabled": false,
-          "isAndroidBackgroundLocationEnabled": false
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
         }
       ],
+      "expo-task-manager",
       [
         "expo-build-properties",
         {

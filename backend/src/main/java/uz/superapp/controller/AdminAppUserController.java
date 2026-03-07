@@ -14,7 +14,6 @@ import uz.superapp.repository.AppUserRepository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Tag(name = "Admin App User Management API")
@@ -31,53 +30,67 @@ public class AdminAppUserController {
         this.accountRepository = accountRepository;
     }
 
-    @Operation(summary = "Get list of all app users")
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> list(Authentication auth) {
-        // Проверка на SUPER_ADMIN
         if (!isSuperAdmin(auth)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<AppUser> users = appUserRepository.findAll();
-        List<Map<String, Object>> result = users.stream()
-                .map(u -> Map.<String, Object>of(
-                        "id", u.getId(),
-                        "phone", u.getPhone() != null ? u.getPhone() : "",
-                        "fullName", u.getFullName() != null ? u.getFullName() : "",
-                        "blocked", u.isBlocked(),
-                        "carModel", u.getCarModel() != null ? u.getCarModel() : "",
-                        "carNumber", u.getCarNumber() != null ? u.getCarNumber() : ""))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(appUserRepository.findAll().stream()
+                .map(u -> {
+                    java.util.Map<String, Object> m = new java.util.HashMap<>();
+                    m.put("id", u.getId());
+                    m.put("phone", u.getPhone() != null ? u.getPhone() : "");
+                    m.put("fullName", u.getFullName() != null ? u.getFullName() : "");
+                    m.put("blocked", u.isBlocked());
+                    m.put("isSpecialist", u.isSpecialist());
+                    m.put("isOnline", u.isOnline());
+                    m.put("carModel", u.getCarModel() != null ? u.getCarModel() : "");
+                    m.put("carNumber", u.getCarNumber() != null ? u.getCarNumber() : "");
+                    m.put("lastUpdate",
+                            u.getLastLocationUpdate() != null ? u.getLastLocationUpdate().toString() : null);
+                    return m;
+                })
+                .collect(Collectors.toList()));
     }
 
-    @Operation(summary = "Toggle user block status")
     @PostMapping("/{id}/toggle-block")
     public ResponseEntity<Map<String, Object>> toggleBlock(@PathVariable String id, Authentication auth) {
         if (!isSuperAdmin(auth)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Optional<AppUser> userOpt = appUserRepository.findById(id);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        return appUserRepository.findById(id).map(user -> {
+            user.setBlocked(!user.isBlocked());
+            appUserRepository.save(user);
+            return ResponseEntity.ok(Map.<String, Object>of(
+                    "id", user.getId(),
+                    "blocked", user.isBlocked()));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Toggle user specialist status")
+    @PostMapping("/{id}/toggle-specialist")
+    public ResponseEntity<Map<String, Object>> toggleSpecialist(@PathVariable String id, Authentication auth) {
+        if (!isSuperAdmin(auth)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        AppUser user = userOpt.get();
-        user.setBlocked(!user.isBlocked());
-        appUserRepository.save(user);
-
-        return ResponseEntity.ok(Map.of(
-                "id", user.getId(),
-                "blocked", user.isBlocked()));
+        return appUserRepository.findById(id).map(user -> {
+            user.setSpecialist(!user.isSpecialist());
+            appUserRepository.save(user);
+            return ResponseEntity.ok(Map.<String, Object>of(
+                    "id", user.getId(),
+                    "isSpecialist", user.isSpecialist()));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     private boolean isSuperAdmin(Authentication auth) {
         if (auth == null || auth.getName() == null)
             return false;
-        return accountRepository.findById(auth.getName())
-                .map(Account::getRole)
+        String name = auth.getName();
+        return accountRepository.findById(name)
+                .map(uz.superapp.domain.Account::getRole)
                 .filter("SUPER_ADMIN"::equals)
                 .isPresent();
     }

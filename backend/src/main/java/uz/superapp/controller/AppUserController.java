@@ -76,6 +76,35 @@ public class AppUserController {
         return ResponseEntity.ok(appUserRepository.save(user));
     }
 
+    @Operation(summary = "Update specialist online status")
+    @PostMapping("/specialist/status")
+    @PreAuthorize("hasRole('APP_USER')")
+    public ResponseEntity<?> updateSpecialistStatus(@RequestParam boolean online, Authentication auth) {
+        return appUserRepository.findById(auth.getName()).map(user -> {
+            if (!user.isSpecialist()) {
+                return ResponseEntity.status(403)
+                        .body(Map.of("message", "You are not a registered specialist. Please contact support."));
+            }
+            user.setOnline(online);
+            return ResponseEntity.ok(appUserRepository.save(user));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Update specialist live location")
+    @PostMapping("/specialist/location")
+    @PreAuthorize("hasRole('APP_USER')")
+    public ResponseEntity<?> updateLocation(@RequestParam Double lat, @RequestParam Double lon, Authentication auth) {
+        return appUserRepository.findById(auth.getName()).map(user -> {
+            if (!user.isSpecialist()) {
+                return ResponseEntity.status(403).body(Map.of("message", "Access denied"));
+            }
+            user.setCurrentLat(lat);
+            user.setCurrentLon(lon);
+            user.setLastLocationUpdate(java.time.Instant.now());
+            return ResponseEntity.ok(appUserRepository.save(user));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     @Operation(summary = "Wipe all mobile users from database (admin/dev fast action)")
     @DeleteMapping("/wipe")
     @PreAuthorize("hasRole('SUPER_ADMIN')")

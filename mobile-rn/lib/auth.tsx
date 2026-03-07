@@ -6,6 +6,8 @@ const TOKEN_KEY = 'app_token';
 
 type AuthContextType = {
   token: string | null;
+  user: any | null;
+  setUser: (user: any) => void;
   isLoading: boolean;
   login: (phone: string, otp: string) => Promise<{ isNewUser: boolean }>;
   loginWithPassword: (identifier: string, password: string) => Promise<void>;
@@ -17,13 +19,21 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(TOKEN_KEY).then((t) => {
+    AsyncStorage.getItem(TOKEN_KEY).then(async (t) => {
       if (t) {
         setAuthToken(t);
         setToken(t);
+        try {
+          const { getMe } = await import('./api');
+          const userData = await getMe(t);
+          setUser(userData);
+        } catch (e) {
+          console.error('Failed to hydrate user:', e);
+        }
       }
       setIsLoading(false);
     });
@@ -55,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, isLoading, login, loginWithPassword, requestOtp, logout }}>
+    <AuthContext.Provider value={{ token, user, setUser, isLoading, login, loginWithPassword, requestOtp, logout }}>
       {children}
     </AuthContext.Provider>
   );
