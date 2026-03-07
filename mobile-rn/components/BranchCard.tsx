@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, useColorScheme, ActivityIndicator } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
-import { Branch, getFileUrl } from '@/lib/api';
+import { Branch, getFileUrl, toggleFavoriteBranch, checkIsFavorite } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface BranchCardProps {
     branch: Branch;
@@ -15,6 +17,25 @@ interface BranchCardProps {
 export default function BranchCard({ branch, onPress, index, style }: BranchCardProps) {
     const scheme = useColorScheme() ?? 'light';
     const colors = Colors[scheme];
+
+    const queryClient = useQueryClient();
+    const { token } = useAuth();
+
+    const { data: isFavData } = useQuery({
+        queryKey: ['isFavorite', branch.id, token],
+        queryFn: () => checkIsFavorite(token!, branch.id),
+        enabled: !!token,
+    });
+
+    const isFavorite = isFavData?.isFavorite;
+
+    const favoriteMutation = useMutation({
+        mutationFn: () => toggleFavoriteBranch(token!, branch.id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['isFavorite', branch.id] });
+            queryClient.invalidateQueries({ queryKey: ['favorites'] });
+        }
+    });
 
     const rating = (branch.rating !== undefined && branch.rating !== null) ? branch.rating.toFixed(1) : '4.5';
     const reviewCountDisplay = branch.reviewCount !== undefined ? `(${branch.reviewCount})` : '';
@@ -50,6 +71,22 @@ export default function BranchCard({ branch, onPress, index, style }: BranchCard
                         <Text style={styles.promoText}>SAVE 10%</Text>
                     </View>
                 )}
+
+                <TouchableOpacity
+                    style={[styles.favoriteBtn, { backgroundColor: colors.card }]}
+                    onPress={() => favoriteMutation.mutate()}
+                    disabled={favoriteMutation.isPending}
+                >
+                    {favoriteMutation.isPending ? (
+                        <ActivityIndicator size="small" color={colors.primary} />
+                    ) : (
+                        <Ionicons
+                            name={isFavorite ? "heart" : "heart-outline"}
+                            size={18}
+                            color={isFavorite ? "#EF4444" : colors.text}
+                        />
+                    )}
+                </TouchableOpacity>
             </View>
 
             <View style={styles.content}>
@@ -166,4 +203,19 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '600',
     },
+    favoriteBtn: {
+        position: 'absolute',
+        bottom: 12,
+        right: 12,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+    }
 });

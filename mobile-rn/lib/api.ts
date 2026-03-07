@@ -410,4 +410,48 @@ export async function uploadImage(token: string, uri: string) {
   return data as { url: string };
 }
 
+// Notifications
+export async function getNotifications(token: string) {
+  const { data } = await api.get('/api/v1/app/notifications', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return data as any[];
+}
+
+export async function markNotificationRead(token: string, id: string) {
+  const { data } = await api.post(`/api/v1/app/notifications/${id}/read`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return data;
+}
+
+export async function getUnreadNotificationsCount(token: string) {
+  const { data } = await api.get('/api/v1/app/notifications/unread-count', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return data as { count: number };
+}
+
+// Favorites
+export async function getFavoriteBranches(token: string) {
+  const { data } = await api.get('/api/v1/app/favorites/branches', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return data as Branch[];
+}
+
+export async function toggleFavoriteBranch(token: string, branchId: string) {
+  const { data } = await api.post(`/api/v1/app/favorites/branches/${branchId}/toggle`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return data as { isFavorite: boolean };
+}
+
+export async function checkIsFavorite(token: string, branchId: string) {
+  const { data } = await api.get(`/api/v1/app/favorites/branches/${branchId}/check`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return data as { isFavorite: boolean };
+}
+
 export default api;

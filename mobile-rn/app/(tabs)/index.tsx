@@ -14,7 +14,7 @@ import FilterPills from '@/components/FilterPills';
 import BranchCard from '@/components/BranchCard';
 import StoryCircle from '@/components/StoryCircle';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { getMe, getWallet, updateSpecialistStatus, getAvailableOrders, acceptOrder } from '@/lib/api';
+import { getMe, getWallet, updateSpecialistStatus, getAvailableOrders, acceptOrder, getUnreadNotificationsCount } from '@/lib/api';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -131,6 +131,13 @@ export default function HomeScreen() {
       if (val) setSeenStories(JSON.parse(val));
     });
   }, []);
+
+  const { data: unreadCount = { count: 0 } } = useQuery({
+    queryKey: ['unreadCount', token],
+    queryFn: () => getUnreadNotificationsCount(token!),
+    enabled: !!token,
+    refetchInterval: 30000, // Check every 30s
+  });
 
   useEffect(() => {
     if (params.branchId) {
@@ -335,10 +342,16 @@ export default function HomeScreen() {
 
             <TouchableOpacity
               style={[styles.notificationButton, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
-              onPress={handleComingSoon}
+              onPress={() => router.push('/notifications' as any)}
             >
               <Ionicons name="notifications-outline" size={24} color={colors.text} />
-              <View style={[styles.notificationBadge, { backgroundColor: colors.primary }]} />
+              {unreadCount.count > 0 && (
+                <View style={[styles.notificationBadge, { backgroundColor: colors.primary }]}>
+                  <Text style={{ color: '#fff', fontSize: 8, fontWeight: '800', textAlign: 'center' }}>
+                    {unreadCount.count > 9 ? '9+' : unreadCount.count}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -788,13 +801,15 @@ const styles = StyleSheet.create({
   },
   notificationBadge: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    borderWidth: 2,
+    top: 6,
+    right: 6,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 1.5,
     borderColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   filterBtn: {
     width: 36,

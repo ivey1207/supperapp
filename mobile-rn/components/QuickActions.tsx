@@ -4,21 +4,37 @@ import { MaterialIcons, Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 
 const ACTIONS = [
-  { id: 1, name: 'Offers', icon: 'percent', lib: 'Feather', color: '#EF4444' },
-  { id: 2, name: 'Delivery', icon: 'truck', lib: 'FontAwesome5', color: '#10B981' },
-  { id: 3, name: 'Favorites', icon: 'heart', lib: 'Ionicons', color: '#F59E0B' },
-  { id: 4, name: 'Support', icon: 'headset', lib: 'MaterialIcons', color: '#3B82F6' },
+  { id: 1, name: 'Offers', icon: 'percent', lib: 'Feather', color: '#EF4444', route: '/(tabs)' },
+  { id: 2, name: 'Delivery', icon: 'truck', lib: 'FontAwesome5', color: '#10B981', route: '/delivery' },
+  { id: 3, name: 'Favorites', icon: 'heart', lib: 'Ionicons', color: '#F59E0B', route: '/favorites' },
+  { id: 4, name: 'Support', icon: 'headset', lib: 'MaterialIcons', color: '#3B82F6', route: '/support' },
 ];
+
+import { useRouter } from 'expo-router';
 
 export default function QuickActions() {
   const scheme = useColorScheme() ?? 'light';
   const colors = Colors[scheme];
+  const router = useRouter();
+
+  const handlePress = (action: any) => {
+    if (action.route) {
+      router.push(action.route as any);
+    } else {
+      alert('This feature is coming soon!');
+    }
+  };
 
   return (
     <View style={styles.container}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {ACTIONS.map((action) => (
-          <TouchableOpacity key={action.id} style={styles.actionItem} activeOpacity={0.7}>
+          <TouchableOpacity
+            key={action.id}
+            style={styles.actionItem}
+            activeOpacity={0.7}
+            onPress={() => handlePress(action)}
+          >
             <View style={[styles.iconCircle, { backgroundColor: '#F1F5F9' }]}>
               {action.lib === 'Feather' && <Ionicons name="pricetag" size={24} color={action.color} />}
               {action.lib === 'FontAwesome5' && <FontAwesome5 name="truck" size={20} color={action.color} />}
