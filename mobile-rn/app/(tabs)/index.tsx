@@ -340,6 +340,81 @@ export default function HomeScreen() {
           }
           contentContainerStyle={styles.scrollContent}
         >
+          {/* Stories Section - Top Priority Visibility */}
+          <View style={styles.storiesContainer}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
+              <TouchableOpacity
+                style={styles.addStoryBtn}
+                onPress={() => {
+                  if (hasMyStories) {
+                    myStories.forEach((s: any) => markStorySeen(s.id));
+                    router.push({
+                      pathname: '/story-view',
+                      params: {
+                        stories: JSON.stringify(myStories),
+                        initialIndex: '0'
+                      }
+                    } as any);
+                  } else {
+                    pickImage();
+                  }
+                }}
+              >
+                <View style={[styles.yourStoryWrapper, { width: 72, height: 72 }]}>
+                  <View style={[styles.yourStoryAvatarFrame, { borderColor: colors.border }]}>
+                    <Image source={{ uri: userAvatar }} style={styles.yourStoryAvatar} />
+                  </View>
+                  <View style={styles.addBadge}>
+                    <Ionicons name="add" size={14} color="#fff" />
+                  </View>
+                </View>
+                <Text style={[styles.addStoryText, { color: colors.textSecondary }]} numberOfLines={1}>Your story</Text>
+              </TouchableOpacity>
+
+              {otherStories.map((item: any) => {
+                const isAllSeen = seenStories.includes(item.id);
+                const displayName = item.displayName || item.title || item.userName || 'User';
+                const avatar = item.type === 'USER' && item.userAvatarUrl
+                  ? getFileUrl(item.userAvatarUrl)
+                  : (getFileUrl(item.imageUrl) || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200');
+
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.addStoryBtn}
+                    onPress={() => {
+                      markStorySeen(item.id);
+                      router.push({
+                        pathname: '/story-view',
+                        params: {
+                          stories: JSON.stringify(otherStories),
+                          initialIndex: otherStories.indexOf(item).toString()
+                        }
+                      } as any);
+                    }}
+                  >
+                    <View style={styles.yourStoryWrapper}>
+                      <LinearGradient
+                        colors={isAllSeen ? ['#e2e8f0', '#cbd5e1'] : ['#f43f5e', '#fb923c', '#8b5cf6']}
+                        style={{ padding: 2, borderRadius: 34 }}
+                      >
+                        <View style={{ padding: 2, backgroundColor: '#000', borderRadius: 32 }}>
+                          <Image
+                            source={{ uri: avatar || 'https://via.placeholder.com/60' }}
+                            style={{ width: 60, height: 60, borderRadius: 30 }}
+                          />
+                        </View>
+                      </LinearGradient>
+                    </View>
+                    <Text style={[styles.addStoryText, { color: colors.textSecondary }]} numberOfLines={1}>
+                      {displayName.split(' ')[0]}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+
           {/* Search Bar */}
           <View style={styles.searchRow}>
             <View style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
@@ -427,76 +502,6 @@ export default function HomeScreen() {
           {/* Stories Section (Integrated as bubble list if needed, but mockup doesn't show them explicitly as top priority) */}
           {/* Preserving stories since user said "stories ... vsyo doyediogo ostav" (leave as is) */}
           <View style={styles.storiesContainer}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
-              {/* Your Story / Add Story - Instagram Style */}
-              <TouchableOpacity
-                style={styles.addStoryBtn}
-                onPress={() => {
-                  if (hasMyStories) {
-                    // Mark as seen on open
-                    myStories.forEach((s: any) => markStorySeen(s.id));
-                    router.push({
-                      pathname: '/story-view',
-                      params: {
-                        stories: JSON.stringify(myStories),
-                        initialIndex: '0'
-                      }
-                    } as any);
-                  } else {
-                    pickImage();
-                  }
-                }}
-              >
-                <View style={[styles.yourStoryWrapper, { width: 72, height: 72 }]}>
-                  {hasMyStories && (
-                    <LinearGradient
-                      colors={allMyStoriesSeen ? ['#334155', '#334155'] : ['#833ab4', '#fd1d1d', '#fcb045']}
-                      style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 36 }}
-                    />
-                  )}
-                  <View style={[styles.yourStoryAvatarFrame, {
-                    borderColor: colors.background,
-                    borderWidth: hasMyStories ? 2 : 0,
-                    backgroundColor: colors.background,
-                  }]}>
-                    <View style={{ width: 62, height: 62, borderRadius: 31, overflow: 'hidden' }}>
-                      <Image source={{ uri: userAvatar }} style={styles.yourStoryAvatar} />
-                    </View>
-                  </View>
-                  {!hasMyStories && (
-                    <View style={[styles.addBadge, { borderColor: colors.background }]}>
-                      <Ionicons name="add" size={14} color="#fff" />
-                    </View>
-                  )}
-                </View>
-                <Text style={[styles.addStoryText, { color: colors.textSecondary }]}>Your story</Text>
-              </TouchableOpacity>
-
-              {otherStories.map((item: any) => (
-                <StoryCircle
-                  key={item.id}
-                  item={{
-                    id: item.id,
-                    name: item.displayName || item.title || item.userName,
-                    image: item.type === 'USER' && item.userAvatarUrl
-                      ? getFileUrl(item.userAvatarUrl)!
-                      : (getFileUrl(item.imageUrl) || 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=200'),
-                    seen: seenStories.includes(item.id),
-                    type: item.type
-                  }}
-                  onPress={() => {
-                    markStorySeen(item.id);
-                    router.push({
-                      pathname: '/story-view',
-                      params: {
-                        stories: JSON.stringify(otherStories),
-                        initialIndex: otherStories.indexOf(item).toString()
-                      }
-                    } as any);
-                  }}
-                />
-              ))}
-            </ScrollView>
           </View>
 
           {/* Quick Actions */}
@@ -690,10 +695,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   locationLabel: {
-    fontSize: 10,
-    fontWeight: '800',
+    fontSize: 12,
+    fontWeight: '900',
     color: '#94A3B8',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
+    marginBottom: 2,
   },
   locationWrapper: {
     flexDirection: 'row',
