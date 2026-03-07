@@ -28,7 +28,7 @@ public class AdminMeController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> me(Authentication auth) {
         String email = auth.getName();
-        Account a = accountRepository.findByEmail(email).orElse(null);
+        Account a = accountRepository.findFirstByEmailAndArchivedFalse(email).orElse(null);
         if (a == null) {
             return ResponseEntity.ok(Map.of("email", "", "fullName", "", "role", ""));
         }

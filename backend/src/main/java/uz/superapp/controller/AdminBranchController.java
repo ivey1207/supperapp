@@ -49,7 +49,7 @@ public class AdminBranchController {
         String effectiveOrgId = orgId;
         String username = auth != null ? auth.getName() : null;
         if ((effectiveOrgId == null || effectiveOrgId.isBlank()) && username != null) {
-            Optional<Account> current = accountRepository.findByEmail(username);
+            Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(username);
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String partnerOrgId = current.get().getOrgId();
                 if (partnerOrgId != null && !partnerOrgId.isBlank()) {
@@ -90,7 +90,7 @@ public class AdminBranchController {
         if (name == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findByEmail(name);
+        Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(name);
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -190,7 +190,7 @@ public class AdminBranchController {
         if (name == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findByEmail(name);
+        Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(name);
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -260,7 +260,7 @@ public class AdminBranchController {
         if (name == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findByEmail(name);
+        Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(name);
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

@@ -42,7 +42,7 @@ public class AdminPromotionController {
                 return ResponseEntity.ok(List.of());
             }
 
-            Optional<Account> accountOpt = accountRepository.findByEmail(name);
+            Optional<Account> accountOpt = accountRepository.findFirstByEmailAndArchivedFalse(name);
             if (accountOpt.isEmpty())
                 return ResponseEntity.ok(List.of());
 
@@ -75,7 +75,7 @@ public class AdminPromotionController {
         if (principal == null || principal.getName() == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        Optional<Account> accountOpt = accountRepository.findByEmail(principal.getName());
+        Optional<Account> accountOpt = accountRepository.findFirstByEmailAndArchivedFalse(principal.getName());
         if (accountOpt.isEmpty())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
@@ -92,7 +92,7 @@ public class AdminPromotionController {
         if (principal == null || principal.getName() == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        Optional<Account> accountOpt = accountRepository.findByEmail(principal.getName());
+        Optional<Account> accountOpt = accountRepository.findFirstByEmailAndArchivedFalse(principal.getName());
         if (accountOpt.isEmpty())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
@@ -114,7 +114,7 @@ public class AdminPromotionController {
         if (principal == null || principal.getName() == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        Optional<Account> accountOpt = accountRepository.findByEmail(principal.getName());
+        Optional<Account> accountOpt = accountRepository.findFirstByEmailAndArchivedFalse(principal.getName());
         if (accountOpt.isEmpty())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 

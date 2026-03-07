@@ -36,7 +36,7 @@ public class AdminOnDemandOrderController {
         if (name == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> currentAccount = accountRepository.findByEmail(name);
+        Optional<Account> currentAccount = accountRepository.findFirstByEmailAndArchivedFalse(name);
         if (currentAccount.isEmpty())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
@@ -66,7 +66,7 @@ public class AdminOnDemandOrderController {
         if (name == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> currentAccount = accountRepository.findByEmail(name);
+        Optional<Account> currentAccount = accountRepository.findFirstByEmailAndArchivedFalse(name);
         if (currentAccount.isEmpty())
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 

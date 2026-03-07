@@ -56,7 +56,7 @@ public class AdminBookingController {
         
         String effectiveOrgId = orgId;
         if ((effectiveOrgId == null || effectiveOrgId.isBlank()) && auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findByEmail(auth.getName());
+            Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String partnerOrgId = current.get().getOrgId();
                 if (partnerOrgId != null && !partnerOrgId.isBlank()) {
@@ -103,7 +103,7 @@ public class AdminBookingController {
         
         // Проверка прав
         if (auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findByEmail(auth.getName());
+            Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String userOrgId = current.get().getOrgId();
                 if (userOrgId == null || !userOrgId.equals(booking.getOrgId())) {
@@ -125,7 +125,7 @@ public class AdminBookingController {
         
         Booking booking = bookingOpt.get();
         if (auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findByEmail(auth.getName());
+            Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String userOrgId = current.get().getOrgId();
                 if (userOrgId == null || !userOrgId.equals(booking.getOrgId())) {
@@ -149,7 +149,7 @@ public class AdminBookingController {
         
         Booking booking = bookingOpt.get();
         if (auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findByEmail(auth.getName());
+            Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String userOrgId = current.get().getOrgId();
                 if (userOrgId == null || !userOrgId.equals(booking.getOrgId())) {
@@ -173,7 +173,7 @@ public class AdminBookingController {
         
         Booking booking = bookingOpt.get();
         if (auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findByEmail(auth.getName());
+            Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String userOrgId = current.get().getOrgId();
                 if (userOrgId == null || !userOrgId.equals(booking.getOrgId())) {
@@ -197,7 +197,7 @@ public class AdminBookingController {
         
         Booking booking = bookingOpt.get();
         if (auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findByEmail(auth.getName());
+            Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String userOrgId = current.get().getOrgId();
                 if (userOrgId == null || !userOrgId.equals(booking.getOrgId())) {
@@ -221,7 +221,7 @@ public class AdminBookingController {
         
         Booking booking = bookingOpt.get();
         if (auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findByEmail(auth.getName());
+            Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String userOrgId = current.get().getOrgId();
                 if (userOrgId == null || !userOrgId.equals(booking.getOrgId())) {

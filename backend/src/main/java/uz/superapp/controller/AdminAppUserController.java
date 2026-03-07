@@ -98,7 +98,7 @@ public class AdminAppUserController {
         if (auth == null || auth.getName() == null)
             return false;
         String email = auth.getName();
-        return accountRepository.findByEmail(email)
+        return accountRepository.findFirstByEmailAndArchivedFalse(email)
                 .map(Account::getRole)
                 .filter("SUPER_ADMIN"::equals)
                 .isPresent();

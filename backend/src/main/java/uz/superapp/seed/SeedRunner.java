@@ -60,6 +60,16 @@ public class SeedRunner implements CommandLineRunner {
                 System.out.println("Checking database schema for missing columns...");
                 jdbcTemplate.execute(
                         "ALTER TABLE branches ADD COLUMN IF NOT EXISTS is_mobile_service BOOLEAN DEFAULT FALSE");
+                jdbcTemplate.execute(
+                        "ALTER TABLE app_users ADD COLUMN IF NOT EXISTS is_specialist BOOLEAN DEFAULT FALSE");
+                jdbcTemplate.execute(
+                        "ALTER TABLE app_users ADD COLUMN IF NOT EXISTS is_online BOOLEAN DEFAULT FALSE");
+                jdbcTemplate.execute(
+                        "ALTER TABLE app_users ADD COLUMN IF NOT EXISTS current_lat DOUBLE PRECISION");
+                jdbcTemplate.execute(
+                        "ALTER TABLE app_users ADD COLUMN IF NOT EXISTS current_lon DOUBLE PRECISION");
+                jdbcTemplate.execute(
+                        "ALTER TABLE app_users ADD COLUMN IF NOT EXISTS last_location_update TIMESTAMP WITH TIME ZONE");
                 System.out.println("Database schema checked/updated.");
             } catch (Exception e) {
                 System.err.println("Database migration failed: " + e.getMessage());

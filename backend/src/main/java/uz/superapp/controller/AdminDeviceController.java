@@ -45,7 +45,7 @@ public class AdminDeviceController {
             Authentication auth) {
         String effectiveOrgId = orgId;
         if ((effectiveOrgId == null || effectiveOrgId.isBlank()) && auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findByEmail(auth.getName());
+            Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String partnerOrgId = current.get().getOrgId();
                 if (partnerOrgId != null && !partnerOrgId.isBlank()) {
@@ -85,7 +85,7 @@ public class AdminDeviceController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findByEmail(auth.getName());
+        Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -173,7 +173,7 @@ public class AdminDeviceController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findByEmail(auth.getName());
+        Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -275,7 +275,7 @@ public class AdminDeviceController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findByEmail(auth.getName());
+        Optional<Account> current = accountRepository.findFirstByEmailAndArchivedFalse(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
