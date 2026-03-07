@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,8 +27,8 @@ public class AdminMeController {
     @Operation(summary = "Execute me operation")
     @GetMapping
     public ResponseEntity<Map<String, Object>> me(Authentication auth) {
-        String accountId = auth.getName();
-        Account a = accountRepository.findById(accountId).orElse(null);
+        String email = auth.getName();
+        Account a = accountRepository.findByEmail(email).orElse(null);
         if (a == null) {
             return ResponseEntity.ok(Map.of("email", "", "fullName", "", "role", ""));
         }
@@ -38,7 +37,6 @@ public class AdminMeController {
                 "email", a.getEmail() != null ? a.getEmail() : "",
                 "fullName", a.getFullName() != null ? a.getFullName() : "",
                 "role", a.getRole() != null ? a.getRole() : "",
-                "orgId", a.getOrgId() != null ? a.getOrgId() : ""
-        ));
+                "orgId", a.getOrgId() != null ? a.getOrgId() : ""));
     }
 }

@@ -49,7 +49,7 @@ public class AdminOrganizationController {
     public ResponseEntity<List<Map<String, Object>>> list(Authentication auth) {
         List<Organization> all;
         if (auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findById(auth.getName());
+            Optional<Account> current = accountRepository.findByEmail(auth.getName());
             if (current.isPresent()) {
                 String role = current.get().getRole();
                 String orgId = current.get().getOrgId();
@@ -79,7 +79,7 @@ public class AdminOrganizationController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty() || !"SUPER_ADMIN".equals(current.get().getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -118,7 +118,7 @@ public class AdminOrganizationController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -181,7 +181,7 @@ public class AdminOrganizationController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty() || !"SUPER_ADMIN".equals(current.get().getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -209,7 +209,7 @@ public class AdminOrganizationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty() || !"SUPER_ADMIN".equals(current.get().getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

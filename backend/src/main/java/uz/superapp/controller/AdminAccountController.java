@@ -38,7 +38,7 @@ public class AdminAccountController {
     public ResponseEntity<List<Map<String, Object>>> list(Authentication auth) {
         List<Account> all;
         if (auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findById(auth.getName());
+            Optional<Account> current = accountRepository.findByEmail(auth.getName());
             if (current.isPresent()) {
                 String role = current.get().getRole();
                 String orgId = current.get().getOrgId();
@@ -72,7 +72,7 @@ public class AdminAccountController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -126,13 +126,13 @@ public class AdminAccountController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         String role = current.get().getRole();
         String userOrgId = current.get().getOrgId();
-        Optional<Account> accountOpt = accountRepository.findById(id);
+        Optional<Account> accountOpt = accountRepository.findByEmail(id);
         if (accountOpt.isEmpty() || accountOpt.get().isArchived()) {
             return ResponseEntity.notFound().build();
         }
@@ -178,13 +178,13 @@ public class AdminAccountController {
         if (auth == null || auth.getName() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         String role = current.get().getRole();
         String userOrgId = current.get().getOrgId();
-        Optional<Account> accountOpt = accountRepository.findById(id);
+        Optional<Account> accountOpt = accountRepository.findByEmail(id);
         if (accountOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

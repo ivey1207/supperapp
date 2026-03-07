@@ -88,9 +88,9 @@ public class AdminAppUserController {
     private boolean isSuperAdmin(Authentication auth) {
         if (auth == null || auth.getName() == null)
             return false;
-        String name = auth.getName();
-        return accountRepository.findById(name)
-                .map(uz.superapp.domain.Account::getRole)
+        String email = auth.getName();
+        return accountRepository.findByEmail(email)
+                .map(Account::getRole)
                 .filter("SUPER_ADMIN"::equals)
                 .isPresent();
     }

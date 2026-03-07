@@ -62,7 +62,7 @@ public class AdminHardwareKioskController {
 
         String effectiveOrgId = orgId;
         if ((effectiveOrgId == null || effectiveOrgId.isBlank()) && auth != null && auth.getName() != null) {
-            Optional<Account> current = accountRepository.findById(auth.getName());
+            Optional<Account> current = accountRepository.findByEmail(auth.getName());
             if (current.isPresent() && !"SUPER_ADMIN".equals(current.get().getRole())) {
                 String partnerOrgId = current.get().getOrgId();
                 if (partnerOrgId != null && !partnerOrgId.isBlank()) {
@@ -112,7 +112,7 @@ public class AdminHardwareKioskController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -169,7 +169,7 @@ public class AdminHardwareKioskController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -210,7 +210,7 @@ public class AdminHardwareKioskController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -319,7 +319,7 @@ public class AdminHardwareKioskController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -360,7 +360,7 @@ public class AdminHardwareKioskController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<Account> current = accountRepository.findById(auth.getName());
+        Optional<Account> current = accountRepository.findByEmail(auth.getName());
         if (current.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

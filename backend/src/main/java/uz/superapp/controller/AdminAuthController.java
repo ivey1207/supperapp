@@ -68,7 +68,7 @@ public class AdminAuthController {
             var claims = jwtUtil.parse(token);
             String accountId = claims.getSubject();
             String role = claims.get("role", String.class);
-            Account account = accountRepository.findById(accountId).orElse(null);
+            Account account = accountRepository.findByEmail(accountId).orElse(null);
             if (account == null) {
                 return ResponseEntity.status(401).body(Map.of("message", "Account not found"));
             }

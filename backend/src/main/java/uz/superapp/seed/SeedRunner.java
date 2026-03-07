@@ -112,39 +112,43 @@ public class SeedRunner implements CommandLineRunner {
 
     private void seedSuperAdmin() {
         boolean forceReset = "true".equalsIgnoreCase(System.getenv("FORCE_RESET_ADMIN"));
-        accountRepository.findFirstByEmail("admin@admin.uz").ifPresentOrElse(
-                admin -> {
-                    boolean changed = false;
-                    if (admin.isArchived()) {
-                        admin.setArchived(false);
-                        changed = true;
-                    }
-                    if (!"SUPER_ADMIN".equals(admin.getRole())) {
-                        admin.setRole("SUPER_ADMIN");
-                        changed = true;
-                    }
-                    if (admin.getPasswordHash() == null || admin.getPasswordHash().isEmpty() || forceReset) {
-                        admin.setPasswordHash(passwordEncoder.encode("admin123"));
-                        changed = true;
-                        if (forceReset) {
-                            System.out.println("Force-resetting super admin password to default.");
+        List<String> adminEmails = Arrays.asList("admin@admin.uz", "admin@admin.com");
+
+        for (String email : adminEmails) {
+            accountRepository.findFirstByEmail(email).ifPresentOrElse(
+                    admin -> {
+                        boolean changed = false;
+                        if (admin.isArchived()) {
+                            admin.setArchived(false);
+                            changed = true;
                         }
-                    }
-                    if (changed) {
+                        if (!"SUPER_ADMIN".equals(admin.getRole())) {
+                            admin.setRole("SUPER_ADMIN");
+                            changed = true;
+                        }
+                        if (admin.getPasswordHash() == null || admin.getPasswordHash().isEmpty() || forceReset) {
+                            admin.setPasswordHash(passwordEncoder.encode("admin123"));
+                            changed = true;
+                            if (forceReset) {
+                                System.out.println("Force-resetting super admin password to default for: " + email);
+                            }
+                        }
+                        if (changed) {
+                            accountRepository.save(admin);
+                            System.out.println("Repaired super admin: " + email);
+                        }
+                    },
+                    () -> {
+                        Account admin = new Account();
+                        admin.setEmail(email);
+                        admin.setPasswordHash(passwordEncoder.encode("admin123"));
+                        admin.setFullName("Super Admin");
+                        admin.setRole("SUPER_ADMIN");
+                        admin.setArchived(false);
                         accountRepository.save(admin);
-                        System.out.println("Repaired super admin: admin@admin.uz");
-                    }
-                },
-                () -> {
-                    Account admin = new Account();
-                    admin.setEmail("admin@admin.uz");
-                    admin.setPasswordHash(passwordEncoder.encode("admin123"));
-                    admin.setFullName("Super Admin");
-                    admin.setRole("SUPER_ADMIN");
-                    admin.setArchived(false);
-                    accountRepository.save(admin);
-                    System.out.println("Created super admin: admin@admin.uz");
-                });
+                        System.out.println("Created super admin: " + email);
+                    });
+        }
     }
 
     private void seedOrganizations() {
