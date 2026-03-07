@@ -112,7 +112,7 @@ public class SeedRunner implements CommandLineRunner {
 
     private void seedSuperAdmin() {
         boolean forceReset = "true".equalsIgnoreCase(System.getenv("FORCE_RESET_ADMIN"));
-        accountRepository.findFirstByEmail("admin@superapp.uz").ifPresentOrElse(
+        accountRepository.findFirstByEmail("admin@admin.uz").ifPresentOrElse(
                 admin -> {
                     boolean changed = false;
                     if (admin.isArchived()) {
@@ -132,18 +132,18 @@ public class SeedRunner implements CommandLineRunner {
                     }
                     if (changed) {
                         accountRepository.save(admin);
-                        System.out.println("Repaired super admin: admin@superapp.uz");
+                        System.out.println("Repaired super admin: admin@admin.uz");
                     }
                 },
                 () -> {
                     Account admin = new Account();
-                    admin.setEmail("admin@superapp.uz");
+                    admin.setEmail("admin@admin.uz");
                     admin.setPasswordHash(passwordEncoder.encode("admin123"));
                     admin.setFullName("Super Admin");
                     admin.setRole("SUPER_ADMIN");
                     admin.setArchived(false);
                     accountRepository.save(admin);
-                    System.out.println("Created super admin: admin@superapp.uz");
+                    System.out.println("Created super admin: admin@admin.uz");
                 });
     }
 
