@@ -48,7 +48,7 @@ public class AdminAuthController {
                 && !"PARTNER".equals(role)) {
             return ResponseEntity.status(403).body(Map.of("message", "Access denied"));
         }
-        String token = jwtUtil.generate(account.getId(), role);
+        String token = jwtUtil.generate(account.getEmail(), role);
         return ResponseEntity.ok(Map.of(
                 "accessToken", token,
                 "email", account.getEmail(),
