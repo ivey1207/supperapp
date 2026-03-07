@@ -2,11 +2,13 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme, View, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '@/constants/Colors';
 
 export default function TabLayout() {
   const scheme = useColorScheme() ?? 'light';
   const colors = Colors[scheme];
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -21,9 +23,9 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.2,
           shadowRadius: 10,
-          height: Platform.OS === 'ios' ? 95 : 90, // Increased height
-          paddingTop: 10,
-          paddingBottom: Platform.OS === 'ios' ? 35 : 30, // Much more padding for OS buttons
+          height: 60 + insets.bottom,
+          paddingTop: 8,
+          paddingBottom: insets.bottom + 5,
           position: 'absolute',
           bottom: 0,
           left: 0,

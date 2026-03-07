@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Image, Platform, Dimensions, StatusBar, useColorScheme, Alert, TextInput, Modal, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,9 +14,9 @@ import FilterPills from '@/components/FilterPills';
 import BranchCard from '@/components/BranchCard';
 import StoryCircle from '@/components/StoryCircle';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
-import { getMe } from '@/lib/api';
+import { getMe, getWallet, updateSpecialistStatus } from '@/lib/api';
 import * as Location from 'expo-location';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const dark = Colors.dark;
@@ -68,15 +68,40 @@ export default function HomeScreen() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
   const [selectedMacId, setSelectedMacId] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [address, setAddress] = useState<string>('Detecting location...');
   const [seenStories, setSeenStories] = useState<string[]>([]);
+  const [isOnline, setIsOnline] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['me', token],
     queryFn: () => getMe(token!),
     enabled: !!token,
   });
+
+  const { data: wallet } = useQuery({
+    queryKey: ['wallet', token],
+    queryFn: () => getWallet(token!),
+    enabled: !!token,
+  });
+
+  useEffect(() => {
+    if (user) {
+      setIsOnline(user.isOnline || false);
+    }
+  }, [user]);
+
+  const toggleOnline = async () => {
+    if (!token) return;
+    try {
+      const updated = await updateSpecialistStatus(token, !isOnline);
+      setIsOnline(updated.isOnline || false);
+    } catch (err) {
+      console.error('Failed to toggle status:', err);
+      Alert.alert('Ошибка', 'Не удалось изменить статус');
+    }
+  };
 
   useEffect(() => {
     AsyncStorage.getItem('seen_stories').then(val => {
@@ -245,7 +270,7 @@ export default function HomeScreen() {
   return (
     <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={{ flex: 1, paddingTop: insets.top }}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.userInfoRow}>
@@ -256,18 +281,57 @@ export default function HomeScreen() {
               />
             </TouchableOpacity>
             <View style={styles.userTextContainer}>
-              <Text style={styles.locationLabel}>LOCATION</Text>
+              <Text style={styles.locationLabel}>{user?.fullName?.toUpperCase() || 'SUPER APP'}</Text>
               <TouchableOpacity style={styles.locationWrapper} onPress={() => router.push('/(tabs)/map' as any)}>
-                <Text style={[styles.locationText, { color: colors.text }]}>{address}</Text>
+                <Text style={[styles.locationText, { color: colors.text }]} numberOfLines={1}>{address}</Text>
                 <Ionicons name="chevron-down" size={14} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
           </View>
-          <TouchableOpacity style={[styles.notificationButton, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]} onPress={handleComingSoon}>
-            <Ionicons name="notifications-outline" size={24} color={colors.text} />
-            <View style={[styles.notificationBadge, { backgroundColor: colors.primary }]} />
-          </TouchableOpacity>
+
+          <View style={styles.headerRight}>
+            {wallet && (
+              <TouchableOpacity style={styles.balancePill} activeOpacity={0.8} onPress={handleComingSoon}>
+                <LinearGradient
+                  colors={['#FF5F6D', '#FFC371', '#8E2DE2']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.balanceGradient}
+                >
+                  <Text style={styles.balanceText}>{wallet.balance.toLocaleString()}</Text>
+                  <View style={styles.plusIconCircle}>
+                    <Ionicons name="add" size={14} color="#3B82F6" />
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity style={[styles.notificationButton, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]} onPress={handleComingSoon}>
+              <Ionicons name="notifications-outline" size={24} color={colors.text} />
+              <View style={[styles.notificationBadge, { backgroundColor: colors.primary }]} />
+            </TouchableOpacity>
+          </View>
         </View>
+
+        {/* Specialist Bar */}
+        {user?.isSpecialist && (
+          <View style={styles.specialistBar}>
+            <LinearGradient
+              colors={isOnline ? ['#10B981', '#059669'] : ['#475569', '#334155']}
+              style={styles.specialistGradient}
+            >
+              <View style={styles.specialistInfo}>
+                <MaterialCommunityIcons name="star-circle" size={20} color="#fff" />
+                <Text style={styles.specialistStatusText}>
+                  {isOnline ? 'ВЫ В СЕТИ — ПРИНИМАЙТЕ ЗАКАЗЫ' : 'ВЫ ОФФЛАЙН'}
+                </Text>
+              </View>
+              <TouchableOpacity style={styles.onlineSwitch} onPress={toggleOnline}>
+                <View style={[styles.switchKnob, isOnline ? { alignSelf: 'flex-end', backgroundColor: '#fff' } : { alignSelf: 'flex-start', backgroundColor: '#94A3B8' }]} />
+              </TouchableOpacity>
+            </LinearGradient>
+          </View>
+        )}
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -598,7 +662,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   mainContainer: { flex: 1 },
   safeArea: { flex: 1 },
-  scrollContent: { paddingBottom: 100 },
+  scrollContent: { paddingBottom: 120 },
   storiesContainer: { marginTop: 24, marginBottom: 12 },
   storiesScroll: { paddingHorizontal: 20, gap: 12 },
 
@@ -607,7 +671,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 12
+    paddingVertical: 8,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   userInfoRow: {
     flexDirection: 'row',
@@ -860,19 +929,76 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
   },
-  fab: {
-    position: 'absolute',
-    bottom: 100,
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  balancePill: {
+    height: 38,
+    borderRadius: 19,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  balanceGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 14,
+    paddingRight: 6,
+    height: '100%',
+    gap: 8,
+  },
+  balanceText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  plusIconCircle: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 8,
+  },
+  specialistBar: {
+    paddingHorizontal: 20,
+    marginVertical: 10,
+  },
+  specialistGradient: {
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    elevation: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  specialistInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  specialistStatusText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  onlineSwitch: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    padding: 3,
+    justifyContent: 'center',
+  },
+  switchKnob: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
   },
 });

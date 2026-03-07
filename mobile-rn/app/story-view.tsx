@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { getFileUrl, likeUserStory, unlikeUserStory, commentOnUserStory, formatTimeAgo } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { Video, ResizeMode } from 'expo-av';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,6 +21,7 @@ export default function StoryViewScreen() {
     const { token } = useAuth();
     const videoRef = useRef<Video>(null);
     const [isVideoLoading, setIsVideoLoading] = useState(false);
+    const insets = useSafeAreaInsets();
 
     const [localStories, setLocalStories] = useState(stories);
     const activeStory = localStories[currentIndex];
@@ -172,7 +174,7 @@ export default function StoryViewScreen() {
                     <TouchableOpacity style={styles.tapArea} onPress={nextStory} />
                 </View>
 
-                <SafeAreaView style={styles.overlay}>
+                <SafeAreaView style={[styles.overlay, { paddingTop: insets.top }]}>
                     {/* Progress Indicators - IG Style */}
                     <View style={styles.progressContainer}>
                         {localStories.map((_: any, index: number) => (
@@ -220,7 +222,7 @@ export default function StoryViewScreen() {
                 </SafeAreaView>
 
                 {/* Footer Bottom Actions */}
-                <View style={[styles.footer, { marginBottom: Platform.OS === 'ios' ? 40 : 20 }]}>
+                <View style={[styles.footer, { bottom: insets.bottom + 15 }]}>
                     <View style={styles.replyBar}>
                         <TextInput
                             style={styles.replyInput}
@@ -234,12 +236,17 @@ export default function StoryViewScreen() {
                             }}
                             onSubmitEditing={handleSendReply}
                         />
-                        <TouchableOpacity onPress={handleSendReply} style={styles.sendIcon}>
+                        <TouchableOpacity onPress={handleSendReply} style={styles.sendIcon} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                             <Ionicons name="send" size={20} color="#fff" />
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={styles.heartBtn} onPress={onLikeToggle}>
+                    <TouchableOpacity
+                        style={styles.heartBtn}
+                        onPress={onLikeToggle}
+                        hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+                        activeOpacity={0.7}
+                    >
                         <Ionicons
                             name={activeStory.isLiked ? "heart" : "heart-outline"}
                             size={28}
@@ -259,7 +266,7 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#000' },
     storyContainer: { flex: 1 },
     storyImage: { width: width, height: height, resizeMode: 'cover' },
-    overlay: { position: 'absolute', top: Platform.OS === 'android' ? 20 : 0, left: 0, right: 0 },
+    overlay: { position: 'absolute', top: 0, left: 0, right: 0 },
     tapContainer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 100, flexDirection: 'row' },
     tapArea: { flex: 1 },
     progressContainer: { flexDirection: 'row', paddingHorizontal: 10, gap: 4, height: 3, marginTop: 15 },
