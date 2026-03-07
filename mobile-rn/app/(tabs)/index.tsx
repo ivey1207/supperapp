@@ -679,11 +679,14 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   userInfoRow: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    marginRight: 10,
   },
   userTextContainer: {
+    flexShrink: 1,
     justifyContent: 'center',
   },
   locationLabel: {
@@ -696,6 +699,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    flexShrink: 1,
   },
   locationText: {
     fontSize: 15,
