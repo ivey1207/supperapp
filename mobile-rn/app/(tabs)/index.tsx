@@ -525,7 +525,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
 
       {/* Floating Action Button for quick story upload */}
       <TouchableOpacity
