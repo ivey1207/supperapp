@@ -12,6 +12,7 @@ import uz.superapp.domain.AppUser;
 import uz.superapp.repository.AccountRepository;
 import uz.superapp.repository.AppUserRepository;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,27 +32,35 @@ public class AdminAppUserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> list(Authentication auth) {
+    public ResponseEntity<?> list(Authentication auth) {
         if (!isSuperAdmin(auth)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        return ResponseEntity.ok(appUserRepository.findAll().stream()
-                .map(u -> {
-                    java.util.Map<String, Object> m = new java.util.HashMap<>();
-                    m.put("id", u.getId());
-                    m.put("phone", u.getPhone() != null ? u.getPhone() : "");
-                    m.put("fullName", u.getFullName() != null ? u.getFullName() : "");
-                    m.put("blocked", u.isBlocked());
-                    m.put("isSpecialist", u.isSpecialist());
-                    m.put("isOnline", u.isOnline());
-                    m.put("carModel", u.getCarModel() != null ? u.getCarModel() : "");
-                    m.put("carNumber", u.getCarNumber() != null ? u.getCarNumber() : "");
-                    m.put("lastUpdate",
-                            u.getLastLocationUpdate() != null ? u.getLastLocationUpdate().toString() : null);
-                    return m;
-                })
-                .collect(Collectors.toList()));
+        try {
+            List<Map<String, Object>> result = appUserRepository.findAll().stream()
+                    .map(u -> {
+                        Map<String, Object> m = new LinkedHashMap<>();
+                        m.put("id", u.getId());
+                        m.put("phone", u.getPhone() != null ? u.getPhone() : "");
+                        m.put("email", u.getEmail() != null ? u.getEmail() : "");
+                        m.put("fullName", u.getFullName() != null ? u.getFullName() : "");
+                        m.put("blocked", u.isBlocked());
+                        m.put("isSpecialist", u.isSpecialist());
+                        m.put("isOnline", u.isOnline());
+                        m.put("carModel", u.getCarModel() != null ? u.getCarModel() : "");
+                        m.put("carNumber", u.getCarNumber() != null ? u.getCarNumber() : "");
+                        m.put("lastUpdate",
+                                u.getLastLocationUpdate() != null ? u.getLastLocationUpdate().toString() : null);
+                        return m;
+                    })
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Error listing users: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/{id}/toggle-block")
