@@ -15,7 +15,7 @@ YaMap.init('5b98719e-7779-4c0c-bfbc-bf60307687a4');
 
 export { ErrorBoundary } from 'expo-router';
 
-export const unstable_settings = { initialRouteName: '(tabs)' };
+export const unstable_settings = { initialRouteName: 'welcome' };
 
 const queryClient = new QueryClient();
 
@@ -54,7 +54,7 @@ function RootLayoutNav() {
   useEffect(() => {
     if (isLoading) return;
     if (!token) {
-      router.replace('/login');
+      router.replace('/welcome');
     }
   }, [token, isLoading]);
 
@@ -62,6 +62,7 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="welcome" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="register" options={{ headerShown: false }} />
         <Stack.Screen name="forgot-password" options={{ headerShown: false }} />

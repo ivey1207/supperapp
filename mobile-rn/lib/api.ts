@@ -30,7 +30,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       await AsyncStorage.removeItem('app_token');
       delete api.defaults.headers.common['Authorization'];
-      router.replace('/login');
+      router.replace('/welcome');
     }
     return Promise.reject(error);
   }
