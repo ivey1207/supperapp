@@ -17,6 +17,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getMe, getWallet, updateSpecialistStatus, getAvailableOrders, acceptOrder, getUnreadNotificationsCount } from '@/lib/api';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 const dark = Colors.dark;
@@ -73,6 +74,7 @@ export default function HomeScreen() {
   const [address, setAddress] = useState<string>('Detecting location...');
   const [seenStories, setSeenStories] = useState<string[]>([]);
   const [isOnline, setIsOnline] = useState(false);
+  const { t } = useTranslation();
 
   const { data: user } = useQuery({
     queryKey: ['me', token],
@@ -107,9 +109,10 @@ export default function HomeScreen() {
       if (!isOnline) {
         refetchAvailable();
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to toggle status:', err);
-      Alert.alert('Error', 'Failed to update status. Please check your connection.');
+      const msg = err.response?.data?.message || t('errorStatus');
+      Alert.alert('Error', msg);
     }
   };
 
@@ -313,7 +316,9 @@ export default function HomeScreen() {
             <View style={styles.userTextContainer}>
               <Text style={styles.locationLabel}>{user?.fullName?.toUpperCase() || 'SUPER APP'}</Text>
               <TouchableOpacity style={styles.locationWrapper} onPress={() => router.push('/(tabs)/map' as any)}>
-                <Text style={[styles.locationText, { color: colors.text }]} numberOfLines={1}>{address}</Text>
+                <Text style={[styles.locationText, { color: colors.text }]} numberOfLines={1}>
+                  {address === 'Detecting location...' ? t('detectingLocation') : address === 'Location disabled' ? t('locationDisabled') : address}
+                </Text>
                 <Ionicons name="chevron-down" size={14} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
@@ -356,7 +361,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Specialist Bar */}
+        {/* Specialist Bar - Repositioned to top of ScrollView for visibility */}
         {user?.isSpecialist && (
           <View style={styles.specialistBar}>
             <LinearGradient
@@ -364,9 +369,9 @@ export default function HomeScreen() {
               style={styles.specialistGradient}
             >
               <View style={styles.specialistInfo}>
-                <MaterialCommunityIcons name="star-circle" size={20} color="#fff" />
+                <View style={[styles.statusIndicator, { backgroundColor: isOnline ? '#fff' : '#94A3B8' }]} />
                 <Text style={styles.specialistStatusText}>
-                  {isOnline ? 'ВЫ В СЕТИ — ПРИНИМАЙТЕ ЗАКАЗЫ' : 'ВЫ ОФФЛАЙН'}
+                  {isOnline ? t('onlineStatus') : t('offlineStatus')}
                 </Text>
               </View>
               <TouchableOpacity style={styles.onlineSwitch} onPress={toggleOnline}>
@@ -411,7 +416,7 @@ export default function HomeScreen() {
                     <Ionicons name="add" size={14} color="#fff" />
                   </View>
                 </View>
-                <Text style={[styles.addStoryText, { color: colors.textSecondary }]} numberOfLines={1}>Your story</Text>
+                <Text style={[styles.addStoryText, { color: colors.textSecondary }]} numberOfLines={1}>{t('yourStory')}</Text>
               </TouchableOpacity>
 
               {otherStories.map((item: any) => {
@@ -464,7 +469,7 @@ export default function HomeScreen() {
               <Ionicons name="search-outline" size={20} color={colors.primary} />
               <TextInput
                 style={[styles.searchPlaceholder, { color: colors.text }]}
-                placeholder="Search for gas, washes, or services"
+                placeholder={t('searchPlaceholder')}
                 placeholderTextColor={colors.textSecondary}
               />
               <TouchableOpacity style={[styles.filterBtn, { backgroundColor: colors.primary }]}>
@@ -489,7 +494,9 @@ export default function HomeScreen() {
                   }}
                 >
                   <MaterialIcons name={cat.icon as any} size={20} color={index === 0 ? '#fff' : colors.primary} />
-                  <Text style={[styles.categoryBtnText, { color: index === 0 ? '#fff' : colors.text }]}>{cat.name}</Text>
+                  <Text style={[styles.categoryBtnText, { color: index === 0 ? '#fff' : colors.text }]}>
+                    {cat.partnerType === 'CAR_WASH' ? t('wash') : cat.partnerType === 'GAS_STATION' ? 'АЗС' : cat.partnerType === 'SERVICE' ? t('repair') : cat.name}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -505,8 +512,8 @@ export default function HomeScreen() {
               <View style={styles.serviceIconCircle}>
                 <MaterialCommunityIcons name="car-wash" size={28} color="#10B981" />
               </View>
-              <Text style={styles.featuredServiceTitle}>Мойка Домой</Text>
-              <Text style={styles.featuredServiceSub}>Выезд на место</Text>
+              <Text style={styles.featuredServiceTitle}>{t('homeWash')}</Text>
+              <Text style={styles.featuredServiceSub}>{t('onSite')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -517,8 +524,8 @@ export default function HomeScreen() {
               <View style={styles.serviceIconCircle}>
                 <MaterialCommunityIcons name="wrench" size={28} color="#F43F5E" />
               </View>
-              <Text style={styles.featuredServiceTitle}>Вызов мастера</Text>
-              <Text style={styles.featuredServiceSub}>Поломка в пути</Text>
+              <Text style={styles.featuredServiceTitle}>{t('callMaster')}</Text>
+              <Text style={styles.featuredServiceSub}>{t('roadBreak')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -526,7 +533,7 @@ export default function HomeScreen() {
           {user?.isSpecialist && isOnline && availableOrders.length > 0 && (
             <View style={styles.ordersSection}>
               <Text style={[styles.sectionTitle, { color: colors.text, paddingHorizontal: 20, marginBottom: 12 }]}>
-                Available Orders ({availableOrders.length})
+                {t('availableOrders')} ({availableOrders.length})
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}>
                 {availableOrders.map((order: any) => (
@@ -537,14 +544,14 @@ export default function HomeScreen() {
                   >
                     <View style={styles.orderHeader}>
                       <View style={[styles.orderTypeBadge, { backgroundColor: order.type === 'MOBILE_WASH' ? '#10B981' : '#F43F5E' }]}>
-                        <Text style={styles.orderTypeText}>{order.type === 'MOBILE_WASH' ? 'WASH' : 'REPAIR'}</Text>
+                        <Text style={styles.orderTypeText}>{order.type === 'MOBILE_WASH' ? t('wash') : t('repair')}</Text>
                       </View>
                       <Text style={[styles.orderTime, { color: colors.textSecondary }]}>Just now</Text>
                     </View>
                     <Text style={[styles.orderAddress, { color: colors.text }]} numberOfLines={2}>{order.userAddress}</Text>
                     <Text style={[styles.orderCar, { color: colors.textSecondary }]}>{order.carDetails}</Text>
                     <TouchableOpacity style={styles.acceptButton} onPress={() => handleAcceptOrder(order.id)}>
-                      <Text style={styles.acceptButtonText}>ACCEPT ORDER</Text>
+                      <Text style={styles.acceptButtonText}>{t('acceptOrder')}</Text>
                     </TouchableOpacity>
                   </TouchableOpacity>
                 ))}
@@ -565,7 +572,7 @@ export default function HomeScreen() {
               />
               <View style={styles.recommendedContent}>
                 <View style={[styles.recommendedBadge, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.recommendedBadgeText}>RECOMMENDED</Text>
+                  <Text style={styles.recommendedBadgeText}>{t('recommended')}</Text>
                 </View>
                 <Text style={styles.recommendedTitle}>{displayPromos[0]?.title || 'Cheapest fuel nearby'}</Text>
               </View>
@@ -583,9 +590,9 @@ export default function HomeScreen() {
           {/* Places Section */}
           <View style={styles.placesSection}>
             <View style={styles.sectionHeading}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>Popular Nearby</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('popularNearby')}</Text>
               <TouchableOpacity onPress={handleComingSoon}>
-                <Text style={[styles.seeAll, { color: colors.primary }]}>See all</Text>
+                <Text style={[styles.seeAll, { color: colors.primary }]}>{t('seeAll')}</Text>
               </TouchableOpacity>
             </View>
 
@@ -852,6 +859,18 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     gap: 8,
   },
+  specialistBar: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  specialistIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
   categoryBtnText: {
     fontSize: 14,
     fontWeight: '700',
@@ -1046,8 +1065,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   specialistBar: {
-    paddingHorizontal: 20,
-    marginVertical: 10,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
   specialistGradient: {
     borderRadius: 16,
@@ -1067,9 +1088,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  statusIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 4,
+  },
   specialistStatusText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '800',
     letterSpacing: 0.5,
   },

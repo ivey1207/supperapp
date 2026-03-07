@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, ActivityIndi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/lib/auth';
 import { getAvailableOrders, getActiveSpecialistOrder, acceptOrder, updateOrderStatus, updateSpecialistStatus, updateSpecialistLocation, OnDemandOrder, User } from '@/lib/api';
@@ -39,6 +40,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function WasherDashboardScreen() {
     const { token, user, setUser } = useAuth();
     const router = useRouter();
+    const { t } = useTranslation();
     const colors = Colors.light;
 
     const [online, setOnline] = useState(user?.isOnline || false);
@@ -100,7 +102,7 @@ export default function WasherDashboardScreen() {
                         });
                     }
                 }
-                Alert.alert('Online', 'You are now visible to clients and can receive orders.');
+                Alert.alert(t('onlineStatus'), 'You are now visible to clients and can receive orders.');
             } else {
                 const isRunning = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
                 if (isRunning) {
@@ -151,7 +153,7 @@ export default function WasherDashboardScreen() {
             <View style={styles.orderHeader}>
                 <View style={[styles.typeBadge, { backgroundColor: item.type === 'MOBILE_WASH' ? '#DBEAFE' : '#FEE2E2' }]}>
                     <Text style={[styles.typeText, { color: item.type === 'MOBILE_WASH' ? '#2563EB' : '#DC2626' }]}>
-                        {item.type === 'MOBILE_WASH' ? 'WASH' : 'MASTER'}
+                        {item.type === 'MOBILE_WASH' ? t('wash') : t('repair')}
                     </Text>
                 </View>
                 <Text style={styles.timeText}>{new Date(item.createdAt!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
@@ -164,7 +166,7 @@ export default function WasherDashboardScreen() {
                 style={[styles.acceptBtn, { backgroundColor: colors.primary }]}
                 onPress={() => handleAcceptOrder(item.id!)}
             >
-                <Text style={styles.acceptBtnText}>ACCEPT ORDER</Text>
+                <Text style={styles.acceptBtnText}>{t('acceptOrder')}</Text>
             </TouchableOpacity>
         </View>
     );
@@ -183,11 +185,11 @@ export default function WasherDashboardScreen() {
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color="#1E293B" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Specialist Panel</Text>
+                <Text style={styles.headerTitle}>{t('workInSuperApp')}</Text>
                 <TouchableOpacity onPress={handleToggleStatus} style={[styles.statusToggle, { backgroundColor: online ? '#DCFCE7' : '#F1F5F9' }]}>
                     <View style={[styles.statusDot, { backgroundColor: online ? '#22C55E' : '#94A3B8' }]} />
                     <Text style={[styles.statusText, { color: online ? '#166534' : '#64748B' }]}>
-                        {online ? 'ONLINE' : 'OFFLINE'}
+                        {online ? t('uz' === 'uz' ? 'ONLINE' : 'ОНЛАЙН') : t('uz' === 'uz' ? 'OFFLINE' : 'ОФФЛАЙН')}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -263,7 +265,7 @@ export default function WasherDashboardScreen() {
                     }
                     ListHeaderComponent={
                         <View style={styles.listHeader}>
-                            <Text style={styles.sectionTitle}>AVAILABLE ORDERS ({availableOrders.length})</Text>
+                            <Text style={styles.sectionTitle}>{t('availableOrders').toUpperCase()} ({availableOrders.length})</Text>
                             {!online && (
                                 <View style={styles.offlineWarning}>
                                     <Ionicons name="warning" size={20} color="#92400E" />

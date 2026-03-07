@@ -9,6 +9,8 @@ import Colors from '@/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function ProfileMenuItem({ icon, label, onPress, colors, isLast = false, isDestructive = false }: any) {
   return (
@@ -31,6 +33,13 @@ export default function ProfileScreen() {
   const colors = Colors[scheme];
   const { token, logout } = useAuth();
   const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+
+  const changeLanguage = async (newLang: string) => {
+    await i18n.changeLanguage(newLang);
+    await AsyncStorage.setItem('app_lang', newLang);
+  };
 
   const queryClient = useQueryClient();
   const { data: user } = useQuery({
@@ -46,7 +55,6 @@ export default function ProfileScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['me'] });
       setBuster(Date.now());
-      alert('Profile picture updated!');
     },
   });
 
@@ -117,15 +125,36 @@ export default function ProfileScreen() {
         <View style={styles.statsRow}>
           <View style={[styles.statBox, { backgroundColor: colors.card }]}>
             <Text style={[styles.statValue, { color: colors.primary }]}>12</Text>
-            <Text style={styles.statLabel}>Orders</Text>
+            <Text style={styles.statLabel}>{t('orders')}</Text>
           </View>
           <View style={[styles.statBox, { backgroundColor: colors.card }]}>
             <Text style={[styles.statValue, { color: colors.primary }]}>350</Text>
-            <Text style={styles.statLabel}>Points</Text>
+            <Text style={styles.statLabel}>{t('points')}</Text>
           </View>
           <View style={[styles.statBox, { backgroundColor: colors.card }]}>
             <Text style={[styles.statValue, { color: colors.primary }]}>4.9</Text>
-            <Text style={styles.statLabel}>Rating</Text>
+            <Text style={styles.statLabel}>{t('rating')}</Text>
+          </View>
+        </View>
+
+        {/* Language Picker */}
+        <View style={styles.languageContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>LANGUAGE / TILL</Text>
+          <View style={styles.langRow}>
+            {(['uz', 'ru', 'en']).map((l) => (
+              <TouchableOpacity
+                key={l}
+                style={[
+                  styles.langBtn,
+                  { backgroundColor: lang === l ? colors.primary : colors.card, borderColor: colors.border }
+                ]}
+                onPress={() => changeLanguage(l)}
+              >
+                <Text style={[styles.langText, { color: lang === l ? '#fff' : colors.text }]}>
+                  {l === 'uz' ? 'O\'zbek' : l === 'ru' ? 'Русский' : 'English'}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
@@ -133,37 +162,37 @@ export default function ProfileScreen() {
         <View style={[styles.menuContainer, { backgroundColor: colors.card }]}>
           <ProfileMenuItem
             icon="person-outline"
-            label="Edit Profile"
+            label={t('editProfile')}
             onPress={() => router.push('/profile-edit' as never)}
             colors={colors}
           />
           <ProfileMenuItem
             icon="wallet-outline"
-            label="Wallet & Payments"
+            label={t('wallet')}
             onPress={() => router.push('/wallet' as never)}
             colors={colors}
           />
           <ProfileMenuItem
             icon="briefcase-outline"
-            label="Work in SuperApp"
+            label={t('workInSuperApp')}
             onPress={() => router.push('/washer-dashboard' as never)}
             colors={{ ...colors, primary: '#6366F1' }}
           />
           <ProfileMenuItem
             icon="notifications-outline"
-            label="Notifications"
-            onPress={() => { }}
+            label={t('notifications')}
+            onPress={() => router.push('/notifications' as never)}
             colors={colors}
           />
           <ProfileMenuItem
             icon="help-circle-outline"
-            label="Help & Support"
+            label={t('helpSupport')}
             onPress={() => router.push('/support' as never)}
             colors={colors}
           />
           <ProfileMenuItem
             icon="log-out-outline"
-            label="Log Out"
+            label={t('logout')}
             onPress={handleLogout}
             colors={colors}
             isLast={true}
@@ -198,4 +227,9 @@ const styles = StyleSheet.create({
   menuIconContainer: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
   menuLabel: { flex: 1, fontSize: 16, fontWeight: '700' },
   versionText: { textAlign: 'center', fontSize: 12, color: '#CBD5E1', marginTop: 24, fontWeight: '600' },
+  languageContainer: { paddingHorizontal: 20, marginBottom: 24 },
+  sectionTitle: { fontSize: 11, fontWeight: '800', marginBottom: 10, letterSpacing: 1 },
+  langRow: { flexDirection: 'row', gap: 10 },
+  langBtn: { flex: 1, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+  langText: { fontSize: 14, fontWeight: '700' },
 });
