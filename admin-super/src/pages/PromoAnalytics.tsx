@@ -4,7 +4,7 @@ import { getPromoAnalytics, getPromoDailyStats } from '../lib/api';
 import { ArrowLeft, Target, TrendingUp, Users, DollarSign, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    BarChart, Bar, Cell
+    BarChart, Bar
 } from 'recharts';
 
 export default function PromoAnalytics() {

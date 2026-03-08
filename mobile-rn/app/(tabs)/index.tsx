@@ -36,29 +36,7 @@ const MOCK_STORIES = [
   { id: 's3', title: 'Розыгрыш', imageUrl: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=200' },
 ];
 
-const MOCK_PROMOS: any[] = [
-  {
-    id: 'm1',
-    title: 'Комплекс (Комбо)',
-    description: 'Мойка Люкс + покрытие воском со скидкой 40.000 UZS',
-    discountValue: '-40 000 UZS',
-    imageUrl: 'https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600'
-  },
-  {
-    id: 'm2',
-    title: '5% Кешбэк на АЗС',
-    description: 'Оплати через SuperApp на АЗС Mustang и получи кешбэк на баланс!',
-    discountValue: '5% Cashback',
-    imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600'
-  },
-  {
-    id: 'm3',
-    title: 'Сезонное предложение',
-    description: 'Пора переобуваться! Скидки на шиномонтаж до 1 декабря.',
-    discountValue: 'Шиномонтаж',
-    imageUrl: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?w=600'
-  }
-];
+// MOCK_PROMOS are removed to use real data from API
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme() ?? 'dark';
@@ -152,7 +130,7 @@ export default function HomeScreen() {
     enabled: !!token,
   });
 
-  const displayPromos = promotions.length > 0 ? promotions : MOCK_PROMOS;
+  const displayPromos = promotions;
 
   const combinedStories = [
     ...promotions.map(p => ({ ...p, type: 'PROMO', displayName: p.title })),
