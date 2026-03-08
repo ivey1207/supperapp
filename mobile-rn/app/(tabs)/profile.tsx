@@ -172,7 +172,7 @@ export default function ProfileScreen() {
             onPress={() => router.push('/wallet' as never)}
             colors={colors}
           />
-          {user?.specialist && (
+          {(user?.specialist || user?.isSpecialist) && (
             <ProfileMenuItem
               icon="briefcase-outline"
               label={t('workInSuperApp')}
