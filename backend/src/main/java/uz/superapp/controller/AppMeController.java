@@ -40,6 +40,10 @@ public class AppMeController {
                 "fullName", user.getFullName() != null ? user.getFullName() : "",
                 "avatarUrl", user.getAvatarUrl() != null ? user.getAvatarUrl() : "",
                 "carModel", user.getCarModel() != null ? user.getCarModel() : "",
-                "carNumber", user.getCarNumber() != null ? user.getCarNumber() : ""));
+                "carNumber", user.getCarNumber() != null ? user.getCarNumber() : "",
+                "isSpecialist", user.isSpecialist(),
+                "specialist", user.isSpecialist(),
+                "isOnline", user.isOnline(),
+                "online", user.isOnline()));
     }
 }
