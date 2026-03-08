@@ -132,6 +132,10 @@ public class AdminBranchController {
             branch.setLocation(loc);
         }
 
+        if (body.containsKey("commissionRate")) {
+            branch.setCommissionRate(getBigDecimal(body, "commissionRate"));
+        }
+
         branch.setArchived(false);
         branchRepository.save(branch);
 
@@ -249,6 +253,9 @@ public class AdminBranchController {
                 branch.setLocation(loc);
             }
         }
+        if (body.containsKey("commissionRate")) {
+            branch.setCommissionRate(getBigDecimal(body, "commissionRate"));
+        }
         branchRepository.save(branch);
         return ResponseEntity.ok(buildBranchMap(branch));
     }
@@ -296,6 +303,7 @@ public class AdminBranchController {
         m.put("isMobileService", branch.isMobileService());
         m.put("rating", branch.getRating());
         m.put("reviewCount", branch.getReviewCount());
+        m.put("commissionRate", branch.getCommissionRate());
 
         Double lat = null;
         Double lon = null;
@@ -350,6 +358,24 @@ public class AdminBranchController {
     private Double getDouble(Map<String, Object> map, String key, Double defaultValue) {
         Double val = getDouble(map, key);
         return val != null ? val : defaultValue;
+    }
+
+    private java.math.BigDecimal getBigDecimal(Map<String, Object> map, String key) {
+        Object value = map.get(key);
+        if (value instanceof java.math.BigDecimal) {
+            return (java.math.BigDecimal) value;
+        }
+        if (value instanceof Number) {
+            return java.math.BigDecimal.valueOf(((Number) value).doubleValue());
+        }
+        if (value instanceof String) {
+            try {
+                return new java.math.BigDecimal((String) value);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     private int getInt(Map<String, Object> map, String key, int defaultValue) {

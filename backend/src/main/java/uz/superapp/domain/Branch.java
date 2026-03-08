@@ -43,8 +43,10 @@ public class Branch {
     private double rating = 0.0;
     private int reviewCount = 0;
     private boolean isMobileService = false;
+    private java.math.BigDecimal commissionRate;
 
     public String getId() {
+
         return id;
     }
 
@@ -196,7 +198,16 @@ public class Branch {
         isMobileService = mobileService;
     }
 
+    public java.math.BigDecimal getCommissionRate() {
+        return commissionRate;
+    }
+
+    public void setCommissionRate(java.math.BigDecimal commissionRate) {
+        this.commissionRate = commissionRate;
+    }
+
     @Embeddable
+
     public static class GeoLocation {
         private String type = "Point";
 

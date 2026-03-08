@@ -6,10 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.AppUser;
+import uz.superapp.domain.Branch;
 import uz.superapp.domain.OnDemandOrder;
 import uz.superapp.domain.Organization;
 import uz.superapp.domain.Wallet;
 import uz.superapp.repository.AppUserRepository;
+import uz.superapp.repository.BranchRepository;
 import uz.superapp.repository.OnDemandOrderRepository;
 import uz.superapp.repository.OrganizationRepository;
 import uz.superapp.repository.WalletRepository;
@@ -30,15 +32,18 @@ public class AppOnDemandOrderController {
     private final WalletRepository walletRepository;
     private final OrganizationRepository organizationRepository;
     private final AppUserRepository appUserRepository;
+    private final BranchRepository branchRepository;
 
     public AppOnDemandOrderController(OnDemandOrderRepository repository,
             WalletRepository walletRepository,
             OrganizationRepository organizationRepository,
-            AppUserRepository appUserRepository) {
+            AppUserRepository appUserRepository,
+            BranchRepository branchRepository) {
         this.repository = repository;
         this.walletRepository = walletRepository;
         this.organizationRepository = organizationRepository;
         this.appUserRepository = appUserRepository;
+        this.branchRepository = branchRepository;
     }
 
     @Operation(summary = "Create on-demand service request")
@@ -153,12 +158,33 @@ public class AppOnDemandOrderController {
                 // 1. Debit Client
                 clientWallet.setBalance(clientWallet.getBalance().subtract(amount));
 
-                // 2. Fetch dynamic commission rate from organization
-                BigDecimal commissionRate = new BigDecimal("0.15"); // Default 15%
-                if (order.getOrgId() != null) {
+                // 2. Hierarchical Commission Lookup: Specialist -> Branch -> Organization ->
+                // Default
+                BigDecimal commissionRate = null;
+
+                // Specialist level
+                AppUser specialist = appUserRepository.findById(auth.getName()).orElse(null);
+                if (specialist != null && specialist.getCommissionRate() != null) {
+                    commissionRate = specialist.getCommissionRate();
+                }
+
+                // Branch level
+                if (commissionRate == null && order.getProviderId() != null) {
+                    commissionRate = branchRepository.findById(order.getProviderId())
+                            .map(Branch::getCommissionRate)
+                            .orElse(null);
+                }
+
+                // Organization level
+                if (commissionRate == null && order.getOrgId() != null) {
                     commissionRate = organizationRepository.findById(order.getOrgId())
                             .map(Organization::getCommissionRate)
-                            .orElse(new BigDecimal("0.15"));
+                            .orElse(null);
+                }
+
+                // Default fallback
+                if (commissionRate == null) {
+                    commissionRate = new BigDecimal("0.15");
                 }
 
                 // 3. Calculate Payout
@@ -166,6 +192,7 @@ public class AppOnDemandOrderController {
                 BigDecimal payout = amount.subtract(commission);
 
                 // 4. Credit Specialist
+
                 specialistWallet.setBalance(specialistWallet.getBalance().add(payout));
 
                 walletRepository.save(clientWallet);

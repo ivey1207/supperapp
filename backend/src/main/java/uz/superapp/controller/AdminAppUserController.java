@@ -49,6 +49,7 @@ public class AdminAppUserController {
                         m.put("isSpecialist", u.isSpecialist());
                         m.put("isOnline", u.isOnline());
                         m.put("orgId", u.getOrgId() != null ? u.getOrgId() : "");
+                        m.put("commissionRate", u.getCommissionRate());
                         m.put("carModel", u.getCarModel() != null ? u.getCarModel() : "");
 
                         m.put("carNumber", u.getCarNumber() != null ? u.getCarNumber() : "");
@@ -110,6 +111,23 @@ public class AdminAppUserController {
             return ResponseEntity.ok(Map.<String, Object>of(
                     "id", user.getId(),
                     "orgId", user.getOrgId() != null ? user.getOrgId() : ""));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Set specialist commission rate")
+    @PostMapping("/{id}/commission")
+    public ResponseEntity<Map<String, Object>> setCommission(@PathVariable String id,
+            @RequestParam java.math.BigDecimal rate, Authentication auth) {
+        if (!isSuperAdmin(auth)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return appUserRepository.findById(id).map(user -> {
+            user.setCommissionRate(rate);
+            appUserRepository.save(user);
+            return ResponseEntity.ok(Map.<String, Object>of(
+                    "id", user.getId(),
+                    "commissionRate", user.getCommissionRate() != null ? user.getCommissionRate() : 0));
         }).orElse(ResponseEntity.notFound().build());
     }
 
