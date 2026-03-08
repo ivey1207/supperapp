@@ -435,7 +435,7 @@ export default function Promotions() {
                                             <input required type="text" className="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 px-5 py-3.5 text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-blue-500/50 transition-all font-medium" value={formData.title} placeholder="Напр. Скидка на мойку" onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Тип/Шаблон</label>
+                                            <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Механика (из библиотеки)</label>
                                             <select className="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 px-5 py-3.5 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 transition-all font-medium cursor-pointer" value={formData.templateId} onChange={(e) => setFormData({ ...formData, templateId: e.target.value })}>
                                                 <option value="">Без шаблона</option>
                                                 {templates.map(t => (

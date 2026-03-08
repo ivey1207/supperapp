@@ -15,7 +15,7 @@ const superAdminNav = [
   { to: '/rfid', label: 'RFID Карты', icon: CreditCard },
   { to: '/reports', label: 'Отчёты по сети', icon: FileText },
   { to: '/promotions', label: 'Акции и скидки', icon: Tag },
-  { to: '/promo-templates', label: 'Шаблоны акций', icon: LayoutIcon },
+  { to: '/promo-templates', label: 'Библиотека механик', icon: LayoutIcon },
   { to: '/services', label: 'Услуги (шаблоны)', icon: Settings },
   { to: '/wash-sessions', label: 'Сеансы мойки 🚿', icon: Droplets },
   { to: '/payment-reports', label: 'Отчёты по оплатам', icon: Receipt },
