@@ -275,41 +275,21 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
 
     // Fetch Yandex native route & maneuvers when navigation starts
     React.useEffect(() => {
-        if (isNavigating && mapRef.current && routePoints && routePoints.length > 0) {
-            const start = { lat: userLoc?.latitude || INITIAL_POINT.lat, lon: userLoc?.longitude || INITIAL_POINT.lon };
-            const end = { lat: routePoints[routePoints.length - 1].latitude, lon: routePoints[routePoints.length - 1].longitude };
+        if (isNavigating && mapRef.current) {
+            const destBranch = branches.find(b => b.id === selectedBranchId);
+            if (!destBranch || !destBranch.location?.coordinates) return;
 
-            // Calculate total route distance
-            let totalDist = 0;
-            for (let i = 1; i < routePoints.length; i++) {
-                totalDist += calculateDistance(
-                    { lat: routePoints[i - 1].latitude, lon: routePoints[i - 1].longitude },
-                    { lat: routePoints[i].latitude, lon: routePoints[i].longitude }
-                );
-            }
-            setTotalRouteDist(totalDist);
-            setDistToDestination(totalDist);
-            navStartTimeRef.current = new Date();
+            const start = { lat: userLoc?.latitude || INITIAL_POINT.lat, lon: userLoc?.longitude || INITIAL_POINT.lon };
+            const end = { lat: destBranch.location.coordinates[1], lon: destBranch.location.coordinates[0] };
 
             // Zoom into nav mode
             if (mapRef.current) {
-                mapRef.current.setCenter(start, 17, 0, 45, 1000, Animation.SMOOTH);
-            }
-
-            // Fit the route
-            if (mapRef.current) {
-                mapRef.current.fitMarkers([start, end]);
-                // If we want to fit all points of the polyline:
-                // mapRef.current.fitMarkers(routePoints.map(p => ({ lat: p.latitude, lon: p.longitude })));
+                mapRef.current.setCenter(start, 18, userLoc?.heading || 0, 45, 1000, Animation.SMOOTH);
             }
 
             // Welcome announcement — Alisa style
-            const distText = formatDistanceVoice(totalDist);
-            const etaText = formatETA(totalDist);
-
-            // Delay for stability
             setTimeout(() => {
-                speakAlisa(`Маршрут построен. ${distText}, примерно ${etaText}. Поехали!`);
+                speakAlisa(`Маршрут построен. Поехали!`);
             }, 500);
 
             // @ts-ignore
@@ -321,25 +301,49 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                     // Unified Points for Polyline
                     const points = route.points || route.sections?.[0]?.points || [];
                     if (points.length > 0) {
-                        setYandexRoutePoints(points.map((p: any) => ({ latitude: p.lat, longitude: p.lon })));
-                    } else if (routePoints && routePoints.length > 0) {
-                        setYandexRoutePoints(routePoints);
+                        setYandexRoutePoints(points.map((p: any) => ({ latitude: p.lat, longitude: p.longitude || p.lon })));
+
+                        // Calculate distance from points
+                        let totalDist = 0;
+                        for (let i = 1; i < points.length; i++) {
+                            totalDist += calculateDistance(
+                                { lat: points[i - 1].lat, lon: points[i - 1].lon },
+                                { lat: points[i].lat, lon: points[i].lon }
+                            );
+                        }
+                        setTotalRouteDist(totalDist);
+                        setDistToDestination(totalDist);
                     }
 
                     const allManeuvers: Maneuver[] = route.maneuvers || route.sections?.[0]?.maneuvers || [];
-
                     if (allManeuvers.length > 0) {
                         setManeuvers(allManeuvers);
                         setNextManeuverIdx(0);
                         setLastSpokenDist(null);
-                        console.log(`Voice Nav Success: ${allManeuvers.length} maneuvers`);
-                    } else {
-                        console.log('No maneuvers from MapKit');
-                        setManeuvers([]);
                     }
                 }
             });
-        } else if (!isNavigating) {
+
+        }
+    }, [isNavigating, selectedBranchId]);
+
+    // Continuous camera follow during navigation
+    React.useEffect(() => {
+        if (isNavigating && userLoc && mapRef.current) {
+            mapRef.current.setCenter(
+                { lat: userLoc.latitude, lon: userLoc.longitude },
+                18,
+                userLoc.heading || 0,
+                45,
+                800,
+                Animation.SMOOTH
+            );
+        }
+    }, [userLoc?.latitude, userLoc?.longitude, userLoc?.heading, isNavigating]);
+
+    // Cleanup when navigation stops
+    React.useEffect(() => {
+        if (!isNavigating) {
             Speech.stop();
             setManeuvers([]);
             setYandexRoutePoints([]);

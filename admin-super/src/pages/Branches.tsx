@@ -6,6 +6,8 @@ import api, { getBranches, getOrganizations, deleteBranch, uploadFile, getFileUr
 import { useAuth } from '../lib/auth';
 import { playClick } from '../lib/sound';
 import Pagination from '../components/Pagination';
+import MapPicker from '../components/MapPicker';
+
 
 type Branch = {
   id: string;
@@ -440,6 +442,13 @@ export default function Branches() {
               />
             </div>
           </div>
+
+          <MapPicker
+            lat={form.latitude}
+            lng={form.longitude}
+            onChange={(lat, lng) => setForm(f => ({ ...f, latitude: lat, longitude: lng }))}
+          />
+
 
           <div className="grid grid-cols-2 gap-4">
             <div>
