@@ -43,7 +43,7 @@ export default function WasherDashboardScreen() {
     const { t } = useTranslation();
     const colors = Colors.light;
 
-    const [online, setOnline] = useState(user?.isOnline || false);
+    const [online, setOnline] = useState(user?.online || false);
     const [availableOrders, setAvailableOrders] = useState<OnDemandOrder[]>([]);
     const [activeOrder, setActiveOrder] = useState<OnDemandOrder | null>(null);
     const [loading, setLoading] = useState(true);
@@ -197,7 +197,7 @@ export default function WasherDashboardScreen() {
             {activeOrder ? (
                 <View style={styles.activeContainer}>
                     <View style={styles.activeCard}>
-                        <Text style={styles.sectionTitle}>ACTIVE ORDER</Text>
+                        <Text style={styles.sectionTitle}>{t('activeOrder') || 'ACTIVE ORDER'}</Text>
                         <View style={styles.activeHeader}>
                             <View>
                                 <Text style={styles.activeStatus}>{activeOrder.status}</Text>
@@ -217,25 +217,25 @@ export default function WasherDashboardScreen() {
                             {activeOrder.status === 'ACCEPTED' && (
                                 <TouchableOpacity style={styles.actionBtn} onPress={() => handleUpdateStatus('EN_ROUTE')}>
                                     <Ionicons name="navigate" size={24} color={colors.primary} />
-                                    <Text style={styles.actionLabel}>En Route</Text>
+                                    <Text style={styles.actionLabel}>{t('enRoute') || 'En Route'}</Text>
                                 </TouchableOpacity>
                             )}
                             {activeOrder.status === 'EN_ROUTE' && (
                                 <TouchableOpacity style={styles.actionBtn} onPress={() => handleUpdateStatus('ARRIVED')}>
                                     <Ionicons name="pin" size={24} color={colors.primary} />
-                                    <Text style={styles.actionLabel}>Arrived</Text>
+                                    <Text style={styles.actionLabel}>{t('arrived') || 'Arrived'}</Text>
                                 </TouchableOpacity>
                             )}
                             {activeOrder.status === 'ARRIVED' && (
                                 <TouchableOpacity style={styles.actionBtn} onPress={() => handleUpdateStatus('STARTED')}>
                                     <Ionicons name="play" size={24} color={colors.primary} />
-                                    <Text style={styles.actionLabel}>Start Wash</Text>
+                                    <Text style={styles.actionLabel}>{t('startWash') || 'Start Wash'}</Text>
                                 </TouchableOpacity>
                             )}
                             {activeOrder.status === 'STARTED' && (
                                 <TouchableOpacity style={[styles.actionBtn, styles.completeBtn]} onPress={() => handleUpdateStatus('COMPLETED')}>
                                     <Ionicons name="checkmark-circle" size={24} color="#fff" />
-                                    <Text style={[styles.actionLabel, { color: '#fff' }]}>Complete</Text>
+                                    <Text style={[styles.actionLabel, { color: '#fff' }]}>{t('complete') || 'Complete'}</Text>
                                 </TouchableOpacity>
                             )}
                         </View>
@@ -251,7 +251,7 @@ export default function WasherDashboardScreen() {
                         }}
                     >
                         <MaterialCommunityIcons name="navigation" size={20} color="#fff" />
-                        <Text style={styles.navBtnText}>OPEN NAVIGATOR</Text>
+                        <Text style={styles.navBtnText}>{t('openNavigator') || 'OPEN NAVIGATOR'}</Text>
                     </TouchableOpacity>
                 </View>
             ) : (
@@ -269,7 +269,7 @@ export default function WasherDashboardScreen() {
                             {!online && (
                                 <View style={styles.offlineWarning}>
                                     <Ionicons name="warning" size={20} color="#92400E" />
-                                    <Text style={styles.offlineWarningText}>Go online to see more orders</Text>
+                                    <Text style={styles.offlineWarningText}>{t('goOnlinePrompt') || 'Go online to see more orders'}</Text>
                                 </View>
                             )}
                         </View>
@@ -277,8 +277,8 @@ export default function WasherDashboardScreen() {
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
                             <Ionicons name="search" size={64} color="#CBD5E1" />
-                            <Text style={styles.emptyText}>No orders nearby</Text>
-                            <Text style={styles.emptySubtext}>New requests will appear here</Text>
+                            <Text style={styles.emptyText}>{t('noOrdersNearby') || 'No orders nearby'}</Text>
+                            <Text style={styles.emptySubtext}>{t('newRequestsPrompt') || 'New requests will appear here'}</Text>
                         </View>
                     }
                 />

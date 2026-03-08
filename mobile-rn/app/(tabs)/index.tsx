@@ -90,14 +90,14 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (user) {
-      setIsOnline(user.isOnline || false);
+      setIsOnline(user.online || false);
     }
   }, [user]);
 
   const { data: availableOrders = [], refetch: refetchAvailable } = useQuery({
     queryKey: ['availableOrders', token, isOnline],
     queryFn: () => getAvailableOrders(token!),
-    enabled: !!token && !!user?.isSpecialist && isOnline,
+    enabled: !!token && !!user?.specialist && isOnline,
     refetchInterval: 10000, // Refresh every 10s if online
   });
 
@@ -105,7 +105,7 @@ export default function HomeScreen() {
     if (!token) return;
     try {
       const updated = await updateSpecialistStatus(token, !isOnline);
-      setIsOnline(updated.isOnline || false);
+      setIsOnline(updated.online || false);
       if (!isOnline) {
         refetchAvailable();
       }
@@ -325,7 +325,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Specialist Quick Status - Small circle next to name if specialist */}
-          {user?.isSpecialist && (
+          {user?.specialist && (
             <TouchableOpacity onPress={toggleOnline} style={styles.specialistBadgeMini}>
               <View style={[styles.miniStatusDot, { backgroundColor: isOnline ? '#10B981' : '#94A3B8' }]} />
               <Text style={[styles.miniStatusText, { color: isOnline ? '#10B981' : '#94A3B8' }]}>
@@ -372,7 +372,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Specialist Bar - Moved to top level for maximum visibility */}
-        {user?.isSpecialist && (
+        {user?.specialist && (
           <View style={styles.specialistBar}>
             <LinearGradient
               colors={isOnline ? ['#10B981', '#059669'] : ['#475569', '#334155']}
@@ -542,7 +542,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Specialist Orders Section */}
-          {user?.isSpecialist && isOnline && availableOrders.length > 0 && (
+          {user?.specialist && isOnline && availableOrders.length > 0 && (
             <View style={styles.ordersSection}>
               <Text style={[styles.sectionTitle, { color: colors.text, paddingHorizontal: 20, marginBottom: 12 }]}>
                 {t('availableOrders')} ({availableOrders.length})
