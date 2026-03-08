@@ -324,6 +324,16 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* Specialist Quick Status - Small circle next to name if specialist */}
+          {user?.isSpecialist && (
+            <TouchableOpacity onPress={toggleOnline} style={styles.specialistBadgeMini}>
+              <View style={[styles.miniStatusDot, { backgroundColor: isOnline ? '#10B981' : '#94A3B8' }]} />
+              <Text style={[styles.miniStatusText, { color: isOnline ? '#10B981' : '#94A3B8' }]}>
+                {isOnline ? 'ON' : 'OFF'}
+              </Text>
+            </TouchableOpacity>
+          )}
+
           <View style={styles.headerRight}>
             {wallet && (
               <TouchableOpacity
@@ -361,7 +371,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Specialist Bar - Repositioned to top of ScrollView for visibility */}
+        {/* Specialist Bar - Moved to top level for maximum visibility */}
         {user?.isSpecialist && (
           <View style={styles.specialistBar}>
             <LinearGradient
@@ -369,13 +379,15 @@ export default function HomeScreen() {
               style={styles.specialistGradient}
             >
               <View style={styles.specialistInfo}>
-                <View style={[styles.statusIndicator, { backgroundColor: isOnline ? '#fff' : '#94A3B8' }]} />
+                <View style={[styles.statusIndicator, { backgroundColor: isOnline ? '#fff' : '#94A3B8', shadowColor: isOnline ? '#fff' : 'transparent', shadowOpacity: 0.5, shadowRadius: 10, elevation: 5 }]} />
                 <Text style={styles.specialistStatusText}>
                   {isOnline ? t('onlineStatus') : t('offlineStatus')}
                 </Text>
               </View>
-              <TouchableOpacity style={styles.onlineSwitch} onPress={toggleOnline}>
-                <View style={[styles.switchKnob, isOnline ? { alignSelf: 'flex-end', backgroundColor: '#fff' } : { alignSelf: 'flex-start', backgroundColor: '#94A3B8' }]} />
+              <TouchableOpacity style={styles.onlineSwitch} onPress={toggleOnline} activeOpacity={0.8}>
+                <View style={[styles.switchTrack, { backgroundColor: isOnline ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)' }]}>
+                  <View style={[styles.switchKnob, isOnline ? { transform: [{ translateX: 22 }], backgroundColor: '#fff' } : { transform: [{ translateX: 2 }], backgroundColor: '#94A3B8' }]} />
+                </View>
               </TouchableOpacity>
             </LinearGradient>
           </View>
@@ -1064,54 +1076,81 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  specialistBar: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  specialistGradient: {
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+  specialistBadgeMini: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    elevation: 4,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    marginLeft: 8,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  miniStatusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  miniStatusText: {
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  specialistBar: {
+    marginHorizontal: 20,
+    marginTop: 8,
+    marginBottom: 12,
+    borderRadius: 20,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  specialistGradient: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 18,
   },
   specialistInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
   statusIndicator: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    marginRight: 4,
   },
   specialistStatusText: {
     color: '#fff',
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '900',
     letterSpacing: 0.5,
   },
   onlineSwitch: {
-    width: 44,
+    width: 50,
+    height: 28,
+  },
+  switchTrack: {
+    width: 48,
     height: 24,
     borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    padding: 3,
     justifyContent: 'center',
   },
   switchKnob: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   fab: {
     position: 'absolute',

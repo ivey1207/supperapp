@@ -10,6 +10,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import YaMap from 'react-native-yamap';
+import '@/lib/i18n';
 
 YaMap.init('5b98719e-7779-4c0c-bfbc-bf60307687a4');
 

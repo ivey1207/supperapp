@@ -1,0 +1,11 @@
+node_modules
+.expo
+.git
+*.apk
+backend/backend.db
+backend/target
+web-admin/dist
+web-admin/node_modules
+mobile-rn/node_modules
+mobile-rn/android/app/build
+mobile-rn/android/build

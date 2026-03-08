@@ -189,7 +189,7 @@ export default function WasherDashboardScreen() {
                 <TouchableOpacity onPress={handleToggleStatus} style={[styles.statusToggle, { backgroundColor: online ? '#DCFCE7' : '#F1F5F9' }]}>
                     <View style={[styles.statusDot, { backgroundColor: online ? '#22C55E' : '#94A3B8' }]} />
                     <Text style={[styles.statusText, { color: online ? '#166534' : '#64748B' }]}>
-                        {online ? t('uz' === 'uz' ? 'ONLINE' : 'ОНЛАЙН') : t('uz' === 'uz' ? 'OFFLINE' : 'ОФФЛАЙН')}
+                        {online ? t('online') : t('offline')}
                     </Text>
                 </TouchableOpacity>
             </View>

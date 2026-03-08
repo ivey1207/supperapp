@@ -18,7 +18,7 @@ export default function WelcomeScreen() {
 
     const changeLanguage = async (lng: string) => {
         await i18n.changeLanguage(lng);
-        await AsyncStorage.setItem('user_language', lng);
+        await AsyncStorage.setItem('app_lang', lng);
     };
 
     useEffect(() => {

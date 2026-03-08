@@ -14,6 +14,8 @@ const resources = {
             searchPlaceholder: 'Yoqilg\'i, moyka yoki xizmatlarni izlang',
             onlineStatus: 'SIZ ONLINE — BUYURTMALARNI QABUL QILING',
             offlineStatus: 'SIZ OFFLINE',
+            online: 'ONLINE',
+            offline: 'OFFLINE',
             availableOrders: 'Mavjud buyurtmalar',
             acceptOrder: 'QABUL QILISH',
             wash: 'MOYKA',
@@ -62,10 +64,23 @@ const resources = {
                 otpSent: 'Kod yuborildi',
                 enterPhone: 'Telefonni kiriting',
                 enterEmail: 'Emailni kiriting',
+                signUp: 'Ro\'yxatdan o\'tish',
+                createAccount: 'Hisob yaratish',
+                fullName: 'To\'liq ism',
+                carModel: 'Avtomobil modeli',
+                agreeTerms: 'Foydalanish shartlariga roziman',
+                completeRegistration: 'Ro\'yxatdan o\'tishni yakunlash',
+                alreadyHaveAccount: 'Hisobingiz bormi?',
+                enterName: 'Ismingizni kiriting',
+                enterPassword: 'Parolni kiriting',
+                agreeTermsError: 'Shartlarga rozi bo\'lishingiz kerak',
             },
             welcome: {
+                title: 'Super App',
                 login: 'Kirish',
+                register: 'Ro\'yxatdan o\'tish',
                 subtitle: 'Barcha xizmatlar bir joyda',
+                terms: '«Kirish» yoki «Ro\'yxatdan o\'tish» tugmasini bosish orqali siz Foydalanish shartlari va Maxfiylik siyosatini qabul qilasiz.',
             }
         }
     },
@@ -79,6 +94,8 @@ const resources = {
             searchPlaceholder: 'Поиск топлива, мойки или услуг',
             onlineStatus: 'ВЫ В СЕТИ — ПРИНИМАЙТЕ ЗАКАЗЫ',
             offlineStatus: 'ВЫ ОФФЛАЙН',
+            online: 'ОНЛАЙН',
+            offline: 'ОФФЛАЙН',
             availableOrders: 'Доступные заказы',
             acceptOrder: 'ПРИНЯТЬ ЗАКАЗ',
             wash: 'МОЙКА',
@@ -127,10 +144,23 @@ const resources = {
                 otpSent: 'Код отправлен',
                 enterPhone: 'Введите телефон',
                 enterEmail: 'Введите email',
+                signUp: 'Регистрация',
+                createAccount: 'Создать аккаунт',
+                fullName: 'Полное имя',
+                carModel: 'Модель авто',
+                agreeTerms: 'Я согласен с условиями',
+                completeRegistration: 'Завершить регистрацию',
+                alreadyHaveAccount: 'Уже есть аккаунт?',
+                enterName: 'Введите имя',
+                enterPassword: 'Введите пароль',
+                agreeTermsError: 'Вы должны согласиться с условиями',
             },
             welcome: {
+                title: 'Super App',
                 login: 'Войти',
+                register: 'Регистрация',
                 subtitle: 'Все услуги в одном приложении',
+                terms: 'Нажимая «Войти» или «Регистрация», вы принимаете Условия использования и Политику конфиденциальности.',
             }
         }
     },
@@ -144,6 +174,8 @@ const resources = {
             searchPlaceholder: 'Search for gas, washes, or services',
             onlineStatus: 'YOU ARE ONLINE — ACCEPT ORDERS',
             offlineStatus: 'YOU ARE OFFLINE',
+            online: 'ONLINE',
+            offline: 'OFFLINE',
             availableOrders: 'Available Orders',
             acceptOrder: 'ACCEPT ORDER',
             wash: 'WASH',
@@ -169,6 +201,7 @@ const resources = {
             notifications: 'Notifications',
             helpSupport: 'Help & Support',
             logout: 'Log Out',
+            comingSoon: 'Coming Soon',
             featureInDev: 'This section is coming soon!',
             walletBalance: 'Wallet Balance',
             addPoints: 'Add Points',
@@ -191,33 +224,55 @@ const resources = {
                 otpSent: 'Code sent',
                 enterPhone: 'Enter phone',
                 enterEmail: 'Enter email',
+                signUp: 'Sign Up',
+                createAccount: 'Create Account',
+                fullName: 'Full Name',
+                carModel: 'Car Model',
+                agreeTerms: 'I agree to the terms',
+                completeRegistration: 'Complete Registration',
+                alreadyHaveAccount: 'Already have an account?',
+                enterName: 'Enter name',
+                enterPassword: 'Enter password',
+                agreeTermsError: 'You must agree to terms',
             },
             welcome: {
+                title: 'Super App',
                 login: 'Login',
+                register: 'Register',
                 subtitle: 'All services in one app',
+                terms: 'By clicking "Login" or "Register", you agree to our Terms of Use and Privacy Policy.',
             }
         }
     }
 };
 
-const initI18n = async () => {
-    let savedLanguage = await AsyncStorage.getItem('app_lang');
-    if (!savedLanguage) {
-        savedLanguage = Localization.locale.split('-')[0];
-    }
-
-    i18n
-        .use(initReactI18next)
-        .init({
-            resources,
-            lng: savedLanguage || 'uz',
-            fallbackLng: 'en',
-            interpolation: {
-                escapeValue: false
-            }
-        });
+const getInitialLang = () => {
+    return 'uz';
 };
 
-initI18n();
+i18n
+    .use(initReactI18next)
+    .init({
+        resources,
+        lng: getInitialLang(),
+        fallbackLng: 'en',
+        interpolation: {
+            escapeValue: false
+        },
+        react: {
+            useSuspense: false
+        }
+    });
+
+AsyncStorage.getItem('app_lang').then(lang => {
+    if (lang) {
+        i18n.changeLanguage(lang);
+    } else {
+        const systemLang = Localization.locale.split('-')[0];
+        if (['uz', 'ru', 'en'].includes(systemLang)) {
+            i18n.changeLanguage(systemLang);
+        }
+    }
+});
 
 export default i18n;
