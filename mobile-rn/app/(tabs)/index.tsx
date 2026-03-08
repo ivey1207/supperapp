@@ -94,10 +94,12 @@ export default function HomeScreen() {
     }
   }, [user]);
 
+  const isSpecialistUser = !!(user?.specialist || user?.isSpecialist);
+
   const { data: availableOrders = [], refetch: refetchAvailable } = useQuery({
     queryKey: ['availableOrders', token, isOnline],
     queryFn: () => getAvailableOrders(token!),
-    enabled: !!token && !!user?.specialist && isOnline,
+    enabled: !!token && isSpecialistUser && isOnline,
     refetchInterval: 10000, // Refresh every 10s if online
   });
 
@@ -314,7 +316,12 @@ export default function HomeScreen() {
               />
             </TouchableOpacity>
             <View style={styles.userTextContainer}>
-              <Text style={styles.locationLabel}>{user?.fullName?.toUpperCase() || 'SUPER APP'}</Text>
+              <View style={styles.greetingRow}>
+                <Text style={styles.locationLabel}>{user?.fullName?.toUpperCase() || 'IBROKHIM'}</Text>
+                {isSpecialistUser && (
+                  <View style={[styles.statusDot, { backgroundColor: isOnline ? '#10B981' : '#94A3B8' }]} />
+                )}
+              </View>
               <TouchableOpacity style={styles.locationWrapper} onPress={() => router.push('/(tabs)/map' as any)}>
                 <Text style={[styles.locationText, { color: colors.text }]} numberOfLines={1}>
                   {address === 'Detecting location...' ? t('detectingLocation') : address === 'Location disabled' ? t('locationDisabled') : address}
@@ -372,7 +379,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Specialist Bar - Moved to top level for maximum visibility */}
-        {user?.specialist && (
+        {isSpecialistUser && (
           <View style={styles.specialistBar}>
             <LinearGradient
               colors={isOnline ? ['#10B981', '#059669'] : ['#475569', '#334155']}
@@ -542,7 +549,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Specialist Orders Section */}
-          {user?.specialist && isOnline && availableOrders.length > 0 && (
+          {isSpecialistUser && isOnline && availableOrders.length > 0 && (
             <View style={styles.ordersSection}>
               <Text style={[styles.sectionTitle, { color: colors.text, paddingHorizontal: 20, marginBottom: 12 }]}>
                 {t('availableOrders')} ({availableOrders.length})
@@ -1216,5 +1223,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '800',
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
 });
