@@ -84,9 +84,19 @@ public class AppOnDemandOrderController {
             if (!"PENDING".equalsIgnoreCase(order.getStatus())) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Order already taken or cancelled"));
             }
-            order.setContractorId(auth.getName());
+
+            String specialistId = auth.getName();
+            order.setContractorId(specialistId);
             order.setStatus("ACCEPTED");
             order.setAcceptedAt(Instant.now());
+
+            // Link order to specialist's organization for correct commission settlement
+            appUserRepository.findById(specialistId).ifPresent(user -> {
+                if (user.getOrgId() != null) {
+                    order.setOrgId(user.getOrgId());
+                }
+            });
+
             try {
                 return ResponseEntity.ok(toMap(repository.save(order)));
             } catch (Exception e) {
@@ -143,11 +153,19 @@ public class AppOnDemandOrderController {
                 // 1. Debit Client
                 clientWallet.setBalance(clientWallet.getBalance().subtract(amount));
 
-                // 2. Calculate Payout (85% to Specialist)
-                BigDecimal commission = amount.multiply(new BigDecimal("0.15"));
+                // 2. Fetch dynamic commission rate from organization
+                BigDecimal commissionRate = new BigDecimal("0.15"); // Default 15%
+                if (order.getOrgId() != null) {
+                    commissionRate = organizationRepository.findById(order.getOrgId())
+                            .map(Organization::getCommissionRate)
+                            .orElse(new BigDecimal("0.15"));
+                }
+
+                // 3. Calculate Payout
+                BigDecimal commission = amount.multiply(commissionRate);
                 BigDecimal payout = amount.subtract(commission);
 
-                // 3. Credit Specialist
+                // 4. Credit Specialist
                 specialistWallet.setBalance(specialistWallet.getBalance().add(payout));
 
                 walletRepository.save(clientWallet);
