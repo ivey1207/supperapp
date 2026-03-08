@@ -70,6 +70,83 @@ public class AppAuthController {
         return ResponseEntity.ok(Map.of("message", "OTP sent to your email"));
     }
 
+    @Operation(summary = "Register new user with password and send OTP")
+    @PostMapping("/register")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
+        String phone = body.get("phone");
+        String email = body.get("email");
+        String fullName = body.get("fullName");
+        String password = body.get("password");
+
+        if (phone == null || email == null || fullName == null || password == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "phone, email, fullName and password required"));
+        }
+
+        if (appUserRepository.findByPhone(phone).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "User with this phone already exists"));
+        }
+        if (appUserRepository.findByEmail(email).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "User with this email already exists"));
+        }
+
+        AppUser user = new AppUser();
+        user.setPhone(phone);
+        user.setEmail(email);
+        user.setFullName(fullName);
+        user.setPasswordHash(passwordEncoder.encode(password));
+        user.setBlocked(true); // Blocked until OTP verified
+
+        Wallet w = new Wallet();
+        w.setCurrency("UZS");
+        w.setUser(user);
+        user.setWallet(w);
+
+        appUserRepository.save(user);
+
+        // Send OTP
+        String code = String.format("%06d", (int) (Math.random() * 1_000_000));
+        redis.opsForValue().set(OTP_PREFIX + phone, code, OTP_TTL_MIN, TimeUnit.MINUTES);
+
+        try {
+            emailService.sendOtp(email, code);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "User created but failed to send OTP. Please use forgot password."));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Registration successful. Please verify OTP sent to your email."));
+    }
+
+    @Operation(summary = "Verify OTP for registration and activate user")
+    @PostMapping("/register/verify")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> verifyRegistration(@RequestBody Map<String, String> body) {
+        String phone = body.get("phone");
+        String otp = body.get("otp");
+
+        if (phone == null || otp == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "phone and otp required"));
+        }
+
+        String stored = redis.opsForValue().get(OTP_PREFIX + phone);
+        if (stored == null || !stored.equals(otp)) {
+            return ResponseEntity.status(401).body(Map.of("message", "Invalid or expired code"));
+        }
+
+        return appUserRepository.findByPhone(phone).map(user -> {
+            user.setBlocked(false); // Activate user
+            appUserRepository.save(user);
+
+            String accessToken = jwtUtil.generate(user.getId(), "APP_USER");
+            String refreshToken = jwtUtil.generate(user.getId() + ":refresh", "APP_USER");
+            return ResponseEntity.ok(Map.of(
+                    "accessToken", accessToken,
+                    "refreshToken", refreshToken,
+                    "user", user));
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "User not found")));
+    }
+
     @Operation(summary = "Execute verifyOtp operation")
     @PostMapping("/otp/verify")
     @org.springframework.transaction.annotation.Transactional

@@ -12,6 +12,8 @@ type AuthContextType = {
   login: (phone: string, otp: string) => Promise<{ isNewUser: boolean }>;
   loginWithPassword: (identifier: string, password: string) => Promise<void>;
   requestOtp: (phone: string, email: string) => Promise<void>;
+  register: (payload: { fullName: string; phone: string; email: string; password?: string }) => Promise<void>;
+  confirmRegistration: (phone: string, otp: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -43,19 +45,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await apiRequestOtp(phone, email);
   }, []);
 
+  const register = useCallback(async (payload: { fullName: string; phone: string; email: string; password?: string }) => {
+    const { register: apiRegister } = await import('./api');
+    await apiRegister(payload);
+  }, []);
+
   const login = useCallback(async (phone: string, otp: string) => {
     const { accessToken, isNewUser } = await apiVerifyOtp(phone, otp);
-    await AsyncStorage.setItem(TOKEN_KEY, accessToken);
-    setAuthToken(accessToken);
-    setToken(accessToken);
+    if (!isNewUser) {
+      await AsyncStorage.setItem(TOKEN_KEY, accessToken);
+      setAuthToken(accessToken);
+      setToken(accessToken);
+      const { getMe } = await import('./api');
+      const userData = await getMe(accessToken);
+      setUser(userData);
+    }
     return { isNewUser };
   }, []);
 
-  const loginWithPassword = useCallback(async (identifier: string, password: string) => {
-    const { accessToken } = await apiLoginWithPassword(identifier, password);
+  const confirmRegistration = useCallback(async (phone: string, otp: string) => {
+    const { verifyRegistration } = await import('./api');
+    const { accessToken, user: userData } = await verifyRegistration(phone, otp);
     await AsyncStorage.setItem(TOKEN_KEY, accessToken);
     setAuthToken(accessToken);
     setToken(accessToken);
+    setUser(userData);
+  }, []);
+
+  const loginWithPassword = useCallback(async (identifier: string, password: string) => {
+    const { accessToken, user: userData } = await apiLoginWithPassword(identifier, password);
+    await AsyncStorage.setItem(TOKEN_KEY, accessToken);
+    setAuthToken(accessToken);
+    setToken(accessToken);
+    setUser(userData);
   }, []);
 
   const logout = useCallback(async () => {
@@ -65,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, user, setUser, isLoading, login, loginWithPassword, requestOtp, logout }}>
+    <AuthContext.Provider value={{ token, user, setUser, isLoading, login, loginWithPassword, requestOtp, register, confirmRegistration, logout }}>
       {children}
     </AuthContext.Provider>
   );

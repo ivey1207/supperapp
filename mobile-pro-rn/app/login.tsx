@@ -10,57 +10,18 @@ import { LinearGradient } from 'expo-linear-gradient';
 import '@/lib/i18n';
 
 export default function LoginScreen() {
-  const { requestOtp, login, loginWithPassword } = useAuth();
+  const { loginWithPassword } = useAuth();
   const { t } = useTranslation();
   const router = useRouter();
-  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
-  const [loginMode, setLoginMode] = useState<'password' | 'otp'>('otp');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const scheme = useColorScheme() ?? 'light';
   const colors = Colors[scheme];
 
-  const handleSendOtp = async () => {
-    if (!phone.trim()) { setError(t('auth.enterPhone') || 'Enter phone'); return; }
-    if (!email.trim() || !email.includes('@')) { setError(t('auth.enterEmail') || 'Enter email'); return; }
-    setError('');
-    setLoading(true);
-    try {
-      await requestOtp(phone.trim(), email.trim());
-      setStep('otp');
-    } catch (e: unknown) {
-      const msg = (e as { message?: string })?.message ?? '';
-      setError(msg.includes('Network') || msg.includes('REFUSED') ? 'Server unavailable. Please check connection.' : msg || 'Error sending code');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerify = async () => {
-    if (!otp.trim()) { setError(t('auth.enterOtp')); return; }
-    setError('');
-    setLoading(true);
-    try {
-      const { isNewUser } = await login(phone.trim(), otp.trim());
-      if (isNewUser) {
-        router.push('/register' as any);
-      } else {
-        router.replace('/(tabs)' as any);
-      }
-    } catch (e: unknown) {
-      const msg = (e as { message?: string })?.message ?? '';
-      setError(msg.includes('Network') || msg.includes('REFUSED') ? 'Server unavailable.' : msg || 'Invalid code');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePasswordLogin = async () => {
-    const identifier = email || phone;
+  const handleLogin = async () => {
+    const identifier = email;
     if (!identifier.trim()) { setError(t('auth.emailOrPhone')); return; }
     if (!password.trim()) { setError(t('auth.password')); return; }
     setError('');
@@ -102,140 +63,49 @@ export default function LoginScreen() {
               </View>
               <Text style={[styles.title, { color: colors.text }]}>{t('auth.loginTitle')}</Text>
               <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                {loginMode === 'password'
-                  ? t('auth.loginSubtitle')
-                  : step === 'phone' ? t('welcome.subtitle') : t('auth.otpSent')}
+                {t('auth.loginSubtitle')}
               </Text>
             </View>
 
             <View style={[styles.card, { backgroundColor: colors.card }]}>
-              {loginMode === 'password' ? (
-                <View style={styles.form}>
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.emailOrPhone')}</Text>
-                  <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                    <Ionicons name="person-outline" size={20} color={colors.primary} style={styles.inputIcon} />
-                    <TextInput
-                      style={[styles.input, { color: colors.text }]}
-                      placeholder="email@example.com"
-                      placeholderTextColor="#94A3B8"
-                      value={email}
-                      onChangeText={setEmail}
-                      autoCapitalize="none"
-                      editable={!loading}
-                    />
-                  </View>
-
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.password')}</Text>
-                  <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                    <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={styles.inputIcon} />
-                    <TextInput
-                      style={[styles.input, { color: colors.text }]}
-                      placeholder="••••••••"
-                      placeholderTextColor="#94A3B8"
-                      value={password}
-                      onChangeText={setPassword}
-                      secureTextEntry
-                      editable={!loading}
-                    />
-                  </View>
-
-                  <TouchableOpacity
-                    style={[styles.mainBtn, { backgroundColor: colors.primary }]}
-                    onPress={handlePasswordLogin}
-                    disabled={loading}
-                    activeOpacity={0.8}
-                  >
-                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('welcome.login')}</Text>}
-                  </TouchableOpacity>
-
-                  <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 24, gap: 12 }}>
-                    <TouchableOpacity onPress={() => setLoginMode('otp')}>
-                      <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>{t('auth.loginWithOtp')}</Text>
-                    </TouchableOpacity>
-                  </View>
+              <View style={styles.form}>
+                <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.emailOrPhone')}</Text>
+                <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                  <Ionicons name="person-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text }]}
+                    placeholder="email@example.com"
+                    placeholderTextColor="#94A3B8"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    editable={!loading}
+                  />
                 </View>
-              ) : step === 'phone' ? (
-                <View style={styles.form}>
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.phone')}</Text>
-                  <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                    <Ionicons name="call-outline" size={20} color={colors.primary} style={styles.inputIcon} />
-                    <TextInput
-                      style={[styles.input, { color: colors.text }]}
-                      placeholder="+998"
-                      placeholderTextColor="#94A3B8"
-                      value={phone}
-                      onChangeText={setPhone}
-                      keyboardType="phone-pad"
-                      editable={!loading}
-                    />
-                  </View>
 
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.email')}</Text>
-                  <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                    <Ionicons name="mail-outline" size={20} color={colors.primary} style={styles.inputIcon} />
-                    <TextInput
-                      style={[styles.input, { color: colors.text }]}
-                      placeholder="email@example.com"
-                      placeholderTextColor="#94A3B8"
-                      value={email}
-                      onChangeText={setEmail}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      editable={!loading}
-                    />
-                  </View>
-
-                  <TouchableOpacity
-                    style={[styles.mainBtn, { backgroundColor: colors.primary }]}
-                    onPress={handleSendOtp}
-                    disabled={loading}
-                    activeOpacity={0.8}
-                  >
-                    {loading ? (
-                      <ActivityIndicator color="#fff" />
-                    ) : (
-                      <>
-                        <Text style={styles.btnText}>{t('auth.sendCode')}</Text>
-                        <Ionicons name="arrow-forward" size={20} color="#fff" />
-                      </>
-                    )}
-                  </TouchableOpacity>
-
-                  <TouchableOpacity onPress={() => setLoginMode('password')} style={styles.toggleLink}>
-                    <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>{t('auth.loginWithPassword')}</Text>
-                  </TouchableOpacity>
+                <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.password')}</Text>
+                <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                  <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text }]}
+                    placeholder="••••••••"
+                    placeholderTextColor="#94A3B8"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                    editable={!loading}
+                  />
                 </View>
-              ) : (
-                <View style={styles.form}>
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.enterOtp')}</Text>
-                  <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border, marginBottom: 24 }]}>
-                    <Ionicons name="key-outline" size={20} color={colors.primary} style={styles.inputIcon} />
-                    <TextInput
-                      style={[styles.input, { color: colors.text }]}
-                      placeholder="000 000"
-                      placeholderTextColor="#94A3B8"
-                      value={otp}
-                      onChangeText={setOtp}
-                      keyboardType="number-pad"
-                      maxLength={6}
-                      editable={!loading}
-                    />
-                  </View>
 
-                  <TouchableOpacity
-                    style={[styles.mainBtn, { backgroundColor: colors.primary }]}
-                    onPress={handleVerify}
-                    disabled={loading}
-                    activeOpacity={0.8}
-                  >
-                    {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('auth.verifyBtn')}</Text>}
-                  </TouchableOpacity>
-
-                  <TouchableOpacity onPress={() => setStep('phone')} style={styles.toggleLink}>
-                    <Text style={[styles.toggleText, { color: colors.primary, fontWeight: '700' }]}>{t('auth.phone')}</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+                <TouchableOpacity
+                  style={[styles.mainBtn, { backgroundColor: colors.primary }]}
+                  onPress={handleLogin}
+                  disabled={loading}
+                  activeOpacity={0.8}
+                >
+                  {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>{t('welcome.login')}</Text>}
+                </TouchableOpacity>
+              </View>
               {error ? <Text style={styles.errorText}>{error}</Text> : null}
             </View>
           </View>

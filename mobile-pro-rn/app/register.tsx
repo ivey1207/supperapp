@@ -12,13 +12,15 @@ import PolicyModal from '@/components/PolicyModal';
 import '@/lib/i18n';
 
 export default function RegisterScreen() {
-    const { token } = useAuth();
+    const { register, confirmRegistration } = useAuth();
     const { t } = useTranslation();
     const router = useRouter();
     const [fullName, setFullName] = useState('');
+    const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [carModel, setCarModel] = useState('');
+    const [otp, setOtp] = useState('');
+    const [showOtp, setShowOtp] = useState(false);
     const [agreedToPolicy, setAgreedToPolicy] = useState(false);
     const [isPolicyVisible, setIsPolicyVisible] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -27,19 +29,41 @@ export default function RegisterScreen() {
     const colors = Colors[scheme];
 
     const handleRegister = async () => {
-        if (!fullName.trim()) { setError(t('auth.enterName') || 'Enter name'); return; }
-        if (!email.trim() || !email.includes('@')) { setError(t('auth.enterEmail') || 'Enter email'); return; }
-        if (password.length < 6) { setError(t('auth.enterPassword') || 'Enter password'); return; }
-        if (!agreedToPolicy) { setError(t('auth.agreeTermsError') || 'Agree to terms'); return; }
-        setError('');
-        setLoading(true);
-        try {
-            await updateProfile(token || '', { fullName, carModel, email, password });
-            router.replace('/(tabs)' as any);
-        } catch (e: any) {
-            setError(e.message || 'Error occurred during registration');
-        } finally {
-            setLoading(false);
+        if (!showOtp) {
+            if (!fullName.trim() || !phone.trim() || !email.trim() || password.length < 6) {
+                setError(t('auth.fillAll') || 'Please fill all fields correctly');
+                return;
+            }
+            if (!agreedToPolicy) {
+                setError(t('auth.agreeTermsError') || 'Agree to terms');
+                return;
+            }
+
+            setError('');
+            setLoading(true);
+            try {
+                await register({ fullName, phone, email, password });
+                setShowOtp(true);
+            } catch (e: any) {
+                setError(e.response?.data?.message || 'Error occurred during registration');
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            if (otp.length < 6) {
+                setError(t('auth.enterOtp') || 'Enter valid OTP');
+                return;
+            }
+            setError('');
+            setLoading(true);
+            try {
+                await confirmRegistration(phone, otp);
+                router.replace('/(tabs)' as any);
+            } catch (e: any) {
+                setError(e.response?.data?.message || 'Invalid or expired OTP');
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
@@ -71,64 +95,85 @@ export default function RegisterScreen() {
 
                         <View style={[styles.card, { backgroundColor: colors.card }]}>
                             <View style={styles.form}>
-                                <View style={styles.inputWrapper}>
-                                    <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.fullName')}</Text>
-                                    <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                                        <Ionicons name="person-outline" size={20} color={colors.primary} style={styles.inputIcon} />
-                                        <TextInput
-                                            style={[styles.input, { color: colors.text }]}
-                                            placeholder="..."
-                                            placeholderTextColor="#94A3B8"
-                                            value={fullName}
-                                            onChangeText={setFullName}
-                                        />
-                                    </View>
-                                </View>
+                                {!showOtp ? (
+                                    <>
+                                        <View style={styles.inputWrapper}>
+                                            <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.fullName')}</Text>
+                                            <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                                                <Ionicons name="person-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+                                                <TextInput
+                                                    style={[styles.input, { color: colors.text }]}
+                                                    placeholder="..."
+                                                    placeholderTextColor="#94A3B8"
+                                                    value={fullName}
+                                                    onChangeText={setFullName}
+                                                />
+                                            </View>
+                                        </View>
 
-                                <View style={styles.inputWrapper}>
-                                    <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.email')}</Text>
-                                    <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                                        <Ionicons name="mail-outline" size={20} color={colors.primary} style={styles.inputIcon} />
-                                        <TextInput
-                                            style={[styles.input, { color: colors.text }]}
-                                            placeholder="email@example.com"
-                                            placeholderTextColor="#94A3B8"
-                                            value={email}
-                                            onChangeText={setEmail}
-                                            keyboardType="email-address"
-                                            autoCapitalize="none"
-                                        />
-                                    </View>
-                                </View>
+                                        <View style={styles.inputWrapper}>
+                                            <Text style={[styles.label, { color: colors.textSecondary }]}>Телефон</Text>
+                                            <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                                                <Ionicons name="call-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+                                                <TextInput
+                                                    style={[styles.input, { color: colors.text }]}
+                                                    placeholder="+998..."
+                                                    placeholderTextColor="#94A3B8"
+                                                    value={phone}
+                                                    onChangeText={setPhone}
+                                                    keyboardType="phone-pad"
+                                                />
+                                            </View>
+                                        </View>
 
-                                <View style={styles.inputWrapper}>
-                                    <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.password')}</Text>
-                                    <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                                        <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={styles.inputIcon} />
-                                        <TextInput
-                                            style={[styles.input, { color: colors.text }]}
-                                            placeholder="••••••••"
-                                            placeholderTextColor="#94A3B8"
-                                            value={password}
-                                            onChangeText={setPassword}
-                                            secureTextEntry
-                                        />
-                                    </View>
-                                </View>
+                                        <View style={styles.inputWrapper}>
+                                            <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.email')}</Text>
+                                            <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                                                <Ionicons name="mail-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+                                                <TextInput
+                                                    style={[styles.input, { color: colors.text }]}
+                                                    placeholder="email@example.com"
+                                                    placeholderTextColor="#94A3B8"
+                                                    value={email}
+                                                    onChangeText={setEmail}
+                                                    keyboardType="email-address"
+                                                    autoCapitalize="none"
+                                                />
+                                            </View>
+                                        </View>
 
-                                <View style={styles.inputWrapper}>
-                                    <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.carModel')}</Text>
-                                    <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                                        <Ionicons name="car-outline" size={20} color={colors.primary} style={styles.inputIcon} />
-                                        <TextInput
-                                            style={[styles.input, { color: colors.text }]}
-                                            placeholder="Chevrolet Malibu"
-                                            placeholderTextColor="#94A3B8"
-                                            value={carModel}
-                                            onChangeText={setCarModel}
-                                        />
+                                        <View style={styles.inputWrapper}>
+                                            <Text style={[styles.label, { color: colors.textSecondary }]}>{t('auth.password')}</Text>
+                                            <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                                                <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+                                                <TextInput
+                                                    style={[styles.input, { color: colors.text }]}
+                                                    placeholder="••••••••"
+                                                    placeholderTextColor="#94A3B8"
+                                                    value={password}
+                                                    onChangeText={setPassword}
+                                                    secureTextEntry
+                                                />
+                                            </View>
+                                        </View>
+                                    </>
+                                ) : (
+                                    <View style={styles.inputWrapper}>
+                                        <Text style={[styles.label, { color: colors.textSecondary }]}>OTP Код</Text>
+                                        <View style={[styles.inputBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                                            <Ionicons name="key-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+                                            <TextInput
+                                                style={[styles.input, { color: colors.text }]}
+                                                placeholder="123456"
+                                                placeholderTextColor="#94A3B8"
+                                                value={otp}
+                                                onChangeText={setOtp}
+                                                keyboardType="number-pad"
+                                                maxLength={6}
+                                            />
+                                        </View>
                                     </View>
-                                </View>
+                                )}
 
                                 <TouchableOpacity
                                     style={styles.policyRow}
@@ -158,7 +203,7 @@ export default function RegisterScreen() {
                                     {loading ? (
                                         <ActivityIndicator color="#fff" />
                                     ) : (
-                                        <Text style={styles.btnText}>{t('auth.completeRegistration')}</Text>
+                                        <Text style={styles.btnText}>{showOtp ? 'Подтвердить OTP' : t('auth.completeRegistration')}</Text>
                                     )}
                                 </TouchableOpacity>
 
