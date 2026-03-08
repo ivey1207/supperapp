@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPromoAnalytics } from '../lib/api';
-import type { Promotion } from '../lib/api';
 import { ArrowLeft, Target, TrendingUp, Users, DollarSign, BarChart3 } from 'lucide-react';
 
 export default function PromoAnalytics() {
