@@ -28,8 +28,10 @@ public class Organization {
     private Integer reviewCount;
     private String logoUrl;
     private boolean archived;
+    private java.math.BigDecimal commissionRate = new java.math.BigDecimal("0.15");
 
     public String getId() {
+
         return id;
     }
 
@@ -139,5 +141,13 @@ public class Organization {
 
     public void setArchived(boolean archived) {
         this.archived = archived;
+    }
+
+    public java.math.BigDecimal getCommissionRate() {
+        return commissionRate;
+    }
+
+    public void setCommissionRate(java.math.BigDecimal commissionRate) {
+        this.commissionRate = commissionRate;
     }
 }

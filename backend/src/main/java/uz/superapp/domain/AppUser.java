@@ -34,8 +34,10 @@ public class AppUser {
     private Double currentLat;
     private Double currentLon;
     private java.time.Instant lastLocationUpdate;
+    private String orgId;
 
     public String getId() {
+
         return id;
     }
 
@@ -161,5 +163,13 @@ public class AppUser {
 
     public void setLastLocationUpdate(java.time.Instant lastLocationUpdate) {
         this.lastLocationUpdate = lastLocationUpdate;
+    }
+
+    public String getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(String orgId) {
+        this.orgId = orgId;
     }
 }

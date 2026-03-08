@@ -48,7 +48,9 @@ public class AdminAppUserController {
                         m.put("blocked", u.isBlocked());
                         m.put("isSpecialist", u.isSpecialist());
                         m.put("isOnline", u.isOnline());
+                        m.put("orgId", u.getOrgId() != null ? u.getOrgId() : "");
                         m.put("carModel", u.getCarModel() != null ? u.getCarModel() : "");
+
                         m.put("carNumber", u.getCarNumber() != null ? u.getCarNumber() : "");
                         m.put("lastUpdate",
                                 u.getLastLocationUpdate() != null ? u.getLastLocationUpdate().toString() : null);
@@ -94,7 +96,25 @@ public class AdminAppUserController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Assign specialist to organization")
+    @PostMapping("/{id}/org")
+    public ResponseEntity<Map<String, Object>> setOrg(@PathVariable String id, @RequestParam String orgId,
+            Authentication auth) {
+        if (!isSuperAdmin(auth)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return appUserRepository.findById(id).map(user -> {
+            user.setOrgId(orgId);
+            appUserRepository.save(user);
+            return ResponseEntity.ok(Map.<String, Object>of(
+                    "id", user.getId(),
+                    "orgId", user.getOrgId() != null ? user.getOrgId() : ""));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     private boolean isSuperAdmin(Authentication auth) {
+
         if (auth == null || auth.getName() == null)
             return false;
         String email = auth.getName();

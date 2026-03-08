@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -103,6 +102,9 @@ public class AdminOrganizationController {
         org.setRating(getDoubleValue(body, "rating"));
         org.setReviewCount(getIntegerValue(body, "reviewCount"));
         org.setLogoUrl(getStringValue(body, "logoUrl"));
+        if (body.containsKey("commissionRate")) {
+            org.setCommissionRate(getBigDecimalValue(body, "commissionRate"));
+        }
         org.setArchived(false);
         organizationRepository.save(org);
 
@@ -168,6 +170,9 @@ public class AdminOrganizationController {
         }
         if (body.containsKey("logoUrl")) {
             org.setLogoUrl(getStringValue(body, "logoUrl"));
+        }
+        if (body.containsKey("commissionRate")) {
+            org.setCommissionRate(getBigDecimalValue(body, "commissionRate"));
         }
 
         organizationRepository.save(org);
@@ -274,6 +279,7 @@ public class AdminOrganizationController {
         m.put("rating", org.getRating() != null ? org.getRating() : 0.0);
         m.put("reviewCount", org.getReviewCount() != null ? org.getReviewCount() : 0);
         m.put("logoUrl", org.getLogoUrl() != null ? org.getLogoUrl() : "");
+        m.put("commissionRate", org.getCommissionRate());
         return m;
     }
 
@@ -301,6 +307,20 @@ public class AdminOrganizationController {
         Object value = body.get(key);
         if (value instanceof Number) {
             return ((Number) value).intValue();
+        }
+        return null;
+    }
+
+    private java.math.BigDecimal getBigDecimalValue(Map<String, Object> body, String key) {
+        Object value = body.get(key);
+        if (value instanceof Number) {
+            return java.math.BigDecimal.valueOf(((Number) value).doubleValue());
+        } else if (value instanceof String) {
+            try {
+                return new java.math.BigDecimal((String) value);
+            } catch (Exception e) {
+                return null;
+            }
         }
         return null;
     }

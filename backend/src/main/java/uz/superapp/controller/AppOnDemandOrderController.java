@@ -5,9 +5,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import uz.superapp.domain.AppUser;
 import uz.superapp.domain.OnDemandOrder;
+import uz.superapp.domain.Organization;
 import uz.superapp.domain.Wallet;
+import uz.superapp.repository.AppUserRepository;
 import uz.superapp.repository.OnDemandOrderRepository;
+import uz.superapp.repository.OrganizationRepository;
 import uz.superapp.repository.WalletRepository;
 
 import java.math.BigDecimal;
@@ -24,10 +28,17 @@ public class AppOnDemandOrderController {
 
     private final OnDemandOrderRepository repository;
     private final WalletRepository walletRepository;
+    private final OrganizationRepository organizationRepository;
+    private final AppUserRepository appUserRepository;
 
-    public AppOnDemandOrderController(OnDemandOrderRepository repository, WalletRepository walletRepository) {
+    public AppOnDemandOrderController(OnDemandOrderRepository repository,
+            WalletRepository walletRepository,
+            OrganizationRepository organizationRepository,
+            AppUserRepository appUserRepository) {
         this.repository = repository;
         this.walletRepository = walletRepository;
+        this.organizationRepository = organizationRepository;
+        this.appUserRepository = appUserRepository;
     }
 
     @Operation(summary = "Create on-demand service request")
