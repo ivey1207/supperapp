@@ -96,6 +96,8 @@ export type User = {
   avatarUrl?: string;
   isSpecialist?: boolean;
   isOnline?: boolean;
+  specialist?: boolean;
+  online?: boolean;
 };
 
 export async function forgotPassword(identifier: { email?: string; phone?: string }) {

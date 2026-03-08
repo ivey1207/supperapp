@@ -47,6 +47,7 @@ export default function WasherDashboardScreen() {
     const [availableOrders, setAvailableOrders] = useState<OnDemandOrder[]>([]);
     const [activeOrder, setActiveOrder] = useState<OnDemandOrder | null>(null);
     const [loading, setLoading] = useState(true);
+    const [acceptingOrderId, setAcceptingOrderId] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchData = useCallback(async () => {
@@ -115,7 +116,8 @@ export default function WasherDashboardScreen() {
     };
 
     const handleAcceptOrder = async (orderId: string) => {
-        if (!token) return;
+        if (!token || acceptingOrderId) return;
+        setAcceptingOrderId(orderId);
         try {
             const order = await acceptOrder(token, orderId);
             setActiveOrder(order);
@@ -125,6 +127,8 @@ export default function WasherDashboardScreen() {
             const msg = error.response?.data?.message || 'Failed to accept order.';
             Alert.alert('Error', msg);
             fetchData();
+        } finally {
+            setAcceptingOrderId(null);
         }
     };
 
@@ -163,10 +167,13 @@ export default function WasherDashboardScreen() {
             <Text style={styles.carText}>{item.carDetails}</Text>
 
             <TouchableOpacity
-                style={[styles.acceptBtn, { backgroundColor: colors.primary }]}
+                style={[styles.acceptBtn, { backgroundColor: acceptingOrderId === item.id ? '#94A3B8' : colors.primary }]}
                 onPress={() => handleAcceptOrder(item.id!)}
+                disabled={acceptingOrderId === item.id}
             >
-                <Text style={styles.acceptBtnText}>{t('acceptOrder')}</Text>
+                <Text style={styles.acceptBtnText}>
+                    {acceptingOrderId === item.id ? '...' : t('acceptOrder')}
+                </Text>
             </TouchableOpacity>
         </View>
     );

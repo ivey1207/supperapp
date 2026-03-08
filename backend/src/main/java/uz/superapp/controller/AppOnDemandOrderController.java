@@ -73,8 +73,10 @@ public class AppOnDemandOrderController {
             try {
                 return ResponseEntity.ok(toMap(repository.save(order)));
             } catch (Exception e) {
+                e.printStackTrace();
                 return ResponseEntity.status(409)
-                        .body(Map.of("message", "Conflict: Order was just taken by someone else"));
+                        .body(Map.of("message",
+                                "Conflict: Order was just taken by someone else. Reason: " + e.getMessage()));
             }
         }).orElse(ResponseEntity.notFound().build());
     }
