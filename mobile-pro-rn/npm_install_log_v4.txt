@@ -1,0 +1,14 @@
+
+> mobile-pro-rn@1.0.0 postinstall
+> patch-package
+
+patch-package 8.0.1
+Applying patches...
+react-native-yamap@4.8.3 ✔
+
+up to date, audited 772 packages in 1s
+
+71 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
