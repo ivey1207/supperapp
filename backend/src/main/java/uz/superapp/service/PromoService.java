@@ -7,16 +7,24 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
+import uz.superapp.domain.PromoUsage;
+import uz.superapp.domain.PromoUsageRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PromoService {
 
     private final PromotionRepository promotionRepository;
     private final PromoConditionEngine conditionEngine;
+    private final PromoUsageRepository promoUsageRepository;
 
-    public PromoService(PromotionRepository promotionRepository, PromoConditionEngine conditionEngine) {
+    public PromoService(PromotionRepository promotionRepository,
+            PromoConditionEngine conditionEngine,
+            PromoUsageRepository promoUsageRepository) {
         this.promotionRepository = promotionRepository;
         this.conditionEngine = conditionEngine;
+        this.promoUsageRepository = promoUsageRepository;
     }
 
     public List<Promotion> getEligiblePromotions(String branchId, Map<String, Object> context) {
@@ -69,5 +77,21 @@ public class PromoService {
         }
 
         return totalDiscount;
+    }
+
+    @Transactional
+    public void trackUsage(String promotionId, String orderId, String userId, double discountAmount) {
+        Promotion promo = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new RuntimeException("Promotion not found"));
+
+        // Update counters
+        BigDecimal discount = BigDecimal.valueOf(discountAmount);
+        promo.setCurrentSpend(promo.getCurrentSpend().add(discount));
+        promo.setUsageCount(promo.getUsageCount() + 1);
+        promotionRepository.save(promo);
+
+        // Save detailed usage record
+        PromoUsage usage = new PromoUsage(promotionId, orderId, userId, discount);
+        promoUsageRepository.save(usage);
     }
 }

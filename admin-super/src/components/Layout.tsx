@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
-import { LayoutDashboard, Users, Building2, Smartphone, CreditCard, FileText, Settings, LogOut, Globe, Shield, Store, Sliders, Cpu, GitBranch, Tag, Droplets, Receipt, Sun, Moon, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, Smartphone, CreditCard, FileText, Settings, LogOut, Globe, Shield, Store, Sliders, Cpu, GitBranch, Tag, Droplets, Receipt, Sun, Moon, MessageSquare, Layout as LayoutIcon } from 'lucide-react';
 import { playClick } from '../lib/sound';
 import { useTheme } from '../lib/theme';
 
@@ -15,6 +15,7 @@ const superAdminNav = [
   { to: '/rfid', label: 'RFID Карты', icon: CreditCard },
   { to: '/reports', label: 'Отчёты по сети', icon: FileText },
   { to: '/promotions', label: 'Акции и скидки', icon: Tag },
+  { to: '/promo-templates', label: 'Шаблоны акций', icon: LayoutIcon },
   { to: '/services', label: 'Услуги (шаблоны)', icon: Settings },
   { to: '/wash-sessions', label: 'Сеансы мойки 🚿', icon: Droplets },
   { to: '/payment-reports', label: 'Отчёты по оплатам', icon: Receipt },

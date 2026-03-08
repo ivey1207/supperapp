@@ -201,12 +201,16 @@ export interface Service {
 
 export type Promotion = {
   id: string;
+  templateId?: string;
+  orgId?: string;
+  branchId?: string;
   title: string;
   description: string;
   imageUrl?: string;
   discountValue: string;
   startDate: string;
   endDate: string;
+  config?: any;
 };
 
 export type Review = {
@@ -237,9 +241,9 @@ export async function getBranchById(token: string, branchId: string) {
   return data as Branch;
 }
 
-export async function getPromotions(token: string, branchId?: string) {
+export async function getPromotions(token: string, branchId?: string, serviceType?: string, orderAmount?: number) {
   const { data } = await api.get('/api/v1/app/promotions', {
-    params: { branchId },
+    params: { branchId, serviceType, orderAmount },
     headers: { Authorization: `Bearer ${token}` },
   });
   return data as Promotion[];

@@ -13,6 +13,7 @@ import QuickActions from '@/components/QuickActions';
 import FilterPills from '@/components/FilterPills';
 import BranchCard from '@/components/BranchCard';
 import StoryCircle from '@/components/StoryCircle';
+import PromoBanner from '@/components/PromoBanner';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getMe, getWallet, getUnreadNotificationsCount } from '@/lib/api';
 import * as Location from 'expo-location';
@@ -477,25 +478,14 @@ export default function HomeScreen() {
 
 
 
-          {/* Hero Promo Banner (Recommended) */}
-          <View style={styles.recommendedSection}>
-            <TouchableOpacity style={styles.recommendedCard} activeOpacity={0.9} onPress={() => router.push('/(tabs)/map' as any)}>
-              <Image
-                source={{ uri: getFileUrl(displayPromos[0]?.imageUrl) || 'https://images.unsplash.com/photo-1542435503-956c469947f6?w=800' }}
-                style={styles.recommendedImage}
-              />
-              <LinearGradient
-                colors={['transparent', 'rgba(0,0,0,0.6)']}
-                style={styles.recommendedGradient}
-              />
-              <View style={styles.recommendedContent}>
-                <View style={[styles.recommendedBadge, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.recommendedBadgeText}>{t('recommended')}</Text>
-                </View>
-                <Text style={styles.recommendedTitle}>{displayPromos[0]?.title || 'Cheapest fuel nearby'}</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+          {/* Dynamic Promo Banners */}
+          <PromoBanner
+            promotions={promotions}
+            onPress={(promo) => {
+              if (promo.branchId) router.push(`/branch/${promo.branchId}` as any);
+              else router.push('/(tabs)/map' as any);
+            }}
+          />
 
           {/* Stories Section (Integrated as bubble list if needed, but mockup doesn't show them explicitly as top priority) */}
           {/* Preserving stories since user said "stories ... vsyo doyediogo ostav" (leave as is) */}

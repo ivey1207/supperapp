@@ -5,6 +5,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "promotions")
@@ -33,6 +34,10 @@ public class Promotion {
 
     private boolean active = true;
     private boolean archived = false;
+
+    private BigDecimal totalBudget = BigDecimal.ZERO;
+    private BigDecimal currentSpend = BigDecimal.ZERO;
+    private Long usageCount = 0L;
 
     public String getId() {
         return id;
@@ -144,5 +149,29 @@ public class Promotion {
 
     public void setArchived(boolean archived) {
         this.archived = archived;
+    }
+
+    public BigDecimal getTotalBudget() {
+        return totalBudget;
+    }
+
+    public void setTotalBudget(BigDecimal totalBudget) {
+        this.totalBudget = totalBudget;
+    }
+
+    public BigDecimal getCurrentSpend() {
+        return currentSpend;
+    }
+
+    public void setCurrentSpend(BigDecimal currentSpend) {
+        this.currentSpend = currentSpend;
+    }
+
+    public Long getUsageCount() {
+        return usageCount;
+    }
+
+    public void setUsageCount(Long usageCount) {
+        this.usageCount = usageCount;
     }
 }

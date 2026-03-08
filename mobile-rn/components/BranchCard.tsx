@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, useColorScheme, Activi
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { Branch, getFileUrl, toggleFavoriteBranch, checkIsFavorite } from '@/lib/api';
+import PromoBadge from './PromoBadge';
 import { useAuth } from '@/lib/auth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -66,9 +67,9 @@ export default function BranchCard({ branch, onPress, index, style }: BranchCard
                     <Text style={styles.ratingText}>{rating} {reviewCountDisplay}</Text>
                 </View>
 
-                {index === 0 && (
-                    <View style={styles.promoBadge}>
-                        <Text style={styles.promoText}>SAVE 10%</Text>
+                {branch.discountValue && (
+                    <View style={styles.promoBadgeWrapper}>
+                        <PromoBadge value={branch.discountValue} />
                     </View>
                 )}
 
@@ -143,19 +144,10 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '700',
     },
-    promoBadge: {
+    promoBadgeWrapper: {
         position: 'absolute',
         top: 12,
         right: 12,
-        backgroundColor: '#10B981',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 12,
-    },
-    promoText: {
-        color: '#fff',
-        fontSize: 10,
-        fontWeight: '800',
     },
     content: {
         padding: 16,

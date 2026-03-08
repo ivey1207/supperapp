@@ -13,10 +13,12 @@ import Settings from './pages/Settings';
 import HardwareKiosks from './pages/HardwareKiosks';
 import Branches from './pages/Branches';
 import Promotions from './pages/Promotions';
+import PromoTemplates from './pages/PromoTemplates';
 import WashSessions from './pages/WashSessions';
 import PaymentReports from './pages/PaymentReports';
 import AppUsers from './pages/AppUsers';
 import Reviews from './pages/Reviews';
+import PromoAnalytics from './pages/PromoAnalytics';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token, isLoading } = useAuth();
@@ -42,9 +44,11 @@ function AppRoutes() {
         <Route path="hardware-kiosks" element={<HardwareKiosks />} />
         <Route path="settings" element={<Settings />} />
         <Route path="promotions" element={<Promotions />} />
+        <Route path="promo-templates" element={<PromoTemplates />} />
         <Route path="wash-sessions" element={<WashSessions />} />
         <Route path="payment-reports" element={<PaymentReports />} />
         <Route path="reviews" element={<Reviews />} />
+        <Route path="promotions/:id/analytics" element={<PromoAnalytics />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

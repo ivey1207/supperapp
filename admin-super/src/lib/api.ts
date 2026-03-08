@@ -210,8 +210,21 @@ export async function deleteService(id: string): Promise<void> {
   await api.delete(`/api/v1/admin/services/${id}`);
 }
 
+export type PromoTemplate = {
+  id: string;
+  code: string;
+  name: string;
+  promoType: string;
+  formSchema: any;
+  validationSchema: any;
+  ruleSchema: any;
+  requiresApproval: boolean;
+  active: boolean;
+};
+
 export type Promotion = {
   id: string;
+  templateId?: string;
   orgId: string;
   branchId?: string;
   serviceId?: string;
@@ -221,7 +234,11 @@ export type Promotion = {
   discountValue: string;
   startDate: string;
   endDate: string;
+  config?: any;
   active: boolean;
+  totalBudget?: number;
+  currentSpend?: number;
+  usageCount?: number;
 };
 
 export interface ReviewAdmin {
@@ -252,6 +269,26 @@ export async function updatePromotion(id: string, payload: Partial<Promotion>): 
 
 export async function deletePromotion(id: string): Promise<void> {
   await api.delete(`/api/v1/admin/promotions/${id}`);
+}
+
+// Promo Templates CRUD
+export async function getPromoTemplates(): Promise<PromoTemplate[]> {
+  const { data } = await api.get('/api/v1/admin/promo-templates');
+  return data;
+}
+
+export async function createPromoTemplate(payload: Partial<PromoTemplate>): Promise<PromoTemplate> {
+  const { data } = await api.post('/api/v1/admin/promo-templates', payload);
+  return data;
+}
+
+export async function updatePromoTemplate(id: string, payload: Partial<PromoTemplate>): Promise<PromoTemplate> {
+  const { data } = await api.put(`/api/v1/admin/promo-templates/${id}`, payload);
+  return data;
+}
+
+export async function deletePromoTemplate(id: string): Promise<void> {
+  await api.delete(`/api/v1/admin/promo-templates/${id}`);
 }
 
 export const getReviews = async () => {
@@ -366,3 +403,8 @@ export async function toggleSpecialistAppUser(id: string): Promise<{ id: string,
   const { data } = await api.post(`/api/v1/admin/app-users/${id}/toggle-specialist`);
   return data;
 }
+
+export const getPromoAnalytics = async (id: string) => {
+  const { data } = await api.get(`/api/v1/admin/promo-analytics/${id}/summary`);
+  return data;
+};

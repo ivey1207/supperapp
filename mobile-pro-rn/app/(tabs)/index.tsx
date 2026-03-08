@@ -13,6 +13,8 @@ import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { getPromotions, Promotion } from '@/lib/api';
+import PromoBanner from '@/components/PromoBanner';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme() ?? 'dark';
@@ -135,6 +137,12 @@ export default function HomeScreen() {
     queryKey: ['orders', token],
     queryFn: () => getOrders(token!),
     enabled: !!token && isSpecialistUser,
+  });
+
+  const { data: promotions = [], refetch: refetchPromos } = useQuery({
+    queryKey: ['promotions', token],
+    queryFn: () => getPromotions(token!),
+    enabled: !!token,
   });
 
 
@@ -266,6 +274,17 @@ export default function HomeScreen() {
         }
         contentContainerStyle={styles.scrollContent}
       >
+        {/* Dynamic Promo Banners */}
+        <PromoBanner
+          promotions={promotions}
+          onPress={(promo) => {
+            if (promo.branchId) {
+              // Pro app might not have a branch detail page, or it might be different
+              // For now, just show analytics or something if needed, or leave as navigation
+            }
+          }}
+        />
+
         {/* Active Orders List */}
         <View style={styles.ordersSection}>
           <View style={styles.sectionHeading}>
