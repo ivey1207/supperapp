@@ -136,30 +136,37 @@ export default function PromoTemplates() {
                         <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto">
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold uppercase text-slate-500">Название</label>
-                                    <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/20 px-4 py-2" />
+                                    <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 px-5 py-3 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 transition-all font-medium" />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold uppercase text-slate-500">Код (ID)</label>
-                                    <input required value={formData.code} onChange={e => setFormData({ ...formData, code: e.target.value })} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/20 px-4 py-2" />
+                                    <label className="text-xs font-bold uppercase text-slate-500 ml-1">Код (ID)</label>
+                                    <input required value={formData.code} onChange={e => setFormData({ ...formData, code: e.target.value })} className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 px-5 py-3 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 transition-all font-mono" />
                                 </div>
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-bold uppercase text-slate-500">JSON Схема Формы</label>
-                                <textarea rows={5} value={JSON.stringify(formData.formSchema, null, 2)} onChange={e => {
+                                <label className="text-xs font-bold uppercase text-slate-500 ml-1">JSON Схема Формы</label>
+                                <textarea rows={8} value={JSON.stringify(formData.formSchema, null, 2)} onChange={e => {
                                     try { setFormData({ ...formData, formSchema: JSON.parse(e.target.value) }) } catch (e) { }
-                                }} className="w-full font-mono text-sm rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/20 px-4 py-2" />
+                                }} className="w-full font-mono text-sm rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 px-5 py-4 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 transition-all" />
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <input type="checkbox" checked={formData.requiresApproval} onChange={e => setFormData({ ...formData, requiresApproval: e.target.checked })} />
-                                <label className="text-sm font-medium">Требует одобрения Супер-админа</label>
+                            <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/50">
+                                <div
+                                    className={`relative inline-flex items-center cursor-pointer group`}
+                                    onClick={() => setFormData({ ...formData, requiresApproval: !formData.requiresApproval })}
+                                >
+                                    <div className={`w-11 h-6 rounded-full transition-colors duration-200 ease-in-out ${formData.requiresApproval ? 'bg-blue-600' : 'bg-slate-600'}`}></div>
+                                    <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${formData.requiresApproval ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                                </div>
+                                <label className="text-sm font-bold text-slate-600 dark:text-slate-300 cursor-pointer" onClick={() => setFormData({ ...formData, requiresApproval: !formData.requiresApproval })}>
+                                    Требует одобрения Супер-админа
+                                </label>
                             </div>
 
-                            <div className="pt-6 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
-                                <button type="button" onClick={() => setModal(false)} className="px-6 py-2 text-slate-400 font-bold">Отмена</button>
-                                <button type="submit" className="px-8 py-2 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20">Сохранить</button>
+                            <div className="pt-8 flex justify-end gap-4 border-t border-slate-100 dark:border-slate-800">
+                                <button type="button" onClick={() => setModal(false)} className="px-8 py-3 text-slate-500 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-all uppercase tracking-widest text-xs">Отмена</button>
+                                <button type="submit" className="px-10 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-2xl font-black shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all active:scale-95 uppercase tracking-widest text-xs">Сохранить</button>
                             </div>
                         </form>
                     </div>
