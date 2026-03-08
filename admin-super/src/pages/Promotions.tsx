@@ -398,16 +398,6 @@ export default function Promotions() {
                                     <input required type="date" className="w-full rounded-2xl border border-slate-700 bg-slate-800/30 px-5 py-3.5 text-white outline-none focus:border-blue-500/50 transition-all font-medium" value={formData.endDate} onChange={(e) => setFormData({ ...formData, endDate: e.target.value })} />
                                 </div>
 
-                                <div className="space-y-2 md:col-span-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1 flex items-center gap-2">
-                                        Настройки правил (JSON)
-                                        <span className="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">ADVANCED</span>
-                                    </label>
-                                    <textarea rows={6} className="w-full rounded-2xl border border-slate-700 bg-slate-800/30 px-5 py-3.5 text-white font-mono text-sm outline-none focus:border-blue-500/50 transition-all" value={JSON.stringify(formData.config, null, 2)} onChange={(e) => {
-                                        try { setFormData({ ...formData, config: JSON.parse(e.target.value) }) } catch (e) { }
-                                    }} />
-                                    <p className="text-[10px] text-slate-500 px-2 italic">Настройка условий, лимитов и таргетинга согласно спецификации.</p>
-                                </div>
 
                                 {isSuperAdmin && (
                                     <div className="space-y-2">

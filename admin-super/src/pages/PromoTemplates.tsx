@@ -144,12 +144,6 @@ export default function PromoTemplates() {
                                 </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <label className="text-xs font-bold uppercase text-slate-500 ml-1">JSON Схема Формы</label>
-                                <textarea rows={8} value={JSON.stringify(formData.formSchema, null, 2)} onChange={e => {
-                                    try { setFormData({ ...formData, formSchema: JSON.parse(e.target.value) }) } catch (e) { }
-                                }} className="w-full font-mono text-sm rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 px-5 py-4 text-slate-900 dark:text-white outline-none focus:border-blue-500/50 transition-all" />
-                            </div>
 
                             <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/50">
                                 <div
