@@ -243,10 +243,95 @@ const resources = {
                 terms: 'By clicking "Login" or "Register", you agree to our Terms of Use and Privacy Policy.',
             }
         }
+    },
+    tr: {
+        translation: {
+            home: 'Ana Sayfa',
+            explorer: 'Harita',
+            scan: 'Tara',
+            activity: 'Siparişler',
+            profile: 'Profil',
+            searchPlaceholder: 'Yakıt, yıkama veya hizmet ara',
+            onlineStatus: 'AÇIKSINIZ — SİPARİŞ KABUL EDİN',
+            offlineStatus: 'KAPALISINIZ',
+            online: 'AÇIK',
+            offline: 'KAPALI',
+            availableOrders: 'Mevcut Siparişler',
+            acceptOrder: 'SİPARİŞİ KABUL ET',
+            wash: 'YIKAMA',
+            repair: 'TAMİR',
+            homeWash: 'Evde Yıkama',
+            callMaster: 'Usta Çağır',
+            onSite: 'Yerinde servis',
+            roadBreak: 'Yolda kalma',
+            recommended: 'ÖNERİLEN',
+            popularNearby: 'Yakındaki Popülerler',
+            seeAll: 'Hepsini gör',
+            errorStatus: 'Durum güncellenemedi. Bağlantıyı kontrol edin.',
+            errorAccept: 'Sipariş kabul edilemedi',
+            detectingLocation: 'Konum belirleniyor...',
+            locationDisabled: 'Konum devre dışı',
+            yourStory: 'Hikayeniz',
+            points: 'PUANLAR',
+            orders: 'SİPARİŞLER',
+            rating: 'PUAN',
+            editProfile: 'Profili Düzenle',
+            wallet: 'Cüzdan ve Ödemeler',
+            workInSuperApp: 'SuperApp\'te Çalış',
+            notifications: 'Bildirimler',
+            helpSupport: 'Yardım ve Destek',
+            logout: 'Çıkış Yap',
+            comingSoon: 'Yakında',
+            featureInDev: 'Bu bölüm yakında gelecek!',
+            walletBalance: 'Cüzdan Bakiyesi',
+            addPoints: 'Puan Ekle',
+            findingDriver: 'Sürücü bulunuyor...',
+            driverAssigned: 'Sürücü atandı',
+            noActiveDeliveries: 'Aktif teslimat yok',
+            orderDelivery: 'Teslimat Siparişi',
+            auth: {
+                loginTitle: 'Tekrar Hoşgeldiniz',
+                loginSubtitle: 'Hesabınıza giriş yapın',
+                emailOrPhone: 'E-posta veya telefon',
+                password: 'Şifre',
+                loginWithOtp: 'SMS ile giriş',
+                loginWithPassword: 'Şifre ile giriş',
+                phone: 'Telefon numarası',
+                email: 'E-posta adresi',
+                sendCode: 'Kod Gönder',
+                enterOtp: 'SMS Kodunu Girin',
+                verifyBtn: 'Doğrula',
+                otpSent: 'Kod gönderildi',
+                enterPhone: 'Telefon girin',
+                enterEmail: 'E-posta girin',
+                signUp: 'Kayıt Ol',
+                createAccount: 'Hesap Oluştur',
+                fullName: 'Ad Soyad',
+                carModel: 'Araç Modeli',
+                agreeTerms: 'Şartları kabul ediyorum',
+                completeRegistration: 'Kaydı Tamamla',
+                alreadyHaveAccount: 'Zaten hesabınız var mı?',
+                enterName: 'Adınızı girin',
+                enterPassword: 'Şifre girin',
+                agreeTermsError: 'Şartları kabul etmelisiniz',
+            },
+            welcome: {
+                title: 'Super App',
+                login: 'Giriş',
+                register: 'Kayıt',
+                subtitle: 'Tüm hizmetler tek uygulamada',
+                terms: '"Giriş" veya "Kayıt"a tıklayarak Kullanım Şartlarımızı ve Gizlilik Politikamızı kabul etmiş olursunuz.',
+            }
+        }
     }
 };
 
-const getInitialLang = () => {
+const getInitialLang = (): string => {
+    const locales = Localization.getLocales();
+    if (locales && locales.length > 0) {
+        const langCode = locales[0].languageCode;
+        if (langCode && ['uz', 'ru', 'en', 'tr'].includes(langCode)) return langCode;
+    }
     return 'uz';
 };
 
@@ -268,9 +353,12 @@ AsyncStorage.getItem('app_lang').then(lang => {
     if (lang) {
         i18n.changeLanguage(lang);
     } else {
-        const systemLang = Localization.locale.split('-')[0];
-        if (['uz', 'ru', 'en'].includes(systemLang)) {
-            i18n.changeLanguage(systemLang);
+        const locales = Localization.getLocales();
+        if (locales && locales.length > 0) {
+            const langCode = locales[0].languageCode;
+            if (langCode && ['uz', 'ru', 'en', 'tr'].includes(langCode)) {
+                i18n.changeLanguage(langCode);
+            }
         }
     }
 });

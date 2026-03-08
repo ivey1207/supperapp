@@ -141,7 +141,7 @@ export default function ProfileScreen() {
         <View style={styles.languageContainer}>
           <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>LANGUAGE / TILL</Text>
           <View style={styles.langRow}>
-            {(['uz', 'ru', 'en']).map((l) => (
+            {(['uz', 'ru', 'en', 'tr']).map((l) => (
               <TouchableOpacity
                 key={l}
                 style={[
@@ -151,7 +151,7 @@ export default function ProfileScreen() {
                 onPress={() => changeLanguage(l)}
               >
                 <Text style={[styles.langText, { color: lang === l ? '#fff' : colors.text }]}>
-                  {l === 'uz' ? 'O\'zbek' : l === 'ru' ? 'Русский' : 'English'}
+                  {l === 'uz' ? 'O\'zbek' : l === 'ru' ? 'Русский' : l === 'en' ? 'English' : 'Türkçe'}
                 </Text>
               </TouchableOpacity>
             ))}

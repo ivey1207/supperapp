@@ -70,7 +70,7 @@ export default function LoginScreen() {
       router.replace('/(tabs)' as any);
     } catch (e: unknown) {
       const msg = (e as { message?: string })?.message ?? '';
-      setError(msg || 'Invalid credentials');
+      setError(msg.includes('Network') || msg.includes('REFUSED') || msg.includes('timeout') ? 'Server unavailable. Please check connection.' : msg || 'Invalid credentials');
     } finally {
       setLoading(false);
     }

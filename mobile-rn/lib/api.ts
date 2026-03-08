@@ -22,6 +22,7 @@ console.log('Using API URL:', Constants.expoConfig?.extra?.apiUrl || process.env
 const api = axios.create({
   baseURL: getBaseUrl(),
   headers: { 'Content-Type': 'application/json' },
+  timeout: 15000, // 15 seconds timeout
 });
 
 api.interceptors.response.use(
