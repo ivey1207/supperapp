@@ -47,6 +47,29 @@ public class AdminPromoAnalyticsController {
         return summary;
     }
 
+    @GetMapping("/{promoId}/daily-stats")
+    public List<Map<String, Object>> getDailyStats(@PathVariable String promoId) {
+        List<PromoUsage> usages = promoUsageRepository.findByPromotionId(promoId);
+
+        return usages.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        u -> u.getUsedAt().toLocalDate().toString(),
+                        java.util.stream.Collectors.collectingAndThen(
+                                java.util.stream.Collectors.toList(),
+                                list -> {
+                                    Map<String, Object> map = new HashMap<>();
+                                    map.put("date", list.get(0).getUsedAt().toLocalDate().toString());
+                                    map.put("count", list.size());
+                                    map.put("spend", list.stream()
+                                            .map(PromoUsage::getDiscountAmount)
+                                            .reduce(BigDecimal.ZERO, BigDecimal::add));
+                                    return map;
+                                })))
+                .values().stream()
+                .sorted((a, b) -> a.get("date").toString().compareTo(b.get("date").toString()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     @GetMapping("/{promoId}/usage-history")
     public List<PromoUsage> getUsageHistory(@PathVariable String promoId) {
         return promoUsageRepository.findByPromotionId(promoId);

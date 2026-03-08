@@ -408,3 +408,12 @@ export const getPromoAnalytics = async (id: string) => {
   const { data } = await api.get(`/api/v1/admin/promo-analytics/${id}/summary`);
   return data;
 };
+
+export const getPromoDailyStats = async (id: string) => {
+  const { data } = await api.get(`/api/v1/admin/promo-analytics/${id}/daily-stats`);
+  return data;
+};
+
+export const broadcastPromotion = async (id: string) => {
+  await api.post(`/api/v1/admin/promo-broadcast/${id}/broadcast`);
+};

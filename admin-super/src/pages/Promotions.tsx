@@ -3,10 +3,10 @@ import { useAuth } from '../lib/auth';
 import {
     getPromotions, createPromotion, updatePromotion, deletePromotion,
     getOrganizations, getBranches, getServices, uploadFile, getFileUrl,
-    getPromoTemplates
+    getPromoTemplates, broadcastPromotion
 } from '../lib/api';
 import type { Promotion, Organization, Branch, Service, PromoTemplate } from '../lib/api';
-import { Search, Plus, Trash2, Filter, GitBranch, CheckCircle, XCircle, Calendar, Edit2, Image as ImageIcon, Layout as LayoutIcon, BarChart3, Gift, Zap, Clock, Star } from 'lucide-react';
+import { Search, Plus, Trash2, Filter, GitBranch, CheckCircle, XCircle, Calendar, Edit2, Image as ImageIcon, Layout as LayoutIcon, BarChart3, Gift, Zap, Clock, Star, Megaphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { playClick } from '../lib/sound';
 
@@ -217,6 +217,18 @@ export default function Promotions() {
         }
     };
 
+    const handleBroadcast = async (id: string, title: string) => {
+        if (!confirm(`Отправить уведомление об акции "${title}" всем пользователям?`)) return;
+        playClick();
+        try {
+            await broadcastPromotion(id);
+            alert('Рассылка успешно запущена!');
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка при запуске рассылки');
+        }
+    };
+
     const filtered = promotions.filter(p =>
         p.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -354,6 +366,13 @@ export default function Promotions() {
                                     title="Редактировать"
                                 >
                                     <Edit2 className="h-4 w-4" />
+                                </button>
+                                <button
+                                    onClick={() => handleBroadcast(promo.id, promo.title)}
+                                    className="rounded-lg bg-amber-500/10 p-2 text-amber-500 hover:bg-amber-500/20 transition-colors"
+                                    title="Рассылка"
+                                >
+                                    <Megaphone className="h-4 w-4" />
                                 </button>
                                 <button
                                     onClick={() => handleDelete(promo.id)}

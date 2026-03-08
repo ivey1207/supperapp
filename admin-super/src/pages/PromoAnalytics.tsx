@@ -1,26 +1,35 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPromoAnalytics } from '../lib/api';
-import { ArrowLeft, Target, TrendingUp, Users, DollarSign, BarChart3 } from 'lucide-react';
+import { getPromoAnalytics, getPromoDailyStats } from '../lib/api';
+import { ArrowLeft, Target, TrendingUp, Users, DollarSign, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
+import {
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+    BarChart, Bar, Cell
+} from 'recharts';
 
 export default function PromoAnalytics() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [analytics, setAnalytics] = useState<any>(null);
+    const [dailyStats, setDailyStats] = useState<any[]>([]);
 
     useEffect(() => {
         if (id) {
-            fetchAnalytics();
+            fetchData();
         }
     }, [id]);
 
-    const fetchAnalytics = async () => {
+    const fetchData = async () => {
         try {
-            const data = await getPromoAnalytics(id!);
-            setAnalytics(data);
+            const [summary, stats] = await Promise.all([
+                getPromoAnalytics(id!),
+                getPromoDailyStats(id!)
+            ]);
+            setAnalytics(summary);
+            setDailyStats(stats);
         } catch (error) {
-            console.error('Failed to fetch analytics:', error);
+            console.error('Failed to fetch data:', error);
         } finally {
             setLoading(false);
         }
@@ -75,8 +84,8 @@ export default function PromoAnalytics() {
                 <StatCard
                     icon={<Target className="text-rose-400" />}
                     label="Эффективность"
-                    value="High"
-                    sub="По сравнению с нормой"
+                    value="Высокая"
+                    sub="ROI выше среднего"
                 />
                 <StatCard
                     icon={<TrendingUp className="text-amber-400" />}
@@ -93,20 +102,61 @@ export default function PromoAnalytics() {
                         <div className="flex items-center justify-between mb-8">
                             <h3 className="text-xl font-black text-white flex items-center gap-3">
                                 <BarChart3 className="text-blue-500" />
-                                Расход бюджета со временем
+                                Динамика использований
                             </h3>
                         </div>
-                        <div className="h-64 flex items-end justify-between gap-2 px-4">
-                            {/* Simple Bar Chart Mockup */}
-                            {[40, 60, 45, 90, 75, 55, 85].map((h, i) => (
-                                <div key={i} className="flex-1 group relative">
-                                    <div
-                                        className="w-full bg-gradient-to-t from-blue-600/20 to-blue-500/60 rounded-t-xl transition-all duration-500 group-hover:to-blue-400"
-                                        style={{ height: `${h}%` }}
-                                    ></div>
-                                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-600">Day {i + 1}</div>
-                                </div>
-                            ))}
+                        <div className="h-80 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={dailyStats}>
+                                    <defs>
+                                        <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                                    <XAxis
+                                        dataKey="date"
+                                        stroke="#64748b"
+                                        fontSize={10}
+                                        tickFormatter={(str) => str.split('-').slice(1).reverse().join('.')}
+                                    />
+                                    <YAxis stroke="#64748b" fontSize={10} />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '1rem' }}
+                                        labelStyle={{ color: '#94a3b8', fontWeight: 'bold' }}
+                                    />
+                                    <Area type="monotone" dataKey="count" stroke="#3b82f6" fillOpacity={1} fill="url(#colorCount)" strokeWidth={3} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div className="rounded-[2.5rem] border border-slate-800/60 bg-slate-900/40 p-8 backdrop-blur-xl">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-xl font-black text-white flex items-center gap-3">
+                                <DollarSign className="text-emerald-500" />
+                                Расход бюджета (UZS)
+                            </h3>
+                        </div>
+                        <div className="h-80 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={dailyStats}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                                    <XAxis
+                                        dataKey="date"
+                                        stroke="#64748b"
+                                        fontSize={10}
+                                        tickFormatter={(str) => str.split('-').slice(1).reverse().join('.')}
+                                    />
+                                    <YAxis stroke="#64748b" fontSize={10} />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '1rem' }}
+                                        formatter={(value: any) => [`${value.toLocaleString()} UZS`, 'Расход']}
+                                    />
+                                    <Bar dataKey="spend" fill="#10b981" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
                         </div>
                     </div>
                 </div>
@@ -116,9 +166,26 @@ export default function PromoAnalytics() {
                         <h3 className="text-xl font-black text-white mb-6">Параметры акции</h3>
                         <div className="space-y-4">
                             <InfoRow label="Бюджет" value={`${(analytics.totalBudget || 0).toLocaleString()} UZS`} />
-                            <InfoRow label="Старт" value="08.03.2026" />
-                            <InfoRow label="Конец" value="08.04.2026" />
+                            <InfoRow label="Текущий расход" value={`${(analytics.currentSpend || 0).toLocaleString()} UZS`} />
+                            <InfoRow label="Всего транзакций" value={analytics.usageCount || 0} />
                             <InfoRow label="Статус" value="Активна" active />
+                        </div>
+                    </div>
+
+                    <div className="rounded-[2.5rem] border border-slate-800/60 bg-slate-900/40 p-8 backdrop-blur-xl">
+                        <h3 className="text-xl font-black text-white mb-4 flex items-center gap-2">
+                            <PieChartIcon size={20} className="text-purple-500" />
+                            Состояние бюджета
+                        </h3>
+                        <div className="relative h-4 w-full bg-slate-800 rounded-full overflow-hidden mb-4">
+                            <div
+                                className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-1000"
+                                style={{ width: `${Math.min(analytics.burnRate || 0, 100)}%` }}
+                            />
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                            <span className="text-slate-500">Потрачено {analytics.burnRate?.toFixed(1)}%</span>
+                            <span className="text-blue-400">Остаток {(100 - (analytics.burnRate || 0)).toFixed(1)}%</span>
                         </div>
                     </div>
                 </div>
