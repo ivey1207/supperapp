@@ -6,9 +6,44 @@ import {
     getPromoTemplates
 } from '../lib/api';
 import type { Promotion, Organization, Branch, Service, PromoTemplate } from '../lib/api';
-import { Search, Plus, Trash2, Filter, GitBranch, CheckCircle, XCircle, Calendar, Edit2, Image as ImageIcon, Layout as LayoutIcon, BarChart3 } from 'lucide-react';
+import { Search, Plus, Trash2, Filter, GitBranch, CheckCircle, XCircle, Calendar, Edit2, Image as ImageIcon, Layout as LayoutIcon, BarChart3, Gift, Zap, Clock, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { playClick } from '../lib/sound';
+
+const PROMO_PRESETS = [
+    {
+        id: 'cashback',
+        title: 'Кэшбэк 10%',
+        description: 'Получайте 10% от суммы чека на бонусный баланс при каждой мойке.',
+        discountValue: 'Кэшбэк 10%',
+        icon: <Gift className="text-amber-400" />,
+        color: 'bg-amber-400/10'
+    },
+    {
+        id: 'happy-hours',
+        title: 'Счастливые часы',
+        description: 'Скидка 20% на все услуги в будние дни с 10:00 до 14:00.',
+        discountValue: '-20%',
+        icon: <Clock className="text-blue-400" />,
+        color: 'bg-blue-400/10'
+    },
+    {
+        id: 'first-time',
+        title: 'Первая мойка',
+        description: 'Скидка 50% на первую комплексную мойку для новых клиентов.',
+        discountValue: '-50%',
+        icon: <Star className="text-emerald-400" />,
+        color: 'bg-emerald-400/10'
+    },
+    {
+        id: 'night',
+        title: 'Ночной тариф',
+        description: 'Специальная цена на самообслуживание в ночное время (с 00:00 до 06:00).',
+        discountValue: 'Суперцена',
+        icon: <Zap className="text-purple-400" />,
+        color: 'bg-purple-400/10'
+    }
+];
 
 export default function Promotions() {
     const { isSuperAdmin, user } = useAuth();
@@ -344,6 +379,35 @@ export default function Promotions() {
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-8 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                            {!editing && (
+                                <div className="mb-8">
+                                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-4 block ml-1">Быстрый старт (Пресеты)</label>
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                        {PROMO_PRESETS.map(preset => (
+                                            <button
+                                                key={preset.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    playClick();
+                                                    setFormData({
+                                                        ...formData,
+                                                        title: preset.title,
+                                                        description: preset.description,
+                                                        discountValue: preset.discountValue
+                                                    });
+                                                }}
+                                                className={`flex flex-col items-center gap-2 p-4 rounded-2xl border border-slate-700/50 ${preset.color} hover:border-blue-500/50 transition-all active:scale-95 group`}
+                                            >
+                                                <div className="p-2 bg-slate-900/50 rounded-xl group-hover:scale-110 transition-transform">
+                                                    {preset.icon}
+                                                </div>
+                                                <span className="text-[10px] font-black text-white uppercase tracking-tight text-center">{preset.title}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="grid gap-6 md:grid-cols-2">
                                 <div className="space-y-6 md:col-span-2">
                                     <div className="grid gap-4 md:grid-cols-2">
