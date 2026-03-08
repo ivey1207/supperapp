@@ -172,14 +172,7 @@ export default function ProfileScreen() {
             onPress={() => router.push('/wallet' as never)}
             colors={colors}
           />
-          {(user?.specialist || user?.isSpecialist) && (
-            <ProfileMenuItem
-              icon="briefcase-outline"
-              label={t('workInSuperApp')}
-              onPress={() => router.push('/washer-dashboard' as never)}
-              colors={{ ...colors, primary: '#6366F1' }}
-            />
-          )}
+
           <ProfileMenuItem
             icon="notifications-outline"
             label={t('notifications')}

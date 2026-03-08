@@ -6,8 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.OnDemandOrder;
+import uz.superapp.domain.Wallet;
 import uz.superapp.repository.OnDemandOrderRepository;
+import uz.superapp.repository.WalletRepository;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +23,11 @@ import java.util.stream.Collectors;
 public class AppOnDemandOrderController {
 
     private final OnDemandOrderRepository repository;
+    private final WalletRepository walletRepository;
 
-    public AppOnDemandOrderController(OnDemandOrderRepository repository) {
+    public AppOnDemandOrderController(OnDemandOrderRepository repository, WalletRepository walletRepository) {
         this.repository = repository;
+        this.walletRepository = walletRepository;
     }
 
     @Operation(summary = "Create on-demand service request")
@@ -69,7 +75,7 @@ public class AppOnDemandOrderController {
             }
             order.setContractorId(auth.getName());
             order.setStatus("ACCEPTED");
-            order.setAcceptedAt(java.time.Instant.now());
+            order.setAcceptedAt(Instant.now());
             try {
                 return ResponseEntity.ok(toMap(repository.save(order)));
             } catch (Exception e) {
@@ -83,15 +89,62 @@ public class AppOnDemandOrderController {
 
     @Operation(summary = "Update order status (Specialist workflow)")
     @PostMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(Authentication auth, @PathVariable String id, @RequestParam String status) {
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> updateStatus(Authentication auth, @PathVariable String id, @RequestParam String status,
+            @RequestParam(required = false) BigDecimal finalAmount,
+            @RequestParam(required = false) String photoAfterUrl) {
         return repository.findById(id).map(order -> {
             if (!auth.getName().equals(order.getContractorId())) {
                 return ResponseEntity.status(403).body(Map.of("message", "Not your order"));
             }
-            order.setStatus(status.toUpperCase());
-            if ("COMPLETED".equalsIgnoreCase(status)) {
-                order.setCompletedAt(java.time.Instant.now());
+
+            String oldStatus = order.getStatus();
+            String newStatus = status.toUpperCase();
+            order.setStatus(newStatus);
+
+            if ("COMPLETED".equals(newStatus) && !"COMPLETED".equalsIgnoreCase(oldStatus)) {
+                order.setCompletedAt(Instant.now());
+                if (finalAmount != null)
+                    order.setFinalAmount(finalAmount);
+                if (photoAfterUrl != null)
+                    order.setPhotoAfterUrl(photoAfterUrl);
+
+                BigDecimal amount = order.getFinalAmount();
+                if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("message", "Final amount is required for completion"));
+                }
+
+                // Financial Settlement
+                Wallet clientWallet = walletRepository.findByUser_Id(order.getUserId()).orElse(null);
+                Wallet specialistWallet = walletRepository.findByUser_Id(auth.getName()).orElse(null);
+
+                if (clientWallet == null || specialistWallet == null) {
+                    return ResponseEntity.status(500)
+                            .body(Map.of("message", "Wallet not found for user or specialist"));
+                }
+
+                if (clientWallet.getBalance().compareTo(amount) < 0) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("message", "Client has insufficient funds in wallet"));
+                }
+
+                // 1. Debit Client
+                clientWallet.setBalance(clientWallet.getBalance().subtract(amount));
+
+                // 2. Calculate Payout (85% to Specialist)
+                BigDecimal commission = amount.multiply(new BigDecimal("0.15"));
+                BigDecimal payout = amount.subtract(commission);
+
+                // 3. Credit Specialist
+                specialistWallet.setBalance(specialistWallet.getBalance().add(payout));
+
+                walletRepository.save(clientWallet);
+                walletRepository.save(specialistWallet);
+
+                // Track platform revenue (could add PaymentTransaction record here)
             }
+
             return ResponseEntity.ok(toMap(repository.save(order)));
         }).orElse(ResponseEntity.notFound().build());
     }
@@ -110,6 +163,8 @@ public class AppOnDemandOrderController {
         m.put("contractorId", o.getContractorId());
         m.put("providerLat", o.getProviderLat());
         m.put("providerLon", o.getProviderLon());
+        m.put("finalAmount", o.getFinalAmount());
+        m.put("photoAfterUrl", o.getPhotoAfterUrl());
         m.put("createdAt", o.getCreatedAt() != null ? o.getCreatedAt().toString() : null);
         m.put("acceptedAt", o.getAcceptedAt() != null ? o.getAcceptedAt().toString() : null);
         m.put("completedAt", o.getCompletedAt() != null ? o.getCompletedAt().toString() : null);

@@ -13,7 +13,11 @@ admin-partner/dist/
 mobile-rn/node_modules/
 mobile-rn/.expo/
 mobile-rn/dist/
+mobile-pro-rn/node_modules/
+mobile-pro-rn/.expo/
+mobile-pro-rn/dist/
 *.tsbuildinfo
+*.apk
 
 # IDE
 .idea/

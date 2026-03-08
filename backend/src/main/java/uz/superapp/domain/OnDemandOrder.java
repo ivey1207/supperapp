@@ -29,8 +29,27 @@ public class OnDemandOrder {
     private Instant acceptedAt;
     private Instant completedAt;
 
+    private java.math.BigDecimal finalAmount;
+    private String photoAfterUrl;
+
     @Version
     private Long version;
+
+    public java.math.BigDecimal getFinalAmount() {
+        return finalAmount;
+    }
+
+    public void setFinalAmount(java.math.BigDecimal finalAmount) {
+        this.finalAmount = finalAmount;
+    }
+
+    public String getPhotoAfterUrl() {
+        return photoAfterUrl;
+    }
+
+    public void setPhotoAfterUrl(String photoAfterUrl) {
+        this.photoAfterUrl = photoAfterUrl;
+    }
 
     public String getId() {
         return id;

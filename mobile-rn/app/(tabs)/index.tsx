@@ -14,7 +14,7 @@ import FilterPills from '@/components/FilterPills';
 import BranchCard from '@/components/BranchCard';
 import StoryCircle from '@/components/StoryCircle';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { getMe, getWallet, updateSpecialistStatus, getAvailableOrders, acceptOrder, getUnreadNotificationsCount } from '@/lib/api';
+import { getMe, getWallet, getUnreadNotificationsCount } from '@/lib/api';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -73,7 +73,6 @@ export default function HomeScreen() {
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [address, setAddress] = useState<string>('Detecting location...');
   const [seenStories, setSeenStories] = useState<string[]>([]);
-  const [isOnline, setIsOnline] = useState(false);
   const { t } = useTranslation();
 
   const { data: user } = useQuery({
@@ -88,48 +87,7 @@ export default function HomeScreen() {
     enabled: !!token,
   });
 
-  useEffect(() => {
-    if (user) {
-      setIsOnline(user.online || false);
-    }
-  }, [user]);
-
-  const isSpecialistUser = !!(user?.specialist || user?.isSpecialist);
-
-  const { data: availableOrders = [], refetch: refetchAvailable } = useQuery({
-    queryKey: ['availableOrders', token, isOnline],
-    queryFn: () => getAvailableOrders(token!),
-    enabled: !!token && isSpecialistUser && isOnline,
-    refetchInterval: 10000, // Refresh every 10s if online
-  });
-
-  const toggleOnline = async () => {
-    if (!token) return;
-    try {
-      const updated = await updateSpecialistStatus(token, !isOnline);
-      setIsOnline(updated.online || false);
-      if (!isOnline) {
-        refetchAvailable();
-      }
-    } catch (err: any) {
-      console.error('Failed to toggle status:', err);
-      const msg = err.response?.data?.message || t('errorStatus');
-      Alert.alert('Error', msg);
-    }
-  };
-
-  const handleAcceptOrder = async (orderId: string) => {
-    if (!token) return;
-    try {
-      await acceptOrder(token, orderId);
-      Alert.alert('Accepted', 'You have accepted the order. Redirecting to tracking...');
-      router.push({ pathname: '/order-tracking', params: { orderId } } as any);
-      refetchAvailable();
-    } catch (err) {
-      console.error('Accept error:', err);
-      Alert.alert('Error', 'Could not accept order');
-    }
-  };
+  // Placeholder for any other consumer-only effects
 
   useEffect(() => {
     AsyncStorage.getItem('seen_stories').then(val => {
@@ -318,9 +276,6 @@ export default function HomeScreen() {
             <View style={styles.userTextContainer}>
               <View style={styles.greetingRow}>
                 <Text style={styles.locationLabel}>{user?.fullName?.toUpperCase() || 'IBROKHIM'}</Text>
-                {isSpecialistUser && (
-                  <View style={[styles.statusDot, { backgroundColor: isOnline ? '#10B981' : '#94A3B8' }]} />
-                )}
               </View>
               <TouchableOpacity style={styles.locationWrapper} onPress={() => router.push('/(tabs)/map' as any)}>
                 <Text style={[styles.locationText, { color: colors.text }]} numberOfLines={1}>
@@ -331,15 +286,7 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Specialist Quick Status - Small circle next to name if specialist */}
-          {user?.specialist && (
-            <TouchableOpacity onPress={toggleOnline} style={styles.specialistBadgeMini}>
-              <View style={[styles.miniStatusDot, { backgroundColor: isOnline ? '#10B981' : '#94A3B8' }]} />
-              <Text style={[styles.miniStatusText, { color: isOnline ? '#10B981' : '#94A3B8' }]}>
-                {isOnline ? 'ON' : 'OFF'}
-              </Text>
-            </TouchableOpacity>
-          )}
+
 
           <View style={styles.headerRight}>
             {wallet && (
@@ -378,27 +325,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Specialist Bar - Moved to top level for maximum visibility */}
-        {isSpecialistUser && (
-          <View style={styles.specialistBar}>
-            <LinearGradient
-              colors={isOnline ? ['#10B981', '#059669'] : ['#475569', '#334155']}
-              style={styles.specialistGradient}
-            >
-              <View style={styles.specialistInfo}>
-                <View style={[styles.statusIndicator, { backgroundColor: isOnline ? '#fff' : '#94A3B8', shadowColor: isOnline ? '#fff' : 'transparent', shadowOpacity: 0.5, shadowRadius: 10, elevation: 5 }]} />
-                <Text style={styles.specialistStatusText}>
-                  {isOnline ? t('onlineStatus') : t('offlineStatus')}
-                </Text>
-              </View>
-              <TouchableOpacity style={styles.onlineSwitch} onPress={toggleOnline} activeOpacity={0.8}>
-                <View style={[styles.switchTrack, { backgroundColor: isOnline ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)' }]}>
-                  <View style={[styles.switchKnob, isOnline ? { transform: [{ translateX: 22 }], backgroundColor: '#fff' } : { transform: [{ translateX: 2 }], backgroundColor: '#94A3B8' }]} />
-                </View>
-              </TouchableOpacity>
-            </LinearGradient>
-          </View>
-        )}
+
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -548,35 +475,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Specialist Orders Section */}
-          {isSpecialistUser && isOnline && availableOrders.length > 0 && (
-            <View style={styles.ordersSection}>
-              <Text style={[styles.sectionTitle, { color: colors.text, paddingHorizontal: 20, marginBottom: 12 }]}>
-                {t('availableOrders')} ({availableOrders.length})
-              </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}>
-                {availableOrders.map((order: any) => (
-                  <TouchableOpacity
-                    key={order.id}
-                    style={[styles.orderCard, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
-                    onPress={() => handleAcceptOrder(order.id)}
-                  >
-                    <View style={styles.orderHeader}>
-                      <View style={[styles.orderTypeBadge, { backgroundColor: order.type === 'MOBILE_WASH' ? '#10B981' : '#F43F5E' }]}>
-                        <Text style={styles.orderTypeText}>{order.type === 'MOBILE_WASH' ? t('wash') : t('repair')}</Text>
-                      </View>
-                      <Text style={[styles.orderTime, { color: colors.textSecondary }]}>Just now</Text>
-                    </View>
-                    <Text style={[styles.orderAddress, { color: colors.text }]} numberOfLines={2}>{order.userAddress}</Text>
-                    <Text style={[styles.orderCar, { color: colors.textSecondary }]}>{order.carDetails}</Text>
-                    <TouchableOpacity style={styles.acceptButton} onPress={() => handleAcceptOrder(order.id)}>
-                      <Text style={styles.acceptButtonText}>{t('acceptOrder')}</Text>
-                    </TouchableOpacity>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          )}
+
 
           {/* Hero Promo Banner (Recommended) */}
           <View style={styles.recommendedSection}>
@@ -870,6 +769,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     gap: 10,
   },
+
+
   categoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -878,23 +779,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     gap: 8,
   },
-  specialistBar: {
-    marginHorizontal: 16,
-    marginBottom: 8,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  specialistIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8,
-  },
   categoryBtnText: {
     fontSize: 14,
     fontWeight: '700',
   },
-
   recommendedSection: {
     marginTop: 24,
     paddingHorizontal: 20,
@@ -1083,82 +971,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  specialistBadgeMini: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-    marginLeft: 8,
-    gap: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  miniStatusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  miniStatusText: {
-    fontSize: 10,
-    fontWeight: '800',
-  },
-  specialistBar: {
-    marginHorizontal: 20,
-    marginTop: 8,
-    marginBottom: 12,
-    borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  specialistGradient: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-  },
-  specialistInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  statusIndicator: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  specialistStatusText: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-  },
-  onlineSwitch: {
-    width: 50,
-    height: 28,
-  },
-  switchTrack: {
-    width: 48,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-  },
-  switchKnob: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
   fab: {
     position: 'absolute',
     bottom: 90,
@@ -1175,50 +987,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 100,
   },
-  ordersSection: {
-    marginTop: 24,
-    marginBottom: 8,
-  },
-  orderCard: {
-    width: 280,
-    padding: 16,
-    borderRadius: 20,
-    gap: 10,
-  },
-  orderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  orderTypeBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  orderTypeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '800',
-  },
-  orderTime: {
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  orderAddress: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  orderCar: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  acceptButton: {
-    backgroundColor: '#3B82F6',
-    paddingVertical: 10,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 4,
-  },
   acceptButtonText: {
     color: '#fff',
     fontSize: 12,
@@ -1228,12 +996,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.3)',
   },
 });

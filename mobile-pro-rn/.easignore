@@ -1,0 +1,11 @@
+node_modules/
+.expo/
+android/app/build/
+android/build/
+ios/build/
+ios/Pods/
+ios/DerivedData/
+*.apk
+mobile.log
+expo-web.log
+dist/

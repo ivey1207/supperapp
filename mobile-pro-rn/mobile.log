@@ -1,0 +1,11 @@
+
+> mobile-rn@1.0.0 web
+> expo start --web
+
+Starting project at /Users/avazov/uz-superapp/mobile-rn
+› Port 8081 is running this app in another window
+  /Users/avazov/uz-superapp/mobile-rn (pid 62528)
+Input is required, but 'npx expo' is in non-interactive mode.
+Required input:
+> Use port 8083 instead?
+› Skipping dev server
