@@ -49,7 +49,9 @@ public class AdminAppUserController {
                         m.put("isSpecialist", u.isSpecialist());
                         m.put("isOnline", u.isOnline());
                         m.put("orgId", u.getOrgId() != null ? u.getOrgId() : "");
+                        m.put("branchId", u.getBranchId() != null ? u.getBranchId() : "");
                         m.put("commissionRate", u.getCommissionRate());
+
                         m.put("carModel", u.getCarModel() != null ? u.getCarModel() : "");
 
                         m.put("carNumber", u.getCarNumber() != null ? u.getCarNumber() : "");
@@ -128,6 +130,23 @@ public class AdminAppUserController {
             return ResponseEntity.ok(Map.<String, Object>of(
                     "id", user.getId(),
                     "commissionRate", user.getCommissionRate() != null ? user.getCommissionRate() : 0));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Assign specialist to branch")
+    @PostMapping("/{id}/branch")
+    public ResponseEntity<Map<String, Object>> setBranch(@PathVariable String id, @RequestParam String branchId,
+            Authentication auth) {
+        if (!isSuperAdmin(auth)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return appUserRepository.findById(id).map(user -> {
+            user.setBranchId(branchId);
+            appUserRepository.save(user);
+            return ResponseEntity.ok(Map.<String, Object>of(
+                    "id", user.getId(),
+                    "branchId", user.getBranchId() != null ? user.getBranchId() : ""));
         }).orElse(ResponseEntity.notFound().build());
     }
 

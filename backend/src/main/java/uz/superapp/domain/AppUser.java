@@ -35,6 +35,7 @@ public class AppUser {
     private Double currentLon;
     private java.time.Instant lastLocationUpdate;
     private String orgId;
+    private String branchId;
     private java.math.BigDecimal commissionRate;
 
     public String getId() {
@@ -174,7 +175,16 @@ public class AppUser {
         this.orgId = orgId;
     }
 
+    public String getBranchId() {
+        return branchId;
+    }
+
+    public void setBranchId(String branchId) {
+        this.branchId = branchId;
+    }
+
     public java.math.BigDecimal getCommissionRate() {
+
         return commissionRate;
     }
 
