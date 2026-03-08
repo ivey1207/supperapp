@@ -435,6 +435,17 @@ export default function Promotions() {
                                     </select>
                                 </div>
 
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-slate-500 ml-1">Общий бюджет (UZS)</label>
+                                    <input
+                                        type="number"
+                                        className="w-full rounded-2xl border border-slate-700 bg-slate-800/30 px-5 py-3.5 text-white outline-none focus:border-blue-500/50 transition-all font-medium"
+                                        placeholder="Например: 1000000"
+                                        value={formData.totalBudget}
+                                        onChange={(e) => setFormData({ ...formData, totalBudget: Number(e.target.value) })}
+                                    />
+                                </div>
+
                                 <div className="flex items-center gap-3 pt-2 md:col-span-2">
                                     <div className="relative inline-flex items-center cursor-pointer group" onClick={() => setFormData({ ...formData, active: !formData.active })}>
                                         <div className={`w-12 h-6 rounded-full transition-colors duration-200 ease-in-out ${formData.active ? 'bg-blue-600' : 'bg-slate-700'}`}></div>
