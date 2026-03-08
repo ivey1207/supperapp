@@ -3,7 +3,6 @@ package uz.superapp.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import uz.superapp.domain.Promotion;
@@ -20,16 +19,25 @@ public class AppPromotionController {
     @Autowired
     private PromotionRepository promotionRepository;
 
+    @Autowired
+    private uz.superapp.service.PromoService promoService;
+
     @Operation(summary = "Execute getActivePromotions operation")
     @GetMapping
-    public List<Promotion> getActivePromotions(@RequestParam(required = false) String branchId) {
-        LocalDateTime now = LocalDateTime.now();
-        if (branchId != null && !branchId.isEmpty()) {
-            return promotionRepository.findByActiveTrueAndEndDateAfter(now).stream()
-                    .filter(p -> branchId.equals(p.getBranchId()))
-                    .toList();
-        }
-        return promotionRepository.findByActiveTrueAndEndDateAfter(now);
+    public List<Promotion> getActivePromotions(
+            @RequestParam(required = false) String branchId,
+            @RequestParam(required = false) String serviceType,
+            @RequestParam(required = false) Double orderAmount) {
+
+        java.util.Map<String, Object> context = new java.util.HashMap<>();
+        context.put("currentTime", java.time.LocalTime.now().toString());
+        context.put("currentDay", java.time.LocalDateTime.now().getDayOfWeek().toString());
+        if (serviceType != null)
+            context.put("serviceType", serviceType);
+        if (orderAmount != null)
+            context.put("orderAmount", orderAmount);
+
+        return promoService.getEligiblePromotions(branchId, context);
     }
 
     @Operation(summary = "Execute getByBranch operation")

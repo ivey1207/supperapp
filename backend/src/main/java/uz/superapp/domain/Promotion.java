@@ -1,7 +1,10 @@
 package uz.superapp.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Entity
 @Table(name = "promotions")
@@ -10,6 +13,7 @@ public class Promotion {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    private String templateId; // Link to PromoTemplate
     private String orgId;
     private String branchId;
     private String serviceId;
@@ -22,6 +26,11 @@ public class Promotion {
     private String discountValue;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> config; // Dynamic config: conditions, rewards, limits
+
     private boolean active = true;
     private boolean archived = false;
 
@@ -31,6 +40,14 @@ public class Promotion {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getTemplateId() {
+        return templateId;
+    }
+
+    public void setTemplateId(String templateId) {
+        this.templateId = templateId;
     }
 
     public String getOrgId() {
@@ -103,6 +120,14 @@ public class Promotion {
 
     public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
+    }
+
+    public Map<String, Object> getConfig() {
+        return config;
+    }
+
+    public void setConfig(Map<String, Object> config) {
+        this.config = config;
     }
 
     public boolean isActive() {

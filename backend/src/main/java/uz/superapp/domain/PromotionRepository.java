@@ -9,6 +9,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, String> {
 
     List<Promotion> findByActiveTrueAndEndDateAfter(LocalDateTime now);
 
+    List<Promotion> findByActiveTrueAndEndDateAfterAndArchivedFalse(LocalDateTime now);
+
     List<Promotion> findByBranchIdAndArchivedFalse(String branchId);
 
     List<Promotion> findByOrgIdAndArchivedFalse(String orgId);
