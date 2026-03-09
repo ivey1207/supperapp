@@ -13,53 +13,41 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: '#3B82F6',
+        tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: {
-          backgroundColor: colors.card,
+          backgroundColor: scheme === 'dark' ? '#0F172A' : '#FFFFFF',
           borderTopWidth: 0,
-          elevation: 20,
+          elevation: 25,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.2,
-          shadowRadius: 10,
-          height: 60 + insets.bottom,
-          paddingTop: 8,
-          paddingBottom: insets.bottom + 5,
+          shadowOffset: { width: 0, height: -10 },
+          shadowOpacity: 0.1,
+          shadowRadius: 15,
+          height: 70 + insets.bottom,
+          paddingTop: 12,
+          paddingBottom: insets.bottom + 10,
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '700',
-          marginTop: 2,
-          marginBottom: 0,
-        },
-        headerStyle: {
-          backgroundColor: colors.background,
-        },
-        headerShadowVisible: false,
-        headerTintColor: colors.text,
-        headerTitleStyle: {
+          fontSize: 11,
           fontWeight: '800',
-          fontSize: 18,
+          marginTop: 4,
         },
+        headerShown: false,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Dashboard',
           tabBarLabel: 'Dashboard',
-          headerShown: false,
           tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "grid" : "grid-outline"} size={22} color={color} />
         }}
       />
       <Tabs.Screen
         name="orders"
         options={{
-          title: 'My Jobs',
           tabBarLabel: 'My Jobs',
           tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "briefcase" : "briefcase-outline"} size={22} color={color} />
         }}
@@ -67,12 +55,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "person" : "person-outline"} size={22} color={color} />
         }}
       />
-      {/* Hidden legacy consumer tabs */}
       <Tabs.Screen name="map" options={{ href: null }} />
       <Tabs.Screen name="scanner" options={{ href: null }} />
     </Tabs>

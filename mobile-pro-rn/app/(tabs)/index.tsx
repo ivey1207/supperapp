@@ -21,25 +21,23 @@ export default function HomeScreen() {
   const colors = Colors[colorScheme];
   const { token, logout } = useAuth();
   const router = useRouter();
-  const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
-  const [address, setAddress] = useState<string>('Detecting location...');
+  const [address, setAddress] = useState<string>('Tashkent, Uzbekistan');
   const [isOnline, setIsOnline] = useState(false);
   const { t } = useTranslation();
 
-  const { data: user, refetch: refetchMe, isRefetching: isRefreshingMe } = useQuery({
+  const { data: user, refetch: refetchMe } = useQuery({
     queryKey: ['me', token],
     queryFn: () => getMe(token!),
     enabled: !!token,
   });
 
-  const { data: wallet, refetch: refetchWallet, isRefetching: isRefreshingWallet } = useQuery({
+  const { data: wallet, refetch: refetchWallet } = useQuery({
     queryKey: ['wallet', token],
     queryFn: () => getWallet(token!),
     enabled: !!token,
   });
-
 
   const { data: unreadCount = { count: 0 } } = useQuery({
     queryKey: ['unreadCount', token],
@@ -53,76 +51,37 @@ export default function HomeScreen() {
 
   const onRefresh = async () => {
     setIsRefreshing(true);
-    try {
-      await Promise.all([
-        refetchMe(),
-        refetchWallet(),
-        refetchAvailable(),
-        refetchOrders(),
-      ]);
-    } catch (e) {
-      console.error('Refresh failed:', e);
-    } finally {
-      setIsRefreshing(false);
-    }
+    await Promise.all([refetchMe(), refetchWallet(), refetchAvailable(), refetchOrders()]);
+    setIsRefreshing(false);
   };
-
-
-
 
   useEffect(() => {
     if (user) {
       setIsOnline(user.online || false);
       if (!(user.specialist || user.isSpecialist)) {
-        Alert.alert(
-          'Access Denied',
-          'Only specialists can access the Pro app. Please use the consumer version.',
-          [{ text: 'OK', onPress: () => logout() }]
-        );
+        Alert.alert('Access Denied', 'Only specialists can access the Pro app.', [{ text: 'OK', onPress: () => logout() }]);
       }
     }
   }, [user]);
 
   useEffect(() => {
     let locationSubscription: any = null;
-
     const startLocationUpdates = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.warn('Location permission denied');
-        return;
-      }
-
+      if (status !== 'granted') return;
       locationSubscription = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.Balanced,
-          distanceInterval: 50,
-          timeInterval: 30000,
-        },
+        { accuracy: Location.Accuracy.Balanced, distanceInterval: 50, timeInterval: 30000 },
         async (location) => {
           setUserLocation(location);
           if (token && isOnline) {
-            try {
-              await updateSpecialistLocation(token, location.coords.latitude, location.coords.longitude);
-            } catch (err) {
-              console.error('Location update failed:', err);
-            }
+            try { await updateSpecialistLocation(token, location.coords.latitude, location.coords.longitude); } catch (e) { }
           }
         }
       );
     };
-
-    if (isOnline && token) {
-      startLocationUpdates();
-    }
-
-    return () => {
-      if (locationSubscription) {
-        locationSubscription.remove();
-      }
-    };
+    if (isOnline && token) startLocationUpdates();
+    return () => locationSubscription?.remove();
   }, [isOnline, token]);
-
 
   const isSpecialistUser = !!(user?.specialist || user?.isSpecialist);
 
@@ -139,12 +98,11 @@ export default function HomeScreen() {
     enabled: !!token && isSpecialistUser,
   });
 
-  const { data: promotions = [], refetch: refetchPromos } = useQuery({
+  const { data: promotions = [] } = useQuery({
     queryKey: ['promotions', token],
     queryFn: () => getPromotions(token!),
     enabled: !!token,
   });
-
 
   const toggleOnline = async () => {
     if (!token) return;
@@ -156,17 +114,14 @@ export default function HomeScreen() {
       }
       if (!isOnline) refetchAvailable();
     } catch (err: any) {
-      const msg = err.response?.data?.message || t('errorStatus');
-      Alert.alert('Error', msg);
+      Alert.alert('Error', err.response?.data?.message || 'Failed to update status');
     }
   };
-
 
   const handleAcceptOrder = async (orderId: string) => {
     if (!token) return;
     try {
       await acceptOrder(token, orderId);
-      Alert.alert('Accepted', 'You have accepted the order. Redirecting to tracking...');
       router.push({ pathname: '/order-tracking', params: { orderId } } as any);
       refetchAvailable();
     } catch (err) {
@@ -174,189 +129,147 @@ export default function HomeScreen() {
     }
   };
 
-  // Cleanup: Remove all consumer-only methods and logic (Stories, Branches, Map push logic)
-
-
   return (
     <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
-      <View style={{ flex: 1, paddingTop: insets.top }}>
-        {/* Header */}
+      <StatusBar barStyle="light-content" />
+      <LinearGradient colors={['#1E293B', '#020617']} style={[styles.topSection, { paddingTop: insets.top + 10 }]}>
         <View style={styles.header}>
-          <View style={styles.userInfoRow}>
-            <TouchableOpacity style={[styles.profileBadge, { borderColor: colors.border }]} onPress={() => router.push('/(tabs)/profile' as any)}>
-              <Image
-                source={{ uri: userAvatar }}
-                style={styles.avatar}
-              />
-            </TouchableOpacity>
-            <View style={styles.greetingRow}>
-              <Text style={styles.userNameHeader}>{user?.fullName || 'Specialist'}</Text>
-              <View style={[styles.proBadge, { backgroundColor: colors.primary }]}>
-                <Text style={styles.proBadgeText}>PRO</Text>
-              </View>
-            </View>
-          </View>
-          <View style={styles.headerLocationRow}>
-            <Ionicons name="location-sharp" size={14} color={colors.primary} />
-            <Text style={[styles.locationTextHeader, { color: colors.textSecondary }]} numberOfLines={1}>
-              {address}
-            </Text>
-          </View>
-        </View>
-
-
-
-
-        <View style={styles.headerRight}>
-          {wallet && (
-            <TouchableOpacity
-              style={styles.balancePill}
-              activeOpacity={0.8}
-              onPress={() => router.push('/wallet' as any)}
-            >
-              <LinearGradient
-                colors={['#FF5F6D', '#FFC371', '#8E2DE2']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.balanceGradient}
-              >
-                <Text style={styles.balanceText}>{wallet.balance.toLocaleString()}</Text>
-                <View style={styles.plusIconCircle}>
-                  <Ionicons name="add" size={14} color="#3B82F6" />
+          <TouchableOpacity style={styles.profileInfo} onPress={() => router.push('/(tabs)/profile' as any)}>
+            <Image source={{ uri: userAvatar }} style={styles.avatar} />
+            <View>
+              <View style={styles.nameRow}>
+                <Text style={styles.userName}>{user?.fullName || 'Specialist'}</Text>
+                <View style={styles.proBadge}>
+                  <Text style={styles.proBadgeText}>PRO</Text>
                 </View>
-              </LinearGradient>
-            </TouchableOpacity>
-          )}
-
-          <TouchableOpacity
-            style={[styles.notificationButton, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
-            onPress={() => router.push('/notifications' as any)}
-          >
-            <Ionicons name="notifications-outline" size={24} color={colors.text} />
-            {unreadCount.count > 0 && (
-              <View style={[styles.notificationBadge, { backgroundColor: colors.primary }]}>
-                <Text style={{ color: '#fff', fontSize: 8, fontWeight: '800', textAlign: 'center' }}>
-                  {unreadCount.count > 9 ? '9+' : unreadCount.count}
-                </Text>
               </View>
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
-
-
-
-      {/* Specialist Main Bar */}
-      <View style={styles.specialistBar}>
-        <LinearGradient
-          colors={isOnline ? ['#10B981', '#059669'] : ['#475569', '#334155']}
-          style={styles.specialistGradient}
-        >
-          <View style={styles.specialistInfo}>
-            <View style={[styles.statusIndicator, { backgroundColor: isOnline ? '#fff' : '#94A3B8' }]} />
-            <Text style={styles.specialistStatusText}>
-              {isOnline ? t('onlineStatus') : t('offlineStatus')}
-            </Text>
-          </View>
-          <TouchableOpacity style={styles.onlineSwitch} onPress={toggleOnline} activeOpacity={0.8}>
-            <View style={[styles.switchTrack, { backgroundColor: isOnline ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)' }]}>
-              <View style={[styles.switchKnob, isOnline ? { transform: [{ translateX: 22 }], backgroundColor: '#fff' } : { transform: [{ translateX: 2 }], backgroundColor: '#94A3B8' }]} />
+              <View style={styles.locationRow}>
+                <Ionicons name="location" size={12} color="#94A3B8" />
+                <Text style={styles.locationText} numberOfLines={1}>{address}</Text>
+              </View>
             </View>
           </TouchableOpacity>
-        </LinearGradient>
-      </View>
+
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/notifications' as any)}>
+              <Ionicons name="notifications-outline" size={24} color="#fff" />
+              {unreadCount.count > 0 && <View style={styles.dot} />}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.walletContainer}>
+          <View>
+            <Text style={styles.walletLabel}>Current Balance</Text>
+            <Text style={styles.walletValue}>
+              {Number(wallet?.balance || 0).toLocaleString()} <Text style={styles.currency}>UZS</Text>
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.topUpButton} onPress={() => router.push('/wallet' as any)}>
+            <LinearGradient colors={['#3B82F6', '#2563EB']} style={styles.topUpGradient}>
+              <Ionicons name="add" size={20} color="#fff" />
+              <Text style={styles.topUpText}>Top Up</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={colors.primary} />
-        }
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor="#3B82F6" />}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Dynamic Promo Banners */}
-        <PromoBanner
-          promotions={promotions}
-          onPress={(promo) => {
-            if (promo.branchId) {
-              // Pro app might not have a branch detail page, or it might be different
-              // For now, just show analytics or something if needed, or leave as navigation
-            }
-          }}
-        />
+        <View style={styles.statusSection}>
+          <Text style={styles.statusTitle}>Your Status</Text>
+          <TouchableOpacity
+            style={[styles.statusToggle, isOnline ? styles.statusOnline : styles.statusOffline]}
+            onPress={toggleOnline}
+            activeOpacity={0.9}
+          >
+            <View style={styles.statusLeft}>
+              <View style={[styles.statusPulse, { backgroundColor: isOnline ? '#34D399' : '#94A3B8' }]} />
+              <Text style={styles.statusLabel}>{isOnline ? 'Online — Accepting Orders' : 'Offline — Go Online'}</Text>
+            </View>
+            <View style={[styles.toggleTrack, isOnline ? { backgroundColor: 'rgba(255,255,255,0.2)' } : {}]}>
+              <View style={[styles.toggleKnob, isOnline ? { transform: [{ translateX: 22 }], backgroundColor: '#fff' } : {}]} />
+            </View>
+          </TouchableOpacity>
+        </View>
 
-        {/* Active Orders List */}
-        <View style={styles.ordersSection}>
-          <View style={styles.sectionHeading}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              {t('availableOrders')} ({availableOrders.length})
-            </Text>
-            {isOnline && (
-              <View style={styles.liveIndicator}>
-                <View style={styles.liveDot} />
-                <Text style={styles.liveText}>LIVE</Text>
+        {isOnline && (
+          <View style={styles.ordersSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Available Orders</Text>
+              <View style={styles.countBadge}>
+                <Text style={styles.countText}>{availableOrders.length}</Text>
               </View>
-            )}
-          </View>
+            </View>
 
-          <View style={styles.ordersList}>
             {availableOrders.length === 0 ? (
-              <View style={styles.emptyOrders}>
-                <Ionicons name="cafe-outline" size={48} color={colors.textSecondary} />
-                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                  {isOnline ? t('noOrdersYet') : t('goOnlineToSeeOrders')}
-                </Text>
+              <View style={styles.emptyCard}>
+                <Ionicons name="airplane-outline" size={40} color="#94A3B8" />
+                <Text style={styles.emptyText}>Waiting for new orders in your area...</Text>
               </View>
             ) : (
               availableOrders.map((order: any) => (
                 <TouchableOpacity
                   key={order.id}
-                  style={[styles.orderCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                  style={styles.orderCard}
                   onPress={() => handleAcceptOrder(order.id)}
+                  activeOpacity={0.9}
                 >
-                  <View style={styles.orderHeader}>
-                    <View style={[styles.orderTypeBadge, { backgroundColor: order.type === 'MOBILE_WASH' ? '#10B981' : '#F43F5E' }]}>
-                      <Text style={styles.orderTypeText}>{order.type === 'MOBILE_WASH' ? t('wash') : t('repair')}</Text>
+                  <View style={styles.orderTop}>
+                    <View style={styles.orderTag}>
+                      <Text style={styles.orderTagText}>{order.type === 'MOBILE_WASH' ? 'WASH' : 'REPAIR'}</Text>
                     </View>
-                    <Text style={[styles.orderTime, { color: colors.textSecondary }]}>1.2 km away</Text>
+                    <Text style={styles.orderDistance}>1.2 km away</Text>
                   </View>
-                  <Text style={[styles.orderAddress, { color: colors.text }]} numberOfLines={2}>{order.userAddress}</Text>
-                  <View style={styles.orderCarRow}>
-                    <Ionicons name="car-outline" size={14} color={colors.textSecondary} />
-                    <Text style={[styles.orderCar, { color: colors.textSecondary }]}>{order.carDetails}</Text>
+
+                  <Text style={styles.orderAddress} numberOfLines={2}>{order.userAddress}</Text>
+
+                  <View style={styles.orderInfo}>
+                    <View style={styles.infoPill}>
+                      <Ionicons name="car" size={14} color="#3B82F6" />
+                      <Text style={styles.infoText}>{order.carDetails || 'BYD Han'}</Text>
+                    </View>
+                    <View style={styles.infoPill}>
+                      <Ionicons name="time" size={14} color="#64748B" />
+                      <Text style={styles.infoText}>ASAP</Text>
+                    </View>
                   </View>
-                  <TouchableOpacity style={styles.acceptButton} onPress={() => handleAcceptOrder(order.id)}>
-                    <Text style={styles.acceptButtonText}>{t('acceptOrder')}</Text>
+
+                  <TouchableOpacity style={styles.acceptOrderBtn} onPress={() => handleAcceptOrder(order.id)}>
+                    <Text style={styles.acceptOrderBtnText}>Accept Order</Text>
+                    <Ionicons name="arrow-forward" size={16} color="#fff" />
                   </TouchableOpacity>
                 </TouchableOpacity>
               ))
             )}
           </View>
+        )}
+
+        <View style={styles.quickStats}>
+          <View style={styles.statCard}>
+            <View style={[styles.statIcon, { backgroundColor: '#DBEAFE' }]}>
+              <Ionicons name="checkmark-done" size={20} color="#3B82F6" />
+            </View>
+            <View>
+              <Text style={styles.statNumber}>{Array.isArray(orders) ? orders.filter((o: any) => o.status === 'COMPLETED').length : 0}</Text>
+              <Text style={styles.statLabelSmall}>Jobs Done</Text>
+            </View>
+          </View>
+          <View style={styles.statCard}>
+            <View style={[styles.statIcon, { backgroundColor: '#DCFCE7' }]}>
+              <Ionicons name="star" size={20} color="#10B981" />
+            </View>
+            <View>
+              <Text style={styles.statNumber}>4.9</Text>
+              <Text style={styles.statLabelSmall}>Rating</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Quick Stats Grid */}
-        <View style={styles.statsGrid}>
-          <View style={[styles.statItem, { backgroundColor: colors.card }]}>
-            <View style={styles.statIconCircle}>
-              <Ionicons name="wallet-outline" size={16} color={colors.primary} />
-            </View>
-            <Text style={[styles.statVal, { color: colors.text }]}>
-              {Number(wallet?.balance || 0).toLocaleString()} {wallet?.currency || 'UZS'}
-            </Text>
-            <Text style={[styles.statLab, { color: colors.textSecondary }]}>Current Balance</Text>
-          </View>
-          <View style={[styles.statItem, { backgroundColor: colors.card }]}>
-            <View style={[styles.statIconCircle, { backgroundColor: '#D1FAE5' }]}>
-              <Ionicons name="checkmark-done" size={16} color="#10B981" />
-            </View>
-            <Text style={[styles.statVal, { color: colors.text }]}>
-              {Array.isArray(orders) ? orders.filter((o: any) => o.status === 'COMPLETED').length : 0}
-            </Text>
-            <Text style={[styles.statLab, { color: colors.textSecondary }]}>Jobs Completed</Text>
-          </View>
-
-        </View>
-
+        <PromoBanner promotions={promotions} />
       </ScrollView>
     </View>
   );
@@ -364,398 +277,60 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   mainContainer: { flex: 1 },
-  safeArea: { flex: 1 },
-  scrollContent: { paddingBottom: 120 },
-  storiesContainer: { marginTop: 24, marginBottom: 12 },
-  storiesScroll: { paddingHorizontal: 20, gap: 12 },
-
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    flexShrink: 0,
-  },
-  userInfoRow: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  userTextContainer: {
-    flexShrink: 1,
-    justifyContent: 'center',
-  },
-  locationLabel: {
-    fontSize: 12,
-    fontWeight: '900',
-    color: '#94A3B8',
-    letterSpacing: 0.8,
-    marginBottom: 2,
-  },
-  locationWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    flexShrink: 1,
-  },
-  locationText: {
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  profileBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    overflow: 'hidden',
-    borderWidth: 1.5,
-  },
-  avatar: { width: '100%', height: '100%' },
-  notificationButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  notificationBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  filterBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  searchRow: {
-    paddingHorizontal: 20,
-    marginTop: 16,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 16,
-    gap: 10,
-  },
-  searchPlaceholder: {
-    flex: 1,
-    fontSize: 15,
-    fontWeight: '500',
-  },
-
-  categoriesSection: {
-    marginTop: 24,
-  },
-  categoriesScroll: {
-    paddingHorizontal: 20,
-    gap: 10,
-  },
-
-
-  categoryButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    gap: 8,
-  },
-  categoryBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  recommendedSection: {
-    marginTop: 24,
-    paddingHorizontal: 20,
-  },
-  recommendedCard: {
-    height: 180,
-    borderRadius: 24,
-    overflow: 'hidden',
-  },
-  recommendedImage: {
-    width: '100%',
-    height: '100%',
-  },
-  recommendedGradient: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  recommendedContent: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-  },
-  recommendedBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  recommendedBadgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '800',
-  },
-  recommendedTitle: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: '800',
-  },
-
-  placesSection: {
-    marginTop: 32,
-  },
-  sectionHeading: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  seeAll: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  placesList: {
-    paddingHorizontal: 20,
-    gap: 16,
-    paddingBottom: 40,
-  },
-
-  // Preserved old styles if needed for sub-components
-  categoryItem: { alignItems: 'center', width: 72 },
-  categoryCircle: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', marginBottom: 8, elevation: 5 },
-  categoryName: { color: '#cbd5e1', fontSize: 12, fontWeight: '600', textAlign: 'center' },
-  featuredServicesRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    gap: 12,
-    marginTop: 24,
-  },
-  featuredServiceCard: {
-    flex: 1,
-    height: 140,
-    borderRadius: 24,
-    padding: 16,
-    justifyContent: 'flex-end',
-    overflow: 'hidden',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-  },
-  cardGlow: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  serviceIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 'auto',
-  },
-  featuredServiceTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  featuredServiceSub: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  addStoryBtn: {
-    alignItems: 'center',
-    marginRight: 12,
-    width: 76,
-  },
-  yourStoryWrapper: {
-    width: 72,
-    height: 72,
-    position: 'relative',
-    marginBottom: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  yourStoryAvatarFrame: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    borderWidth: 1.5,
-    padding: 2,
-    backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 2,
-  },
-  yourStoryAvatar: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 31,
-  },
-  addBadge: {
-    position: 'absolute',
-    bottom: 2,
-    right: 2,
-    backgroundColor: '#3b82f6',
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-  },
-  addStoryText: {
-    fontSize: 11,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  balancePill: {
-    height: 38,
-    borderRadius: 19,
-    overflow: 'hidden',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  balanceGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: 14,
-    paddingRight: 6,
-    height: '100%',
-    gap: 8,
-  },
-  balanceText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  plusIconCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 90,
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 100,
-  },
-  acceptButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  userNameHeader: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#fff',
-  },
-  proBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    marginLeft: 4,
-  },
-  proBadgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '900',
-  },
-  headerLocationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: 4,
-  },
-  locationTextHeader: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  greetingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    gap: 12,
-    marginTop: 24,
-  },
-  statItem: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 20,
-    gap: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-  },
-  statIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#eff6ff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statVal: {
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  statLab: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
+  topSection: { paddingHorizontal: 20, paddingBottom: 24, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
+  profileInfo: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatar: { width: 48, height: 48, borderRadius: 16, borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)' },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  userName: { color: '#fff', fontSize: 18, fontWeight: '800' },
+  proBadge: { backgroundColor: '#3B82F6', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
+  proBadgeText: { color: '#fff', fontSize: 10, fontWeight: '900' },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  locationText: { color: '#94A3B8', fontSize: 12, fontWeight: '600' },
+  headerActions: { flexDirection: 'row', gap: 10 },
+  iconButton: { width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' },
+  dot: { position: 'absolute', top: 12, right: 12, width: 8, height: 8, borderRadius: 4, backgroundColor: '#EF4444', borderWidth: 2, borderColor: '#1E293B' },
+  walletContainer: { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 24, padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  walletLabel: { color: '#94A3B8', fontSize: 12, fontWeight: '700', marginBottom: 4 },
+  walletValue: { color: '#fff', fontSize: 24, fontWeight: '800' },
+  currency: { fontSize: 14, color: '#3B82F6' },
+  topUpButton: { borderRadius: 16, overflow: 'hidden' },
+  topUpGradient: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 6 },
+  topUpText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 120 },
+  statusSection: { marginBottom: 24 },
+  statusTitle: { fontSize: 16, fontWeight: '800', color: '#64748B', marginBottom: 12 },
+  statusToggle: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderRadius: 20, borderWidth: 1 },
+  statusOnline: { backgroundColor: '#ECFDF5', borderColor: '#D1FAE5' },
+  statusOffline: { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' },
+  statusLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  statusPulse: { width: 8, height: 8, borderRadius: 4 },
+  statusLabel: { fontSize: 15, fontWeight: '700', color: '#0F172A' },
+  toggleTrack: { width: 44, height: 24, borderRadius: 12, backgroundColor: '#E2E8F0', padding: 2 },
+  toggleKnob: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#fff', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 2 },
+  ordersSection: { marginBottom: 24 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
+  sectionTitle: { fontSize: 20, fontWeight: '800', color: '#0F172A' },
+  countBadge: { backgroundColor: '#3B82F6', width: 24, height: 24, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+  countText: { color: '#fff', fontSize: 12, fontWeight: '800' },
+  emptyCard: { padding: 40, alignItems: 'center', backgroundColor: '#F8FAFC', borderRadius: 24, borderWidth: 1, borderStyle: 'dashed', borderColor: '#E2E8F0' },
+  emptyText: { color: '#94A3B8', fontSize: 14, fontWeight: '600', textAlign: 'center', marginTop: 12 },
+  orderCard: { backgroundColor: '#fff', borderRadius: 24, padding: 20, marginBottom: 16, elevation: 4, shadowColor: '#3B82F6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, borderWidth: 1, borderColor: '#F1F5F9' },
+  orderTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  orderTag: { backgroundColor: '#EEF2FF', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  orderTagText: { color: '#4F46E5', fontSize: 10, fontWeight: '800' },
+  orderDistance: { color: '#64748B', fontSize: 12, fontWeight: '600' },
+  orderAddress: { fontSize: 18, fontWeight: '800', color: '#0F172A', marginBottom: 16 },
+  orderInfo: { flexDirection: 'row', gap: 12, marginBottom: 20 },
+  infoPill: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F8FAFC', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
+  infoText: { fontSize: 12, fontWeight: '700', color: '#475569' },
+  acceptOrderBtn: { backgroundColor: '#0F172A', borderRadius: 16, padding: 16, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 },
+  acceptOrderBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  quickStats: { flexDirection: 'row', gap: 12, marginBottom: 24 },
+  statCard: { flex: 1, backgroundColor: '#fff', padding: 16, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: '#F1F5F9' },
+  statIcon: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+  statNumber: { fontSize: 18, fontWeight: '800', color: '#0F172A' },
+  statLabelSmall: { fontSize: 12, fontWeight: '600', color: '#64748B' },
 });
 
 
