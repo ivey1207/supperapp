@@ -278,6 +278,7 @@ export interface OnDemandOrder {
   contractorId?: string;
   providerLat?: number;
   providerLon?: number;
+  providerHeading?: number;
   createdAt?: string;
   acceptedAt?: string;
   completedAt?: string;
@@ -340,9 +341,9 @@ export async function updateSpecialistStatus(token: string, online: boolean) {
   return data as User;
 }
 
-export async function updateSpecialistLocation(token: string, lat: number, lon: number) {
+export async function updateSpecialistLocation(token: string, lat: number, lon: number, heading?: number) {
   const { data } = await api.post('/api/v1/app/user/specialist/location', null, {
-    params: { lat, lon },
+    params: { lat, lon, heading },
     headers: { Authorization: `Bearer ${token}` },
   });
   return data as User;

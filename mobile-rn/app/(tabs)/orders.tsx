@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, RefreshControl, useColorScheme, Touch
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
-import { getOrders, getOnDemandOrders } from '@/lib/api';
+import { getOrders, getOnDemandOrders, getWashSessionHistory } from '@/lib/api';
 import Colors from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -70,16 +70,25 @@ export default function OrdersScreen() {
     enabled: !!token,
   });
 
-  const combinedOrders = [...orders, ...onDemandOrders].sort((a: any, b: any) => {
-    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+  const { data: washHistory = [], refetch: refetchWash, isRefetching: isRefetchingWash } = useQuery({
+    queryKey: ['wash-sessions', token],
+    queryFn: () => getWashSessionHistory(token!),
+    enabled: !!token,
+  });
+
+  const combinedOrders = [...orders, ...onDemandOrders, ...washHistory].sort((a: any, b: any) => {
+    const dateA = new Date(a.createdAt || a.startedAt || 0).getTime();
+    const dateB = new Date(b.createdAt || b.startedAt || 0).getTime();
+    return dateB - dateA;
   });
 
   const refetch = () => {
     refetchOrders();
     refetchOnDemand();
+    refetchWash();
   };
 
-  const isRefetching = isRefetchingOrders || isRefetchingOnDemand;
+  const isRefetching = isRefetchingOrders || isRefetchingOnDemand || isRefetchingWash;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -88,11 +97,13 @@ export default function OrdersScreen() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }: any) => {
           const isOnDemand = !!item.userAddress;
+          const isWashSession = !!item.startedAt;
           const displayOrder = {
             ...item,
-            description: isOnDemand ? `${item.type === 'MOBILE_WASH' ? 'Mobile Wash' : 'SOS Repair'}: ${item.userAddress}` : item.description,
-            totalAmount: item.totalAmount || 0,
-            currency: item.currency || 'UZS'
+            description: isWashSession ? `Self-service Wash: ${item.kioskId}` : (isOnDemand ? `${item.type === 'MOBILE_WASH' ? 'Mobile Wash' : 'SOS Repair'}: ${item.userAddress}` : item.description),
+            totalAmount: item.totalAmount || item.paidAmount || 0,
+            currency: item.currency || 'UZS',
+            createdAt: item.createdAt || item.startedAt
           };
           return <OrderItem item={displayOrder} colors={colors} />;
         }}

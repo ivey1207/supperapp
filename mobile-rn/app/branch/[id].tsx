@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, useColorScheme, Dimensions, Platform, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, useColorScheme, Dimensions, Platform, ActivityIndicator, StatusBar, Share, Linking } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { getBranchById, getServices, getFileUrl, getReviews, createReview, likeReview, unlikeReview } from '@/lib/api';
-import { Modal, TextInput, Alert } from 'react-native';
+import { getBranchById, getServices, getFileUrl, getReviews, createReview, likeReview, unlikeReview, getKioskInfo, startWashSession, getActiveWashSession } from '@/lib/api';
+import { Modal, TextInput, Alert, KeyboardAvoidingView } from 'react-native';
 import { useAuth } from '@/lib/auth';
+import { useMutation } from '@tanstack/react-query';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -49,11 +50,24 @@ function ServiceCard({ service, colors }: any) {
 }
 
 export default function BranchDetailsScreen() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id, macId, kioskName } = useLocalSearchParams<{ id: string, macId?: string, kioskName?: string }>();
     const router = useRouter();
     const { token } = useAuth();
     const scheme = useColorScheme() ?? 'light';
     const colors = Colors[scheme];
+
+    const [amountModalVisible, setAmountModalVisible] = React.useState(false);
+    const [selectedAmount, setSelectedAmount] = React.useState(5000);
+    const [activeSession, setActiveSession] = React.useState<any>(null);
+
+    const amounts = [5000, 10000, 20000, 50000, 100000];
+
+    // Check for active session on mount
+    React.useEffect(() => {
+        if (token) {
+            getActiveWashSession(token).then(setActiveSession).catch(console.error);
+        }
+    }, [token]);
 
     const { data: branch, isLoading: isBranchLoading } = useQuery({
         queryKey: ['branch', id],
@@ -108,6 +122,35 @@ export default function BranchDetailsScreen() {
         }
     };
 
+    const startSessionMutation = useMutation({
+        mutationFn: (amount: number) => {
+            // If we have macId, the kiosk is already identified. 
+            // The backend start-session takes kioskId. We can get it from macId or just use it.
+            // Ideally we get kioskId from getKioskInfo, but let's assume macId works as ID or we fetch it.
+            return startWashSession(token!, macId || id!, amount);
+        },
+        onSuccess: (session) => {
+            setActiveSession(session);
+            setAmountModalVisible(false);
+            Alert.alert('Session Started', 'The kiosk has been activated with your balance.');
+            // Optionally navigate to a session control screen
+        },
+        onError: (err: any) => {
+            Alert.alert('Error', err.response?.data?.message || 'Failed to start session');
+        }
+    });
+
+    const handleStartPress = () => {
+        if (!macId) {
+            Alert.alert('Scan QR', 'Please scan the QR code on the kiosk to start the service.', [
+                { text: 'Go to Scanner', onPress: () => router.push('/scanner') },
+                { text: 'Cancel', style: 'cancel' }
+            ]);
+            return;
+        }
+        setAmountModalVisible(true);
+    };
+
     if (isBranchLoading) {
         return (
             <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
@@ -153,9 +196,7 @@ export default function BranchDetailsScreen() {
                         </TouchableOpacity>
                         <View style={styles.navRight}>
                             <TouchableOpacity style={styles.blurBtn} onPress={() => {
-                                import('react-native').then(rn => {
-                                    rn.Share.share({ message: `Check out ${branch.name} on SuperApp!` });
-                                });
+                                Share.share({ message: `Check out ${branch.name} on SuperApp!` });
                             }}>
                                 <Ionicons name="share-outline" size={22} color="#fff" />
                             </TouchableOpacity>
@@ -212,7 +253,7 @@ export default function BranchDetailsScreen() {
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.actionCard, { backgroundColor: colors.card }]} onPress={() => {
                             if (branch.phone) {
-                                import('react-native').then(rn => rn.Linking.openURL(`tel:${branch.phone}`));
+                                Linking.openURL(`tel:${branch.phone}`);
                             } else {
                                 Alert.alert('No phone', 'This branch has no phone number listed.');
                             }
@@ -320,27 +361,80 @@ export default function BranchDetailsScreen() {
 
             {/* Sticky Action Footer */}
             <View style={[styles.footer, { backgroundColor: colors.card }]}>
-                <View style={styles.footerLeft}>
-                    <Text style={styles.footerLabel}>Starting from</Text>
-                    <Text style={[styles.footerPrice, { color: colors.text }]}>
-                        {services[0]?.pricePerMinute?.toLocaleString() || '15,000'} <Text style={styles.footerCurrency}>UZS</Text>
-                    </Text>
-                </View>
-                <TouchableOpacity
-                    style={[styles.bookBtn, { backgroundColor: colors.primary }]}
-                    onPress={() => {
-                        if (branch.partnerType === 'SERVICE') {
-                            // Logic for calling master
-                        } else {
-                            // Logic for navigation/booking
-                        }
-                    }}
-                >
-                    <Text style={styles.bookBtnText}>
-                        {branch.partnerType === 'SERVICE' ? 'Call Master' : 'Start Now'}
-                    </Text>
-                </TouchableOpacity>
+                {activeSession ? (
+                    <TouchableOpacity
+                        style={[styles.bookBtn, { backgroundColor: '#F59E0B' }]}
+                        onPress={() => router.push('/(tabs)/')} // Or to a session control page
+                    >
+                        <Text style={styles.bookBtnText}>View Active Session</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <>
+                        <View style={styles.footerLeft}>
+                            <Text style={styles.footerLabel}>Starting from</Text>
+                            <Text style={[styles.footerPrice, { color: colors.text }]}>
+                                {services[0]?.pricePerMinute?.toLocaleString() || '5,000'} <Text style={styles.footerCurrency}>UZS</Text>
+                            </Text>
+                        </View>
+                        <TouchableOpacity
+                            style={[styles.bookBtn, { backgroundColor: colors.primary }]}
+                            onPress={handleStartPress}
+                        >
+                            <Text style={styles.bookBtnText}>
+                                {macId ? `Start on ${kioskName || 'Kiosk'}` : 'Start Now'}
+                            </Text>
+                        </TouchableOpacity>
+                    </>
+                )}
             </View>
+
+            {/* Amount Picker Modal */}
+            <Modal
+                visible={amountModalVisible}
+                transparent={true}
+                animationType="slide"
+                onRequestClose={() => setAmountModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+                        <View style={styles.modalHeader}>
+                            <Text style={[styles.modalTitle, { color: colors.text }]}>Select Amount</Text>
+                            <TouchableOpacity onPress={() => setAmountModalVisible(false)}>
+                                <Ionicons name="close" size={24} color={colors.text} />
+                            </TouchableOpacity>
+                        </View>
+                        
+                        <View style={styles.amountGrid}>
+                            {amounts.map(amt => (
+                                <TouchableOpacity 
+                                    key={amt} 
+                                    onPress={() => setSelectedAmount(amt)}
+                                    style={[
+                                        styles.amountChip, 
+                                        { backgroundColor: colors.card, borderColor: selectedAmount === amt ? colors.primary : colors.border }
+                                    ]}
+                                >
+                                    <Text style={[styles.amountChipText, { color: selectedAmount === amt ? colors.primary : colors.text }]}>
+                                        {amt.toLocaleString()} UZS
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <TouchableOpacity
+                            style={[styles.submitBtn, { backgroundColor: colors.primary, marginTop: 20 }]}
+                            onPress={() => startSessionMutation.mutate(selectedAmount)}
+                            disabled={startSessionMutation.isPending}
+                        >
+                            {startSessionMutation.isPending ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.submitBtnText}>Confirm and Pay</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
 
             {/* Review Modal */}
             <Modal
@@ -491,5 +585,10 @@ const styles = StyleSheet.create({
     starRow: { flexDirection: 'row', justifyContent: 'center', gap: 12, marginBottom: 24 },
     reviewInput: { borderRadius: 20, padding: 16, fontSize: 16, height: 120, textAlignVertical: 'top', borderWidth: 1, marginBottom: 24 },
     submitBtn: { height: 60, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-    submitBtnText: { color: '#fff', fontSize: 18, fontWeight: '800' }
+    submitBtnText: { color: '#fff', fontSize: 18, fontWeight: '800' },
+
+    // Amount grid
+    amountGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
+    amountChip: { paddingHorizontal: 20, paddingVertical: 12, borderRadius: 16, borderWidth: 2, minWidth: '45%', alignItems: 'center' },
+    amountChipText: { fontSize: 16, fontWeight: '800' }
 });

@@ -25,6 +25,7 @@ public class OnDemandOrder {
     private String contractorId; // Specialist/Washer ID
     private Double providerLat;
     private Double providerLon;
+    private Double providerHeading;
     private Instant createdAt = Instant.now();
     private Instant acceptedAt;
     private Instant completedAt;
@@ -34,6 +35,14 @@ public class OnDemandOrder {
 
     @Version
     private Long version;
+
+    public Double getProviderHeading() {
+        return providerHeading;
+    }
+
+    public void setProviderHeading(Double providerHeading) {
+        this.providerHeading = providerHeading;
+    }
 
     public java.math.BigDecimal getFinalAmount() {
         return finalAmount;

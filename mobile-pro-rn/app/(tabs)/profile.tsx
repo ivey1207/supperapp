@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useColorScheme, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useColorScheme, Platform, ActivityIndicator, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -85,33 +85,54 @@ export default function ProfileScreen() {
   const userAvatar = rawAvatar ? `${rawAvatar}${rawAvatar.includes('?') ? '&' : '?'}t=${buster}` : null;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Profile Header */}
         <View style={styles.header}>
-          <View style={[styles.avatarContainer, { backgroundColor: colors.card, borderColor: colors.primary }]}>
-            {userAvatar ? (
-              <Image source={{ uri: userAvatar }} style={styles.avatarImage} />
-            ) : (
-              <Text style={[styles.avatarText, { color: colors.primary }]}>
-                {(user?.fullName || user?.phone || 'U').charAt(0).toUpperCase()}
-              </Text>
-            )}
-            <TouchableOpacity
-              style={[styles.editAvatarBtn, { backgroundColor: colors.primary, borderColor: colors.background }]}
-              onPress={pickImage}
-              disabled={mutation.isPending}
-            >
-              {mutation.isPending ? (
-                <ActivityIndicator size="small" color="#fff" />
+          <TouchableOpacity style={styles.avatarWrapper} onPress={pickImage}>
+            <View style={styles.avatarMain}>
+              {userAvatar ? (
+                <Image source={{ uri: userAvatar }} style={styles.avatarImage} />
               ) : (
-                <Ionicons name="camera" size={16} color="#fff" />
+                <Text style={styles.avatarInitial}>
+                  {(user?.fullName || 'U').charAt(0).toUpperCase()}
+                </Text>
               )}
+            </View>
+            <View style={styles.editBadge}>
+              <Ionicons name="camera" size={14} color="#fff" />
+            </View>
+          </TouchableOpacity>
+
+          <View style={styles.nameSection}>
+            <Text style={styles.userName}>{user?.fullName || 'Specialist'}</Text>
+            <TouchableOpacity style={styles.inviteBtn}>
+              <Ionicons name="person-add" size={16} color="#fff" />
+              <Text style={styles.inviteBtnText}>Invite a friend</Text>
             </TouchableOpacity>
           </View>
+        </View>
 
-          <Text style={[styles.userName, { color: colors.text }]}>{user?.fullName || 'John Doe'}</Text>
-          <Text style={[styles.userPhone, { color: colors.textSecondary }]}>{user?.phone || '+998 90 123 45 67'}</Text>
+        {/* KPI Grid (Pro Style) */}
+        <View style={styles.kpiGrid}>
+          <View style={styles.kpiCard}>
+            <Text style={styles.kpiValue}>5.0</Text>
+            <Text style={styles.kpiLabel}>Rating</Text>
+            <Ionicons name="star" size={24} color="#F59E0B" style={styles.kpiIcon} />
+          </View>
+          <View style={styles.kpiCard}>
+            <Text style={styles.kpiValue}>—</Text>
+            <Text style={styles.kpiLabel}>Level</Text>
+            <Ionicons name="ribbon" size={24} color="#3B82F6" style={styles.kpiIcon} />
+          </View>
+          <View style={styles.kpiCard}>
+            <Text style={styles.kpiValue}>+30</Text>
+            <Text style={styles.kpiLabel}>Priority</Text>
+            <View style={styles.priorityPoint}>
+              <Ionicons name="flash" size={14} color="#000" />
+            </View>
+          </View>
         </View>
 
 
@@ -153,30 +174,29 @@ export default function ProfileScreen() {
         </View>
 
         {/* Menu Section */}
-        <View style={[styles.menuContainer, { backgroundColor: colors.card }]}>
+        <View style={styles.menuWrapper}>
           <ProfileMenuItem
-            icon="person-outline"
-            label={t('editProfile')}
-            onPress={() => router.push('/profile-edit' as never)}
+            icon="car-outline"
+            label="My vehicles"
+            onPress={() => { }}
             colors={colors}
           />
           <ProfileMenuItem
-            icon="wallet-outline"
-            label={t('wallet')}
-            onPress={() => router.push('/wallet' as never)}
-            colors={colors}
-          />
-
-          <ProfileMenuItem
-            icon="notifications-outline"
-            label={t('notifications')}
-            onPress={() => router.push('/notifications' as never)}
+            icon="construct-outline"
+            label="Troubleshooting"
+            onPress={() => { }}
             colors={colors}
           />
           <ProfileMenuItem
-            icon="help-circle-outline"
-            label={t('helpSupport')}
-            onPress={() => router.push('/support' as never)}
+            icon="camera-outline"
+            label="Photo check"
+            onPress={() => { }}
+            colors={colors}
+          />
+          <ProfileMenuItem
+            icon="options-outline"
+            label="Settings"
+            onPress={() => { }}
             colors={colors}
           />
           <ProfileMenuItem
@@ -196,26 +216,114 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scrollContent: { paddingBottom: 120, paddingTop: 60 },
-  header: { alignItems: 'center', marginBottom: 32 },
-  avatarContainer: { width: 100, height: 100, borderRadius: 34, alignItems: 'center', justifyContent: 'center', borderWidth: 4, borderColor: '#fff', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, position: 'relative', overflow: 'hidden' },
-  avatarImage: { width: '100%', height: '100%', resizeMode: 'cover' },
-  avatarText: { fontSize: 40, fontWeight: '900' },
-  editAvatarBtn: { position: 'absolute', bottom: -4, right: -4, backgroundColor: '#3B82F6', width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: '#fff', zIndex: 10 },
-  userName: { fontSize: 24, fontWeight: '800', marginTop: 20 },
-  userPhone: { fontSize: 14, fontWeight: '600', marginTop: 4 },
-  carBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#F1F5F9', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginTop: 12 },
-  carModelText: { fontSize: 12, fontWeight: '700', color: '#64748B' },
+  container: { flex: 1, backgroundColor: '#020617' },
+  scrollContent: { paddingBottom: 120, paddingTop: 40 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 24,
+    gap: 20
+  },
+  avatarWrapper: { position: 'relative' },
+  avatarMain: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#0F172A',
+    borderWidth: 1.5,
+    borderColor: '#1E293B',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  avatarImage: { width: '100%', height: '100%' },
+  avatarInitial: { color: '#F8FAFC', fontSize: 24, fontWeight: '800' },
+  editBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    backgroundColor: '#1E293B',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#020617'
+  },
+  nameSection: { flex: 1, gap: 8 },
+  userName: { fontSize: 28, fontWeight: '800', color: '#F8FAFC' },
+  inviteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#3B82F6',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20
+  },
+  inviteBtnText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+
+  kpiGrid: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 10,
+    marginBottom: 32
+  },
+  kpiCard: {
+    flex: 1,
+    backgroundColor: '#0F172A',
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#1E293B',
+    minHeight: 120,
+    justifyContent: 'center'
+  },
+  kpiValue: { fontSize: 22, fontWeight: '800', color: '#F8FAFC' },
+  kpiLabel: { color: '#94A3B8', fontSize: 12, fontWeight: '600', marginTop: 4 },
+  kpiIcon: { position: 'absolute', bottom: 12, right: 12, opacity: 0.8 },
+  priorityPoint: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FACC15',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
   statsRow: { flexDirection: 'row', paddingHorizontal: 20, gap: 12, marginBottom: 24 },
   statBox: { flex: 1, padding: 16, borderRadius: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 },
   statValue: { fontSize: 18, fontWeight: '900' },
   statLabel: { fontSize: 10, fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', marginTop: 2 },
-  menuContainer: { marginHorizontal: 20, borderRadius: 32, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 },
-  menuItem: { flexDirection: 'row', alignItems: 'center', padding: 16 },
-  menuIconContainer: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
-  menuLabel: { flex: 1, fontSize: 16, fontWeight: '700' },
-  versionText: { textAlign: 'center', fontSize: 12, color: '#CBD5E1', marginTop: 24, fontWeight: '600' },
+
+  menuWrapper: { flex: 1, gap: 2 },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    gap: 16
+  },
+  menuIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  menuLabel: { flex: 1, fontSize: 17, fontWeight: '600' },
+  versionText: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: '#334155',
+    marginTop: 40,
+    fontWeight: '600'
+  },
   languageContainer: { paddingHorizontal: 20, marginBottom: 24 },
   sectionTitle: { fontSize: 11, fontWeight: '800', marginBottom: 10, letterSpacing: 1 },
   langRow: { flexDirection: 'row', gap: 10 },

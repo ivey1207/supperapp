@@ -191,10 +191,16 @@ export default function Promotions() {
         e.preventDefault();
         playClick();
         try {
+            const payload = {
+                ...formData,
+                startDate: formData.startDate.length === 10 ? `${formData.startDate} 00:00:00` : formData.startDate,
+                endDate: formData.endDate.length === 10 ? `${formData.endDate} 23:59:59` : formData.endDate,
+            };
+
             if (editing) {
-                await updatePromotion(editing.id, formData);
+                await updatePromotion(editing.id, payload);
             } else {
-                await createPromotion(formData);
+                await createPromotion(payload);
             }
             setModal(false);
             loadData();

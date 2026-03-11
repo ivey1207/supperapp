@@ -3,6 +3,7 @@ package uz.superapp.domain;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.math.BigDecimal;
@@ -25,7 +26,10 @@ public class Promotion {
 
     private String imageUrl;
     private String discountValue;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startDate;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endDate;
 
     @JdbcTypeCode(SqlTypes.JSON)

@@ -417,3 +417,32 @@ export const getPromoDailyStats = async (id: string) => {
 export const broadcastPromotion = async (id: string) => {
   await api.post(`/api/v1/admin/promo-broadcast/${id}/broadcast`);
 };
+
+export type OnDemandOrder = {
+  id: string;
+  type: string;
+  status: string;
+  userAddress: string;
+  userLat: number;
+  userLon: number;
+  carDetails: string;
+  description?: string;
+  providerId?: string;
+  contractorId?: string;
+  providerLat?: number;
+  providerLon?: number;
+  providerHeading?: number;
+  createdAt: string;
+  acceptedAt?: string;
+  completedAt?: string;
+};
+
+export async function getOnDemandOrders(): Promise<OnDemandOrder[]> {
+  const { data } = await api.get('/api/v1/admin/on-demand');
+  return data;
+}
+
+export async function updateOnDemandOrderStatus(id: string, status: string): Promise<OnDemandOrder> {
+  const { data } = await api.put(`/api/v1/admin/on-demand/${id}/status`, { status });
+  return data;
+}

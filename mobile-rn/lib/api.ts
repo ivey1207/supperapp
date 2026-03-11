@@ -278,6 +278,7 @@ export interface OnDemandOrder {
   contractorId?: string;
   providerLat?: number;
   providerLon?: number;
+  providerHeading?: number;
   createdAt?: string;
   acceptedAt?: string;
   completedAt?: string;
@@ -335,9 +336,9 @@ export async function updateSpecialistStatus(token: string, online: boolean) {
   return data as User;
 }
 
-export async function updateSpecialistLocation(token: string, lat: number, lon: number) {
+export async function updateSpecialistLocation(token: string, lat: number, lon: number, heading?: number) {
   const { data } = await api.post('/api/v1/app/user/specialist/location', null, {
-    params: { lat, lon },
+    params: { lat, lon, heading },
     headers: { Authorization: `Bearer ${token}` },
   });
   return data as User;
@@ -404,6 +405,69 @@ export async function commentOnUserStory(token: string, storyId: string, content
     headers: { Authorization: `Bearer ${token}` },
   });
   return data;
+}
+
+export async function getStoryComments(token: string, storyId: string) {
+  const { data } = await api.get(`/api/v1/app/user-stories/${storyId}/comments`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as any[];
+}
+
+export type WashSession = {
+  id: string;
+  kioskId: string;
+  status: 'ACTIVE' | 'PAUSED' | 'FINISHED';
+  paidAmount: number;
+  startedAt: string;
+  finishedAt?: string;
+  finishReason?: string;
+};
+
+export async function getKioskInfo(token: string, macId: string) {
+  const { data } = await api.get(`/api/v1/app/kiosk/${macId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as { id: string; name: string; orgId: string; branchId: string; services: Service[] };
+}
+
+export async function startWashSession(token: string, kioskId: string, amount: number) {
+  const { data } = await api.post(`/api/v1/app/kiosk/${kioskId}/start-session`, { amount }, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as WashSession;
+}
+
+export async function getActiveWashSession(token: string) {
+  try {
+    const { data } = await api.get('/api/v1/app/wash-sessions/active', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return data as WashSession;
+  } catch (e) {
+    return null;
+  }
+}
+
+export async function stopWashSession(token: string, sessionId: string) {
+  const { data } = await api.post(`/api/v1/app/wash-sessions/${sessionId}/stop`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as WashSession;
+}
+
+export async function pauseWashSession(token: string, sessionId: string, pause: boolean) {
+  const { data } = await api.post(`/api/v1/app/wash-sessions/${sessionId}/pause`, { pause }, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as WashSession;
+}
+
+export async function getWashSessionHistory(token: string) {
+  const { data } = await api.get('/api/v1/app/wash-sessions', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data as WashSession[];
 }
 
 export async function uploadImage(token: string, uri: string) {

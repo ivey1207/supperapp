@@ -128,6 +128,12 @@ public class AdminOnDemandOrderController {
             } catch (Exception e) {
             }
         }
+        if (body.get("providerHeading") != null) {
+            try {
+                order.setProviderHeading(Double.valueOf(body.get("providerHeading").toString()));
+            } catch (Exception e) {
+            }
+        }
 
         return ResponseEntity.ok(onDemandOrderRepository.save(order));
     }

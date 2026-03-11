@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome, Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
-import { getBranches, getPromotions, getServices, Promotion, getFileUrl, getUserStories, createUserStory, uploadImage } from '@/lib/api';
+import { getBranches, getPromotions, getServices, Promotion, getFileUrl, getUserStories, createUserStory, uploadImage, getActiveWashSession, stopWashSession } from '@/lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -52,6 +52,7 @@ export default function HomeScreen() {
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [address, setAddress] = useState<string>('Detecting location...');
   const [seenStories, setSeenStories] = useState<string[]>([]);
+  const [activeSession, setActiveSession] = useState<any>(null);
   const { t } = useTranslation();
 
   const { data: user } = useQuery({
@@ -72,7 +73,11 @@ export default function HomeScreen() {
     AsyncStorage.getItem('seen_stories').then(val => {
       if (val) setSeenStories(JSON.parse(val));
     });
-  }, []);
+
+    if (token) {
+      getActiveWashSession(token).then(setActiveSession).catch(console.error);
+    }
+  }, [token]);
 
   const { data: unreadCount = { count: 0 } } = useQuery({
     queryKey: ['unreadCount', token],
@@ -239,6 +244,17 @@ export default function HomeScreen() {
 
   const handleComingSoon = () => Alert.alert('В разработке', 'Этот раздел скоро появится!');
 
+  const handleStopSession = async () => {
+    if (!activeSession) return;
+    try {
+      await stopWashSession(token!, activeSession.id);
+      setActiveSession(null);
+      Alert.alert('Session Finished', 'Your wash session has been completed.');
+    } catch (err) {
+      Alert.alert('Error', 'Failed to stop session');
+    }
+  };
+
   return (
     <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
@@ -313,6 +329,34 @@ export default function HomeScreen() {
           }
           contentContainerStyle={styles.scrollContent}
         >
+          {/* Active Session Banner */}
+          {activeSession && (
+            <TouchableOpacity 
+              style={styles.activeSessionBanner}
+              onPress={() => router.push(`/branch/${activeSession.branchId || 'active'}`)}
+            >
+              <LinearGradient
+                colors={['#3B82F6', '#2563EB']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.activeSessionGradient}
+              >
+                <View style={styles.sessionInfo}>
+                  <View style={styles.sessionIconBox}>
+                    <MaterialCommunityIcons name="water-pump" size={24} color="#fff" />
+                  </View>
+                  <View>
+                    <Text style={styles.sessionTitle}>Active Wash Session</Text>
+                    <Text style={styles.sessionStatus}>Running • {activeSession.paidAmount.toLocaleString()} UZS</Text>
+                  </View>
+                </View>
+                <TouchableOpacity style={styles.stopBtn} onPress={handleStopSession}>
+                  <Text style={styles.stopBtnText}>STOP</Text>
+                </TouchableOpacity>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+
           {/* Stories Section - Top Priority Visibility */}
           <View style={styles.storiesContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storiesScroll}>
@@ -890,6 +934,74 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 31,
   },
+  fab: {
+    position: 'absolute',
+    bottom: 90,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  // Active Session Banner
+  activeSessionBanner: {
+    marginHorizontal: 20,
+    marginTop: 10,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  activeSessionGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  sessionInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  sessionIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sessionTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  sessionStatus: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  stopBtn: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  stopBtnText: {
+    color: '#EF4444',
+    fontSize: 12,
+    fontWeight: '900',
+  },
   addBadge: {
     position: 'absolute',
     bottom: 2,
@@ -936,22 +1048,6 @@ const styles = StyleSheet.create({
     height: 26,
     borderRadius: 13,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 90,
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    alignItems: 'center',
     justifyContent: 'center',
     zIndex: 100,
   },

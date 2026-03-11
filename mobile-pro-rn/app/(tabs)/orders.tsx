@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, useColorScheme, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, useColorScheme, TouchableOpacity, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
@@ -13,47 +13,40 @@ type Order = { id: string; status: string; totalAmount: number; currency: string
 
 const router = useRouter();
 
-function OrderItem({ item, colors }: { item: Order, colors: any }) {
+function OrderItem({ item }: { item: Order }) {
   const date = item.createdAt ? new Date(item.createdAt).toLocaleString('uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
   const isActive = ['PENDING', 'ASSIGNED', 'EN_ROUTE', 'ARRIVED', 'IN_PROGRESS'].includes(item.status);
   const isCompleted = item.status === 'COMPLETED';
 
   const statusColor = isCompleted ? '#10B981' : isActive ? '#3B82F6' : '#EF4444';
-  const statusBg = isCompleted ? '#D1FAE5' : isActive ? '#DBEAFE' : '#FEE2E2';
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: colors.card }]}
+      style={styles.card}
       activeOpacity={0.8}
-      onPress={() => router.push({ pathname: '/order-tracking', params: { orderId: item.id } })}
+      onPress={() => router.push({ pathname: '/order-tracking', params: { orderId: item.id } } as any)}
     >
-      <View style={styles.cardHeader}>
-        <View style={styles.typeIconRow}>
-          <Ionicons
-            name={item.userAddress ? "car-sport-outline" : "construct-outline"}
-            size={18}
-            color={colors.primary}
-          />
-          <Text style={[styles.dateText, { color: colors.textSecondary }]}>{date}</Text>
+      <View style={styles.cardTop}>
+        <View style={styles.dateWrapper}>
+          <Text style={styles.dateText}>{date}</Text>
+          <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>
-          <Text style={[styles.statusText, { color: statusColor }]}>{item.status}</Text>
-        </View>
+        <Text style={[styles.statusText, { color: statusColor }]}>{item.status}</Text>
       </View>
 
-      <Text style={[styles.orderTitle, { color: colors.text }]} numberOfLines={1}>
+      <Text style={styles.orderTitle} numberOfLines={2}>
         {item.description || `Task #${String(item.id).slice(0, 8)}`}
       </Text>
 
       <View style={styles.cardFooter}>
-        <View style={styles.amountContainer}>
+        <View style={styles.amountBox}>
           <Text style={styles.amountLabel}>Earnings</Text>
-          <Text style={[styles.amountValue, { color: colors.text }]}>
-            {Number(item.totalAmount).toLocaleString()} {item.currency}
+          <Text style={styles.amountValue}>
+            {Number(item.totalAmount || 0).toLocaleString()} <Text style={styles.currency}>UZS</Text>
           </Text>
         </View>
-        <View style={[styles.detailsBtn, { backgroundColor: colors.background }]}>
-          <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+        <View style={styles.detailsIcon}>
+          <Ionicons name="chevron-forward" size={18} color="#475569" />
         </View>
       </View>
     </TouchableOpacity>
@@ -89,7 +82,8 @@ export default function OrdersScreen() {
   const isRefetching = isRefetchingOrders || isRefetchingOnDemand;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
       <FlatList
         data={combinedOrders as Order[]}
         keyExtractor={(item) => item.id}
@@ -101,7 +95,7 @@ export default function OrdersScreen() {
             totalAmount: item.totalAmount || 0,
             currency: item.currency || 'UZS'
           };
-          return <OrderItem item={displayOrder} colors={colors} />;
+          return <OrderItem item={displayOrder} />;
         }}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
@@ -109,23 +103,36 @@ export default function OrdersScreen() {
           <RefreshControl
             refreshing={isRefetching}
             onRefresh={() => refetch()}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
+            tintColor="#3B82F6"
           />
         }
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>My Jobs</Text>
-            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>Manage your active and completed services</Text>
+            <Text style={styles.headerTitle}>Money</Text>
+            <Text style={styles.headerSubtitle}>Weekly earnings and history</Text>
+
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryLabel}>Total this week</Text>
+              <Text style={styles.summaryValue}>UZS 1,250,000</Text>
+              <View style={styles.summaryFooter}>
+                <View style={styles.summaryStat}>
+                  <Text style={styles.statVal}>42</Text>
+                  <Text style={styles.statLab}>Orders</Text>
+                </View>
+                <View style={styles.divider} />
+                <View style={styles.summaryStat}>
+                  <Text style={styles.statVal}>+30</Text>
+                  <Text style={styles.statLab}>Points</Text>
+                </View>
+              </View>
+            </View>
           </View>
         }
 
         ListEmptyComponent={
           <View style={styles.empty}>
-            <View style={styles.emptyIcon}>
-              <Ionicons name="receipt-outline" size={64} color="#CBD5E1" />
-            </View>
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No orders found yet</Text>
+            <Ionicons name="receipt-outline" size={64} color="#1E293B" />
+            <Text style={styles.emptyText}>No transactions yet</Text>
           </View>
         }
       />
@@ -134,24 +141,47 @@ export default function OrdersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  list: { padding: 20, paddingBottom: 100 },
-  header: { marginBottom: 24, marginTop: 12 },
-  headerTitle: { fontSize: 24, fontWeight: '800' },
-  headerSubtitle: { fontSize: 14, fontWeight: '500', marginTop: 4 },
-  card: { borderRadius: 24, padding: 20, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 2 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-  statusText: { fontSize: 10, fontWeight: '800' },
-  dateText: { fontSize: 12, fontWeight: '600' },
-  orderTitle: { fontSize: 18, fontWeight: '800', marginBottom: 16 },
-  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: 16, borderTopWidth: 1, borderTopColor: '#F1F5F9' },
-  amountContainer: { gap: 2 },
-  amountLabel: { fontSize: 10, color: '#94A3B8', fontWeight: '600' },
-  amountValue: { fontSize: 18, fontWeight: '800' },
-  detailsBtn: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  empty: { padding: 48, alignItems: 'center', justifyContent: 'center', marginTop: 40 },
-  typeIconRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  emptyText: { fontSize: 16, fontWeight: '600' },
+  container: { flex: 1, backgroundColor: '#020617' },
+  list: { paddingHorizontal: 16, paddingBottom: 120, paddingTop: 20 },
+  header: { marginBottom: 32 },
+  headerTitle: { fontSize: 32, fontWeight: '800', color: '#F8FAFC' },
+  headerSubtitle: { fontSize: 15, fontWeight: '500', color: '#64748B', marginTop: 4 },
+
+  summaryCard: {
+    marginTop: 24,
+    backgroundColor: '#3B82F6',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10
+  },
+  summaryLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: '700', textTransform: 'uppercase' },
+  summaryValue: { color: '#fff', fontSize: 28, fontWeight: '900', marginTop: 4 },
+  summaryFooter: { flexDirection: 'row', marginTop: 20, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.2)', alignItems: 'center' },
+  summaryStat: { flex: 1, alignItems: 'center' },
+  statVal: { color: '#fff', fontSize: 18, fontWeight: '800' },
+  statLab: { color: 'rgba(255,255,255,0.7)', fontSize: 11, fontWeight: '600', marginTop: 2 },
+  divider: { width: 1, height: 30, backgroundColor: 'rgba(255,255,255,0.2)' },
+
+  card: { backgroundColor: '#0F172A', borderRadius: 20, padding: 20, marginBottom: 12, borderWidth: 1, borderColor: '#1E293B' },
+  cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  dateWrapper: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  dateText: { fontSize: 13, fontWeight: '700', color: '#94A3B8' },
+  statusDot: { width: 6, height: 6, borderRadius: 3 },
+  statusText: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase' },
+  orderTitle: { fontSize: 17, fontWeight: '700', color: '#F8FAFC', marginBottom: 20 },
+
+  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: 16, borderTopWidth: 1, borderTopColor: '#1E293B' },
+  amountBox: { gap: 4 },
+  amountLabel: { fontSize: 11, color: '#64748B', fontWeight: '700', textTransform: 'uppercase' },
+  amountValue: { fontSize: 20, fontWeight: '900', color: '#F8FAFC' },
+  currency: { fontSize: 14, color: '#3B82F6' },
+  detailsIcon: { width: 32, height: 32, borderRadius: 10, backgroundColor: '#1E293B', alignItems: 'center', justifyContent: 'center' },
+
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 80 },
+  emptyText: { fontSize: 16, fontWeight: '600', color: '#475569', marginTop: 16 },
 });
 

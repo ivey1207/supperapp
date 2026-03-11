@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity, SafeAreaVi
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getFileUrl, likeUserStory, unlikeUserStory, commentOnUserStory, formatTimeAgo } from '@/lib/api';
+import { getFileUrl, likeUserStory, unlikeUserStory, commentOnUserStory, getStoryComments, formatTimeAgo } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { Video, ResizeMode } from 'expo-av';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,6 +22,8 @@ export default function StoryViewScreen() {
     const videoRef = useRef<Video>(null);
     const [isVideoLoading, setIsVideoLoading] = useState(false);
     const insets = useSafeAreaInsets();
+    const [comments, setComments] = useState<any[]>([]);
+    const [isCommentsVisible, setIsCommentsVisible] = useState(false);
 
     const [localStories, setLocalStories] = useState(stories);
     const activeStory = localStories[currentIndex];
@@ -93,19 +95,35 @@ export default function StoryViewScreen() {
         }
     };
 
+    const loadComments = async (storyId: string) => {
+        if (!token) return;
+        try {
+            const data = await getStoryComments(token, storyId);
+            setComments(data);
+        } catch (err) {
+            console.error('Failed to load comments:', err);
+        }
+    };
+
     const handleSendReply = async () => {
         if (!replyText.trim() || !token) return;
         try {
-            const currentStory = stories[currentIndex];
-            await commentOnUserStory(token, currentStory.id, replyText);
+            await commentOnUserStory(token, activeStory.id, replyText);
             setReplyText('');
+            loadComments(activeStory.id);
             Keyboard.dismiss();
-            alert('Reply sent!');
+            setIsCommentsVisible(true);
         } catch (error) {
             console.error('Failed to send reply', error);
             alert('Failed to send reply');
         }
     };
+
+    useEffect(() => {
+        if (activeStory) {
+            loadComments(activeStory.id);
+        }
+    }, [currentIndex]);
 
     useEffect(() => {
         if (!activeIsVideo) {
@@ -241,6 +259,14 @@ export default function StoryViewScreen() {
                         </TouchableOpacity>
                     </View>
 
+                    <TouchableOpacity 
+                        style={styles.actionIconBtn} 
+                        onPress={() => setIsCommentsVisible(!isCommentsVisible)}
+                    >
+                        <Ionicons name="chatbubble-outline" size={24} color="#fff" />
+                        {comments.length > 0 && <Text style={styles.badge}>{comments.length}</Text>}
+                    </TouchableOpacity>
+
                     <TouchableOpacity
                         style={styles.heartBtn}
                         onPress={onLikeToggle}
@@ -257,6 +283,37 @@ export default function StoryViewScreen() {
                         )}
                     </TouchableOpacity>
                 </View>
+
+                {/* Comments Overlay */}
+                {isCommentsVisible && (
+                    <TouchableOpacity 
+                        style={styles.commentsOverlay} 
+                        activeOpacity={1} 
+                        onPress={() => setIsCommentsVisible(false)}
+                    >
+                        <View style={[styles.commentsContent, { paddingBottom: insets.bottom + 10 }]}>
+                            <View style={styles.commentsHeader}>
+                                <Text style={styles.commentsTitle}>Comments</Text>
+                                <TouchableOpacity onPress={() => setIsCommentsVisible(false)}>
+                                    <Ionicons name="close" size={20} color="#fff" />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.commentsList}>
+                                {comments.length === 0 ? (
+                                    <Text style={styles.noComments}>No comments yet</Text>
+                                ) : (
+                                    comments.map((c, i) => (
+                                        <View key={i} style={styles.commentItem}>
+                                            <Text style={styles.commentUser}>{c.userName}</Text>
+                                            <Text style={styles.commentText}>{c.content}</Text>
+                                            <Text style={styles.commentDate}>{formatTimeAgo(c.createdAt)}</Text>
+                                        </View>
+                                    ))
+                                )}
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                )}
             </TouchableOpacity>
         </KeyboardAvoidingView>
     );
@@ -304,5 +361,18 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     heartBtn: { height: 44, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 },
-    likeCountText: { color: '#fff', fontSize: 14, fontWeight: '700' }
+    likeCountText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+    actionIconBtn: { padding: 4, position: 'relative' },
+    badge: { position: 'absolute', top: -4, right: -4, backgroundColor: '#ef4444', color: '#fff', fontSize: 10, paddingHorizontal: 4, borderRadius: 8, overflow: 'hidden', fontWeight: 'bold' },
+    
+    commentsOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    commentsContent: { backgroundColor: '#1e293b', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: height * 0.6, padding: 20 },
+    commentsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+    commentsTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+    commentsList: { gap: 15 },
+    noComments: { color: 'rgba(255,255,255,0.5)', textAlign: 'center', marginVertical: 20 },
+    commentItem: { borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)', paddingBottom: 10 },
+    commentUser: { color: '#3b82f6', fontSize: 14, fontWeight: 'bold', marginBottom: 2 },
+    commentText: { color: '#fff', fontSize: 15 },
+    commentDate: { color: 'rgba(255,255,255,0.5)', fontSize: 12, marginTop: 4 }
 });

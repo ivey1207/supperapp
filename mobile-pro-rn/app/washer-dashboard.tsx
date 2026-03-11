@@ -25,8 +25,7 @@ TaskManager.defineTask(LOCATION_TASK_NAME, async ({ data, error }) => {
             try {
                 const token = await AsyncStorage.getItem('app_token');
                 if (token) {
-                    const { updateSpecialistLocation } = await import('@/lib/api');
-                    await updateSpecialistLocation(token, location.coords.latitude, location.coords.longitude);
+                    await updateSpecialistLocation(token, location.coords.latitude, location.coords.longitude, location.coords.heading || 0);
                 }
             } catch (e) {
                 console.error('Failed to update background location:', e);
@@ -88,7 +87,7 @@ export default function WasherDashboardScreen() {
 
                 if (foreground === 'granted') {
                     const loc = await Location.getCurrentPositionAsync({});
-                    await updateSpecialistLocation(token, loc.coords.latitude, loc.coords.longitude);
+                    await updateSpecialistLocation(token, loc.coords.latitude, loc.coords.longitude, loc.coords.heading || 0);
 
                     if (background === 'granted') {
                         await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
