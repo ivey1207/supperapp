@@ -1,23 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, useColorScheme, ActivityIndicator, Alert } from 'react-native';
-
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import YaMap, { Marker, Polyline } from 'react-native-yamap';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/lib/auth';
 import { getOnDemandOrders, getMe, updateOrderStatus, uploadImage } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
+import { NativeMap, NativeMapHandle } from '@/components/NativeMap';
 
 export default function OrderTrackingScreen() {
     const { orderId } = useLocalSearchParams<{ orderId: string }>();
     const { token } = useAuth();
     const router = useRouter();
-    const scheme = useColorScheme() ?? 'light';
+    const scheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
     const colors = Colors[scheme];
-    const mapRef = useRef<YaMap>(null);
+    const navRef = useRef<NativeMapHandle>(null);
     const [completionPhoto, setCompletionPhoto] = useState<string | null>(null);
 
     const { data: user } = useQuery({
@@ -59,13 +58,11 @@ export default function OrderTrackingScreen() {
                     return;
                 }
                 const uploaded = await uploadImage(token, completionPhoto);
-                // For simplicity, we assume a fixed price for now, or get it from order if present
-                const price = 50000; // 50,000 UZS
+                const price = 50000;
                 await updateOrderStatus(token, orderId, newStatus, price, uploaded.url);
             } else {
                 await updateOrderStatus(token, orderId, newStatus);
             }
-
 
             refetch();
             if (newStatus === 'COMPLETED') {
@@ -78,27 +75,15 @@ export default function OrderTrackingScreen() {
         }
     };
 
-
-
     const order = orders.find((o: any) => o.id === orderId);
 
-    useEffect(() => {
-        if (order && mapRef.current) {
-            const points = [];
-            if (order.userLat && order.userLon) {
-                points.push({ lat: order.userLat, lon: order.userLon });
-            }
-            if (order.providerLat && order.providerLon) {
-                points.push({ lat: order.providerLat, lon: order.providerLon });
-            }
-
-            if (points.length === 2) {
-                mapRef.current.fitMarkers(points);
-            } else if (points.length === 1) {
-                mapRef.current.setCenter(points[0], 15);
-            }
+    const startNav = () => {
+        if (order?.userLat && order?.userLon && navRef.current) {
+            navRef.current.startNavigation(order.userLat, order.userLon, 'Client Location');
+        } else {
+            Alert.alert('Error', 'Cannot start navigation: Missing coordinates');
         }
-    }, [order?.providerLat, order?.providerLon]);
+    };
 
     if (!order) {
         return (
@@ -109,7 +94,6 @@ export default function OrderTrackingScreen() {
     }
 
     const isEnRoute = order.status === 'EN_ROUTE';
-    const hasProviderLoc = order.providerLat && order.providerLon;
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -126,51 +110,35 @@ export default function OrderTrackingScreen() {
             </View>
 
             <View style={styles.mapContainer}>
-                <YaMap
-                    ref={mapRef}
-                    style={styles.map}
-                    initialRegion={{
-                        lat: order.userLat,
-                        lon: order.userLon,
-                        zoom: 14
+                <NativeMap 
+                    ref={navRef}
+                    onArrival={(isFinal) => {
+                        if (isFinal) handleStatusUpdate('ARRIVED');
                     }}
-                    nightMode={scheme === 'dark'}
-                >
-                    {/* User Location */}
-                    <Marker
-                        point={{ lat: order.userLat, lon: order.userLon }}
-                        scale={1.2}
-                    >
-                        <View style={styles.userMarker}>
-                            <Ionicons name="person" size={20} color="#fff" />
-                        </View>
-                    </Marker>
-
-                    {/* Provider Location */}
-                    {hasProviderLoc && (
-                        <Marker
-                            point={{ lat: order.providerLat!, lon: order.providerLon! }}
-                            scale={1.5}
-                        >
-                            <View style={[styles.providerMarker, { backgroundColor: colors.primary }]}>
-                                <MaterialCommunityIcons
-                                    name={order.type === 'MOBILE_WASH' ? "car-wash" : "wrench"}
-                                    size={24}
-                                    color="#fff"
-                                />
-                            </View>
-                        </Marker>
-                    )}
-                </YaMap>
+                />
 
                 {/* Status Overlay */}
                 <View style={[styles.overlay, { backgroundColor: colors.card }]}>
-                    <Text style={[styles.overlayTitle, { color: colors.text }]}>
-                        {isEnRoute ? 'Master is on the way!' : 'Waiting for appointment...'}
-                    </Text>
-                    <Text style={[styles.overlaySub, { color: colors.textSecondary }]}>
-                        {order.userAddress}
-                    </Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.overlayTitle, { color: colors.text }]}>
+                                {isEnRoute ? 'Master is on the way!' : 'Waiting for appointment...'}
+                            </Text>
+                            <Text style={[styles.overlaySub, { color: colors.textSecondary }]}>
+                                {order.userAddress}
+                            </Text>
+                        </View>
+                        {isSpecialist && isEnRoute && (
+                            <TouchableOpacity 
+                                style={[styles.navLauncher, { backgroundColor: colors.primary }]}
+                                onPress={startNav}
+                            >
+                                <MaterialCommunityIcons name="navigation" size={24} color="#fff" />
+                                <Text style={styles.navLauncherText}>NAV</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
                     {/* Specialist Actions */}
                     {isSpecialist && (
                         <View style={styles.actionRow}>
@@ -180,7 +148,7 @@ export default function OrderTrackingScreen() {
                                 </TouchableOpacity>
                             )}
                             {order.status === 'EN_ROUTE' && (
-                                <TouchableOpacity style={styles.actionBtn} onPress={() => handleStatusUpdate('ARRIVED')}>
+                                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#10B981' }]} onPress={() => handleStatusUpdate('ARRIVED')}>
                                     <Text style={styles.actionBtnText}>I have arrived</Text>
                                 </TouchableOpacity>
                             )}
@@ -205,8 +173,6 @@ export default function OrderTrackingScreen() {
                         </View>
                     )}
                 </View>
-
-
             </View>
         </SafeAreaView>
     );
@@ -246,5 +212,21 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '700',
     },
+    navLauncher: {
+        width: 60,
+        height: 60,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+        elevation: 5,
+    },
+    navLauncherText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: '900',
+        marginTop: -4,
+    },
 });
-

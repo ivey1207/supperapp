@@ -1,6 +1,5 @@
 import React from 'react';
-import YaMap, { Marker, Polyline, Animation, ClusteredYamap } from 'react-native-yamap';
-// import { ClusteredYamap } from './CustomClusteredYamap';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet } from 'react-native';
 import type { Branch } from '@/lib/api';
 import { getFileUrl } from '@/lib/api';
@@ -28,10 +27,23 @@ interface Maneuver {
     type: string;
 }
 
-const INITIAL_POINT = {
-    lat: 41.2995,
-    lon: 69.2401,
+const INITIAL_REGION = {
+    latitude: 41.2995,
+    longitude: 69.2401,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1,
 };
+
+const darkMapStyle = [
+    { elementType: 'geometry', stylers: [{ color: '#0F172A' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#0F172A' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#64748B' }] },
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1E293B' }] },
+    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#0F172A' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#020617' }] },
+    { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#1E293B' }] },
+    { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#1E293B' }] },
+];
 
 const getMarkerIcon = (type: string) => {
     switch (type) {
@@ -103,7 +115,6 @@ import { Audio } from 'expo-av';
 const speakAlisa = async (text: string) => {
     console.log('Alisa attempt:', text);
     try {
-        // Ensure audio session is correct for voice (prevents silent mode issues)
         await Audio.setAudioModeAsync({
             allowsRecordingIOS: false,
             playsInSilentModeIOS: true,
@@ -117,7 +128,6 @@ const speakAlisa = async (text: string) => {
             await Speech.stop();
         }
 
-        // Add a tiny delay to ensure stop completes and audio session is ready
         setTimeout(() => {
             Speech.speak(text, {
                 language: 'ru-RU',
@@ -133,24 +143,6 @@ const speakAlisa = async (text: string) => {
     }
 };
 
-const formatDistanceVoice = (meters: number): string => {
-    if (meters >= 1000) {
-        const km = Math.round(meters / 100) / 10;
-        const lastDigit = Math.floor(km) % 10;
-        const lastTwoDigits = Math.floor(km) % 100;
-
-        let unit = 'километров';
-        if (lastTwoDigits < 10 || lastTwoDigits > 20) {
-            if (lastDigit === 1) unit = 'километр';
-            else if (lastDigit >= 2 && lastDigit <= 4) unit = 'километра';
-        }
-        return `${km} ${unit}`;
-    }
-    const rounded = Math.round(meters / 50) * 50; // Round to 50 for realistic feel
-    if (rounded < 50) return 'совсем скоро';
-    return `${rounded} метров`;
-};
-
 const formatDistanceHUD = (meters: number): string => {
     if (meters >= 1000) {
         return `${(meters / 1000).toFixed(1)} км`;
@@ -159,7 +151,6 @@ const formatDistanceHUD = (meters: number): string => {
 };
 
 const formatETA = (distMeters: number): string => {
-    // ~40 km/h avg city speed
     const minutes = Math.ceil(distMeters / (40000 / 60));
     if (minutes < 1) return '< 1 мин';
     if (minutes >= 60) {
@@ -172,7 +163,6 @@ const formatETA = (distMeters: number): string => {
 
 const getArrivalTime = (distMeters: number): string => {
     const now = new Date();
-    // 40km/h = 666 meters per minute
     const minutes = Math.max(1, Math.ceil(distMeters / 666));
     now.setMinutes(now.getMinutes() + minutes);
     return `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -192,7 +182,7 @@ function calculateDistance(p1: { lat: number, lon: number }, p2: { lat: number, 
 export default function NativeMap({ branches, selectedBranchId, onBranchSelect, routePoints, onStartNavigation, onStopNavigation, isNavigating }: NativeMapProps) {
     const scheme = useColorScheme() ?? 'light';
     const colors = Colors[scheme];
-    const mapRef = React.useRef<YaMap>(null);
+    const mapRef = React.useRef<MapView>(null);
     const [userLoc, setUserLoc] = React.useState<Location.LocationObjectCoords | null>(null);
     const [hasCenteredOnUser, setHasCenteredOnUser] = React.useState(false);
     const [isTrafficVisible, setIsTrafficVisible] = React.useState(true);
@@ -202,7 +192,6 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
     const [totalRouteDist, setTotalRouteDist] = React.useState(0);
     const [distToNextManeuver, setDistToNextManeuver] = React.useState(0);
     const [distToDestination, setDistToDestination] = React.useState(0);
-    const [yandexRoutePoints, setYandexRoutePoints] = React.useState<{ latitude: number, longitude: number }[]>([]);
     const navStartTimeRef = React.useRef<Date | null>(null);
 
     // Continuous High Accuracy Location Tracking
@@ -213,7 +202,6 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
             const { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') return;
 
-            // Get initial lock faster
             try {
                 const initial = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
                 setUserLoc(initial.coords);
@@ -221,7 +209,6 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                 console.log('Fast fix failed, waiting for watch...');
             }
 
-            // Start watching
             subscription = await Location.watchPositionAsync(
                 {
                     accuracy: Location.Accuracy.BestForNavigation,
@@ -232,12 +219,13 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                     console.log('Location Update:', location.coords.latitude, location.coords.longitude);
                     setUserLoc(location.coords);
 
-                    // Auto-center on first fix if not already navigating
                     if (!hasCenteredOnUser && !isNavigating && mapRef.current) {
-                        mapRef.current.setCenter({
-                            lat: location.coords.latitude,
-                            lon: location.coords.longitude
-                        }, 15);
+                        mapRef.current.animateToRegion({
+                            latitude: location.coords.latitude,
+                            longitude: location.coords.longitude,
+                            latitudeDelta: 0.01,
+                            longitudeDelta: 0.01,
+                        }, 600);
                         setHasCenteredOnUser(true);
                     }
                 }
@@ -251,35 +239,54 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
 
     const jumpToUserLocation = () => {
         if (userLoc && mapRef.current) {
-            mapRef.current.setCenter({
-                lat: userLoc.latitude,
-                lon: userLoc.longitude
-            }, 16, 0, 0, 600, Animation.SMOOTH);
+            mapRef.current.animateToRegion({
+                latitude: userLoc.latitude,
+                longitude: userLoc.longitude,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+            }, 600);
         }
     };
 
     React.useEffect(() => {
         if (branches.length > 0 && mapRef.current && !isNavigating) {
-            const points = branches
+            const coords = branches
                 .filter(b => b.location?.coordinates && b.location.coordinates.length >= 2)
                 .map(b => ({
-                    lat: b.location!.coordinates[1],
-                    lon: b.location!.coordinates[0]
+                    latitude: b.location!.coordinates[1],
+                    longitude: b.location!.coordinates[0]
                 }));
 
-            if (points.length > 0) {
-                mapRef.current.fitMarkers(points);
+            if (coords.length > 0) {
+                mapRef.current.fitToCoordinates(coords, {
+                    edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
+                    animated: true,
+                });
             }
         }
     }, [branches, isNavigating]);
 
-    // Fetch Yandex native route & maneuvers when navigation starts
+    // Start navigation — use OSRM route (routePoints already contains the route)
     React.useEffect(() => {
         if (isNavigating && mapRef.current && routePoints && routePoints.length > 0) {
-            const start = { lat: userLoc?.latitude || INITIAL_POINT.lat, lon: userLoc?.longitude || INITIAL_POINT.lon };
-            const end = { lat: routePoints[routePoints.length - 1].latitude, lon: routePoints[routePoints.length - 1].longitude };
+            const start = userLoc
+                ? { latitude: userLoc.latitude, longitude: userLoc.longitude }
+                : { latitude: INITIAL_REGION.latitude, longitude: INITIAL_REGION.longitude };
 
-            // Calculate total route distance
+            // Zoom into nav mode
+            mapRef.current.animateToRegion({
+                latitude: start.latitude,
+                longitude: start.longitude,
+                latitudeDelta: 0.003,
+                longitudeDelta: 0.003,
+            }, 1000);
+
+            // Welcome announcement — Alisa style
+            setTimeout(() => {
+                speakAlisa(`Маршрут построен. Поехали!`);
+            }, 500);
+
+            // Calculate total distance from route points
             let totalDist = 0;
             for (let i = 1; i < routePoints.length; i++) {
                 totalDist += calculateDistance(
@@ -289,60 +296,29 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
             }
             setTotalRouteDist(totalDist);
             setDistToDestination(totalDist);
-            navStartTimeRef.current = new Date();
+        }
+    }, [isNavigating, selectedBranchId]);
 
-            // Zoom into nav mode
-            if (mapRef.current) {
-                mapRef.current.setCenter(start, 17, 0, 45, 1000, Animation.SMOOTH);
-            }
+    // Continuous camera follow during navigation
+    React.useEffect(() => {
+        if (isNavigating && userLoc && mapRef.current) {
+            mapRef.current.animateCamera({
+                center: {
+                    latitude: userLoc.latitude,
+                    longitude: userLoc.longitude,
+                },
+                pitch: 45,
+                heading: userLoc.heading || 0,
+                zoom: 18,
+            }, { duration: 800 });
+        }
+    }, [userLoc?.latitude, userLoc?.longitude, userLoc?.heading, isNavigating]);
 
-            // Fit the route
-            if (mapRef.current) {
-                mapRef.current.fitMarkers([start, end]);
-                // If we want to fit all points of the polyline:
-                // mapRef.current.fitMarkers(routePoints.map(p => ({ lat: p.latitude, lon: p.longitude })));
-            }
-
-            // Welcome announcement — Alisa style
-            const distText = formatDistanceVoice(totalDist);
-            const etaText = formatETA(totalDist);
-
-            // Delay for stability
-            setTimeout(() => {
-                speakAlisa(`Маршрут построен. ${distText}, примерно ${etaText}. Поехали!`);
-            }, 500);
-
-            // @ts-ignore
-            mapRef.current.findDrivingRoutes([start, end], (event: any) => {
-                console.log('Voice Nav Event:', JSON.stringify(event));
-                if (event && event.status === 'success' && event.routes && event.routes.length > 0) {
-                    const route = event.routes[0];
-
-                    // Unified Points for Polyline
-                    const points = route.points || route.sections?.[0]?.points || [];
-                    if (points.length > 0) {
-                        setYandexRoutePoints(points.map((p: any) => ({ latitude: p.lat, longitude: p.lon })));
-                    } else if (routePoints && routePoints.length > 0) {
-                        setYandexRoutePoints(routePoints);
-                    }
-
-                    const allManeuvers: Maneuver[] = route.maneuvers || route.sections?.[0]?.maneuvers || [];
-
-                    if (allManeuvers.length > 0) {
-                        setManeuvers(allManeuvers);
-                        setNextManeuverIdx(0);
-                        setLastSpokenDist(null);
-                        console.log(`Voice Nav Success: ${allManeuvers.length} maneuvers`);
-                    } else {
-                        console.log('No maneuvers from MapKit');
-                        setManeuvers([]);
-                    }
-                }
-            });
-        } else if (!isNavigating) {
+    // Cleanup when navigation stops
+    React.useEffect(() => {
+        if (!isNavigating) {
             Speech.stop();
             setManeuvers([]);
-            setYandexRoutePoints([]);
             setNextManeuverIdx(0);
             setTotalRouteDist(0);
             setDistToDestination(0);
@@ -355,14 +331,13 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
         if (!isNavigating || !userLoc) return;
 
         // Update distance to destination
-        if (routePoints && routePoints.length > 1) { // Changed to length > 1
+        if (routePoints && routePoints.length > 1) {
             const dest = routePoints[routePoints.length - 1];
             const destDist = calculateDistance(
                 { lat: userLoc.latitude, lon: userLoc.longitude },
                 { lat: dest.latitude, lon: dest.longitude }
             );
 
-            // Only update if it's a realistic distance (OSRM might return 0 if stale)
             if (destDist > 5) {
                 setDistToDestination(destDist);
             }
@@ -394,9 +369,8 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
             }
         };
 
-        // Progressive distance announcements like Yandex Navigator
+        // Progressive distance announcements like Navigator
         if (dist < 30) {
-            // At the maneuver point
             const capitalInstruction = instruction.charAt(0).toUpperCase() + instruction.slice(1);
             announceOnce(capitalInstruction, 30);
             setNextManeuverIdx(prev => prev + 1);
@@ -415,88 +389,81 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
 
     }, [userLoc, isNavigating, maneuvers, nextManeuverIdx, lastSpokenDist, routePoints]);
 
-    const MapComponent: any = isNavigating ? YaMap : ClusteredYamap;
-    const activeRoutePoints = isNavigating && yandexRoutePoints.length > 0 ? yandexRoutePoints : routePoints;
-
-    const mapProps: any = {
-        ref: mapRef,
-        style: styles.map,
-        initialRegion: {
-            lat: INITIAL_POINT.lat,
-            lon: INITIAL_POINT.lon,
-            zoom: 12,
-        },
-        showUserPosition: !isNavigating,
-        nightMode: scheme === 'dark',
-    };
-
-    if (!isNavigating) {
-        mapProps.clusterColor = "#3B82F6";
-        mapProps.clusteredMarkers = branches
-            .filter((b) => b.location?.coordinates && b.location.coordinates.length >= 2)
-            .map((branch) => ({
-                point: { lat: branch.location!.coordinates[1], lon: branch.location!.coordinates[0] },
-                data: branch
-            }));
-        mapProps.renderMarker = (info: any) => {
-            const branch = info.data as Branch;
-            const isSelected = selectedBranchId === branch.id;
-            return (
-                <Marker
-                    key={branch.id}
-                    point={info.point}
-                    onPress={() => onBranchSelect?.(branch)}
-                >
-                    <View style={styles.markerWrapper}>
-                        <View style={[
-                            styles.markerContainer,
-                            { backgroundColor: isSelected ? '#3B82F6' : 'white' },
-                            isSelected && styles.selectedMarker
-                        ]}>
-                            <View style={styles.imageInnerContainer}>
-                                {(branch.photoUrl || (branch.images && branch.images.length > 0)) ? (
-                                    <Image
-                                        source={{ uri: getFileUrl(branch.photoUrl || branch.images![0]) as string }}
-                                        style={styles.markerImage}
-                                    />
-                                ) : (
-                                    <View style={[styles.fallbackContent, { backgroundColor: getMarkerColor(branch.partnerType) }]}>
-                                        <MaterialCommunityIcons
-                                            name={getMarkerIcon(branch.partnerType) as any}
-                                            size={isSelected ? 20 : 16}
-                                            color="white"
-                                        />
-                                    </View>
-                                )}
-                            </View>
-                        </View>
-                        <View style={[styles.markerTail, { borderTopColor: isSelected ? '#3B82F6' : 'white' }]} />
-                        {isSelected && (
-                            <View style={styles.quickNavWrapper}>
-                                <TouchableOpacity
-                                    style={styles.quickNavBtn}
-                                    onPress={() => onStartNavigation?.(branch)}
-                                >
-                                    <Text style={styles.quickNavText}>GO</Text>
-                                    <MaterialCommunityIcons name="chevron-right" size={16} color="#fff" />
-                                </TouchableOpacity>
-                            </View>
-                        )}
-                    </View>
-                </Marker>
-            );
-        };
-    }
-
     return (
         <View style={styles.outerContainer}>
-            <MapComponent {...mapProps}>
-                {/* Always show destination marker if navigating */}
+            <MapView
+                ref={mapRef}
+                style={styles.map}
+                provider={PROVIDER_GOOGLE}
+                initialRegion={INITIAL_REGION}
+                showsUserLocation={!isNavigating}
+                showsMyLocationButton={false}
+                showsTraffic={isTrafficVisible}
+                customMapStyle={scheme === 'dark' ? darkMapStyle : undefined}
+            >
+                {/* Branch markers when not navigating */}
+                {!isNavigating && branches
+                    .filter((b) => b.location?.coordinates && b.location.coordinates.length >= 2)
+                    .map((branch) => {
+                        const isSelected = selectedBranchId === branch.id;
+                        return (
+                            <Marker
+                                key={branch.id}
+                                coordinate={{
+                                    latitude: branch.location!.coordinates[1],
+                                    longitude: branch.location!.coordinates[0]
+                                }}
+                                onPress={() => onBranchSelect?.(branch)}
+                            >
+                                <View style={styles.markerWrapper}>
+                                    <View style={[
+                                        styles.markerContainer,
+                                        { backgroundColor: isSelected ? '#3B82F6' : 'white' },
+                                        isSelected && styles.selectedMarker
+                                    ]}>
+                                        <View style={styles.imageInnerContainer}>
+                                            {(branch.photoUrl || (branch.images && branch.images.length > 0)) ? (
+                                                <Image
+                                                    source={{ uri: getFileUrl(branch.photoUrl || branch.images![0]) as string }}
+                                                    style={styles.markerImage}
+                                                />
+                                            ) : (
+                                                <View style={[styles.fallbackContent, { backgroundColor: getMarkerColor(branch.partnerType) }]}>
+                                                    <MaterialCommunityIcons
+                                                        name={getMarkerIcon(branch.partnerType) as any}
+                                                        size={isSelected ? 20 : 16}
+                                                        color="white"
+                                                    />
+                                                </View>
+                                            )}
+                                        </View>
+                                    </View>
+                                    <View style={[styles.markerTail, { borderTopColor: isSelected ? '#3B82F6' : 'white' }]} />
+                                    {isSelected && (
+                                        <View style={styles.quickNavWrapper}>
+                                            <TouchableOpacity
+                                                style={styles.quickNavBtn}
+                                                onPress={() => onStartNavigation?.(branch)}
+                                            >
+                                                <Text style={styles.quickNavText}>GO</Text>
+                                                <MaterialCommunityIcons name="chevron-right" size={16} color="#fff" />
+                                            </TouchableOpacity>
+                                        </View>
+                                    )}
+                                </View>
+                            </Marker>
+                        );
+                    })}
+
+                {/* Destination marker when navigating */}
                 {isNavigating && branches.find(b => b.id === selectedBranchId) && (() => {
                     const b = branches.find(b => b.id === selectedBranchId)!;
                     return (
                         <Marker
-                            point={{ lat: b.location!.coordinates[1], lon: b.location!.coordinates[0] }}
+                            coordinate={{
+                                latitude: b.location!.coordinates[1],
+                                longitude: b.location!.coordinates[0]
+                            }}
                             zIndex={300}
                         >
                             <View style={[styles.markerContainer, { backgroundColor: '#EF4444' }]}>
@@ -506,11 +473,12 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                     );
                 })()}
 
+                {/* User position arrow when navigating */}
                 {isNavigating && userLoc && (
                     <Marker
-                        point={{ lat: userLoc.latitude, lon: userLoc.longitude }}
-                        scale={1.4}
+                        coordinate={{ latitude: userLoc.latitude, longitude: userLoc.longitude }}
                         anchor={{ x: 0.5, y: 0.5 }}
+                        flat={true}
                         zIndex={500}
                     >
                         <View style={styles.arrowMarker}>
@@ -524,23 +492,21 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                     </Marker>
                 )}
 
-                {activeRoutePoints && activeRoutePoints.length > 0 && (
+                {/* Route polyline */}
+                {routePoints && routePoints.length > 0 && (
                     <Polyline
-                        key={`route-main-${activeRoutePoints.length}-${selectedBranchId || 'none'}`}
-                        points={activeRoutePoints.map(p => ({ lat: p.latitude, lon: p.longitude }))}
+                        coordinates={routePoints.map(p => ({ latitude: p.latitude, longitude: p.longitude }))}
                         strokeColor="#10B981"
-                        strokeWidth={14}
-                        outlineColor="#FFFFFF"
-                        outlineWidth={3}
+                        strokeWidth={6}
                         zIndex={200}
                     />
                 )}
-            </MapComponent>
+            </MapView>
 
             {isNavigating && (
                 <>
                     {/* Top Guidance HUD */}
-                    <View style={styles.yandexGuidance}>
+                    <View style={styles.guidanceHUD}>
                         <View style={styles.guidanceIconWrapper}>
                             <MaterialCommunityIcons
                                 name={((maneuvers.length > 0 && nextManeuverIdx < maneuvers.length
@@ -565,7 +531,7 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                     </View>
 
                     {/* Bottom Navigation HUD */}
-                    <View style={styles.yandexBottomBar}>
+                    <View style={styles.bottomBar}>
                         <View style={styles.bottomStats}>
                             <View style={styles.statItem}>
                                 <Text style={styles.statValue}>
@@ -606,9 +572,7 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                     <TouchableOpacity
                         style={styles.mapControlBtn}
                         onPress={() => {
-                            const newState = !isTrafficVisible;
-                            setIsTrafficVisible(newState);
-                            mapRef.current?.setTrafficVisible(newState);
+                            setIsTrafficVisible(prev => !prev);
                         }}
                     >
                         <MaterialCommunityIcons
@@ -709,7 +673,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    yandexGuidance: {
+    guidanceHUD: {
         position: 'absolute',
         top: 60,
         left: 20,
@@ -737,9 +701,9 @@ const styles = StyleSheet.create({
     guidanceTextWrapper: { flex: 1, gap: 2 },
     guidanceDist: { fontSize: 26, fontWeight: '900', color: '#fff', lineHeight: 28 },
     guidanceStreet: { fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.8)' },
-    yandexBottomBar: {
+    bottomBar: {
         position: 'absolute',
-        bottom: 120, // Moved MUCH higher to clear system buttons AND tab bar
+        bottom: 120,
         left: 20,
         right: 20,
         backgroundColor: '#fff',
@@ -786,18 +750,4 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 5,
     },
-    yandexExternalBtn: {
-        backgroundColor: '#fff',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 2,
-    },
-    yandexExternalText: {
-        fontSize: 8,
-        fontWeight: '900',
-        color: '#000',
-    }
 });

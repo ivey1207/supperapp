@@ -250,9 +250,9 @@ export default function WasherDashboardScreen() {
                     <TouchableOpacity
                         style={styles.navBtn}
                         onPress={() => {
-                            const url = `yandexnavi://build_route_on_map?lat_to=${activeOrder.userLat}&lon_to=${activeOrder.userLon}`;
+                            const url = `google.navigation:q=${activeOrder.userLat},${activeOrder.userLon}`;
                             Linking.openURL(url).catch(() => {
-                                Linking.openURL(`https://maps.google.com/?q=${activeOrder.userLat},${activeOrder.userLon}`);
+                                Linking.openURL(`https://maps.google.com/maps?daddr=${activeOrder.userLat},${activeOrder.userLon}`);
                             });
                         }}
                     >

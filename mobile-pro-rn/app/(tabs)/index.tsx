@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import Colors from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import Yamap, { YaMap } from 'react-native-yamap';
+import MapView from 'react-native-maps';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { getPromotions } from '@/lib/api';
@@ -126,8 +126,8 @@ export default function HomeScreen() {
       await acceptOrder(token, orderId);
       router.push({ pathname: '/order-tracking', params: { orderId } } as any);
       refetchAvailable();
-    } catch (err) {
-      Alert.alert('Error', 'Could not accept order');
+    } catch (err: any) {
+      Alert.alert('Error', err.response?.data?.message || 'Could not accept order');
     }
   };
 
@@ -140,11 +140,11 @@ export default function HomeScreen() {
         <StatusBar barStyle="light-content" />
 
         {/* Map Background */}
-        <YaMap
+        <MapView
           style={StyleSheet.absoluteFill}
-          userLocationIcon={{}}
-          showUserPosition={true}
-          nightMode={true}
+          showsUserLocation={true}
+          showsMyLocationButton={false}
+          customMapStyle={darkMapStyle}
         />
 
         {/* Floating Header Cards */}
@@ -255,6 +255,17 @@ export default function HomeScreen() {
     </GestureHandlerRootView>
   );
 }
+
+const darkMapStyle = [
+  { elementType: 'geometry', stylers: [{ color: '#0F172A' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#0F172A' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#64748B' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1E293B' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#0F172A' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#020617' }] },
+  { featureType: 'poi', elementType: 'geometry', stylers: [{ color: '#1E293B' }] },
+  { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#1E293B' }] },
+];
 
 const styles = StyleSheet.create({
   mainContainer: { flex: 1, backgroundColor: '#020617' },

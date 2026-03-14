@@ -11,9 +11,8 @@ import { useRouter } from 'expo-router';
 
 type Order = { id: string; status: string; totalAmount: number; currency: string; createdAt?: string; description?: string; userAddress?: string; type?: string };
 
-const router = useRouter();
-
 function OrderItem({ item }: { item: Order }) {
+  const router = useRouter();
   const date = item.createdAt ? new Date(item.createdAt).toLocaleString('uz-UZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
   const isActive = ['PENDING', 'ASSIGNED', 'EN_ROUTE', 'ARRIVED', 'IN_PROGRESS'].includes(item.status);
   const isCompleted = item.status === 'COMPLETED';

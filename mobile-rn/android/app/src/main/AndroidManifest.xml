@@ -34,7 +34,6 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="mobilern"/>
         <data android:scheme="com.uz.superapp.mobile"/>
-        <data android:scheme="exp+mobile-rn"/>
       </intent-filter>
     </activity>
   </application>

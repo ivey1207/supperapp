@@ -7,39 +7,33 @@ export interface RoutePoint {
 }
 
 /**
- * Opens Yandex Maps or Yandex Navigator with given coordinates.
- * Priority: 
- * 1. Yandex Navigator (app)
- * 2. Yandex Maps (app)
- * 3. Browser (Yandex Maps web)
+ * Opens Google Maps with given coordinates for navigation.
+ * Priority:
+ * 1. Google Maps app (deep link)
+ * 2. Browser (Google Maps web)
  */
-export const openYandexNavigation = async (lat: number, lon: number, name?: string) => {
-    // Yandex Navigator: yandexnavi://build_route_on_map?lat_to=...&lon_to=...
-    const navigatorUrl = `yandexnavi://build_route_on_map?lat_to=${lat}&lon_to=${lon}`;
+export const openGoogleNavigation = async (lat: number, lon: number, name?: string) => {
+    // Google Maps navigation deep link (works on both Android and iOS)
+    const googleNavUrl = Platform.select({
+        android: `google.navigation:q=${lat},${lon}`,
+        ios: `comgooglemaps://?daddr=${lat},${lon}&directionsmode=driving`,
+        default: `https://maps.google.com/maps?daddr=${lat},${lon}`,
+    });
 
-    // Yandex Maps: yandexmaps://maps.yandex.ru/?rtext=~lat,lon
-    const mapsUrl = `yandexmaps://maps.yandex.ru/?rtext=~${lat},${lon}&rtt=mt`; // rtt=mt for public transport, omit or use 'auto'
-
-    // Web Fallback
-    const webUrl = `https://yandex.uz/maps/?rtext=~${lat},${lon}&rtt=auto`;
+    // Web fallback
+    const webUrl = `https://maps.google.com/maps?daddr=${lat},${lon}`;
 
     try {
-        const canOpenNavigator = await Linking.canOpenURL(navigatorUrl);
-        if (canOpenNavigator) {
-            await Linking.openURL(navigatorUrl);
-            return;
-        }
-
-        const canOpenMaps = await Linking.canOpenURL(mapsUrl);
-        if (canOpenMaps) {
-            await Linking.openURL(mapsUrl);
+        const canOpen = await Linking.canOpenURL(googleNavUrl);
+        if (canOpen) {
+            await Linking.openURL(googleNavUrl);
             return;
         }
 
         // Fallback to Web
         await Linking.openURL(webUrl);
     } catch (error) {
-        console.error('Error opening Yandex Maps:', error);
+        console.error('Error opening Google Maps:', error);
         // Last resort try web again
         Linking.openURL(webUrl);
     }

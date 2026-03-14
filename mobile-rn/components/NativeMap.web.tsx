@@ -7,8 +7,8 @@ interface NativeMapProps {
 }
 
 export default function NativeMap({ branches }: NativeMapProps) {
-    // Build Yandex Maps URL with branch markers
-    const baseUrl = 'https://yandex.com/map-widget/v1/?ll=69.2401%2C41.2995&z=12';
+    // Build Google Maps URL with branch markers
+    const baseUrl = 'https://maps.google.com/maps?q=41.2995,69.2401&z=12&output=embed';
 
     return (
         <View style={styles.container}>
