@@ -165,7 +165,7 @@ configurations.all {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation("com.yandex.android:maps.mobile:4.8.0-full")
+    implementation("com.yandex.android:maps.mobile:4.10.1-navikit")
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";

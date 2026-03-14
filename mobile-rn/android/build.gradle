@@ -39,6 +39,7 @@ allprojects {
 
         google()
         mavenCentral()
+        maven { url "https://maven.yandex.cloud/nexus/content/repositories/releases/" }
         maven { url 'https://www.jitpack.io' }
     }
 

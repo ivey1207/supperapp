@@ -33,6 +33,15 @@ expoAutolinking.useExpoModules()
 
 rootProject.name = 'SuperApp Pro'
 
+
+dependencyResolutionManagement {
+  repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://maven.yandex.cloud/nexus/content/repositories/releases/' }
+  }
+}
+
 expoAutolinking.useExpoVersionCatalog()
 
 include ':app'

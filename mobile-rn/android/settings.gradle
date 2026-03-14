@@ -24,6 +24,11 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 rootProject.name = 'mobile-rn'
 
 dependencyResolutionManagement {
+  repositories {
+    google()
+    mavenCentral()
+    maven { url "https://maven.yandex.cloud/nexus/content/repositories/releases/" }
+  }
   versionCatalogs {
     reactAndroidLibs {
       from(files(new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim(), "../gradle/libs.versions.toml")))
