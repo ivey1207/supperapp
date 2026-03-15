@@ -103,12 +103,15 @@ public class AppOnDemandOrderController {
             });
 
             try {
-                return ResponseEntity.ok(toMap(repository.save(order)));
+                OnDemandOrder saved = repository.save(order);
+                System.out.println("Order " + id + " accepted by " + specialistId + " for org " + order.getOrgId());
+                return ResponseEntity.ok(toMap(saved));
             } catch (Exception e) {
+                System.err.println("Error saving order acceptance for ID: " + id);
                 e.printStackTrace();
                 return ResponseEntity.status(409)
                         .body(Map.of("message",
-                                "Conflict: Order was just taken by someone else. Reason: " + e.getMessage()));
+                                "Conflict: Order was just taken by someone else or a database error occurred. " + e.getMessage()));
             }
         }).orElse(ResponseEntity.notFound().build());
     }

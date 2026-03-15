@@ -46,12 +46,28 @@ public class AdminOnDemandOrderController {
         if ("SUPER_ADMIN".equals(role)) {
             return ResponseEntity.ok(onDemandOrderRepository.findAll());
         } else if (orgId != null) {
-            // For partners, we show orders assigned to them OR pending orders (central
-            // queue)
-            // But for simplicity, let's start with all PENDING + those assigned to them
+            // For partners, show:
+            // 1. PENDING orders (central queue)
+            // 2. Orders explicitly assigned to their orgId
+            // 3. Orders accepted by specialists belonging to their organization
             List<OnDemandOrder> all = onDemandOrderRepository.findAll();
+            
+            // Get all specialist IDs for this organization to check contractorId
+            // In a large system, this should be a DB query joined with AppUser, 
+            // but here we filter the stream for consistency with existing logic.
             return ResponseEntity.ok(all.stream()
-                    .filter(o -> "PENDING".equals(o.getStatus()) || orgId.equals(o.getOrgId()))
+                    .filter(o -> {
+                        if ("PENDING".equals(o.getStatus())) return true;
+                        if (orgId.equals(o.getOrgId())) return true;
+                        
+                        // Fallback: check if the contractor belongs to this org
+                        if (o.getContractorId() != null) {
+                            return accountRepository.findFirstByEmailAndArchivedFalse(o.getContractorId())
+                                .map(acc -> orgId.equals(acc.getOrgId()))
+                                .orElse(false);
+                        }
+                        return false;
+                    })
                     .toList());
         }
 

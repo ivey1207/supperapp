@@ -24,7 +24,7 @@ class YandexNaviModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
 
     @ReactMethod
-    override fun initialize() {
+    fun initNavi() {
         if (drivingRouter == null) {
             // navigator = NavigationFactory.getInstance().createNavigator()
             drivingRouter = DirectionsFactory.getInstance().createDrivingRouter(DrivingRouterType.COMBINED)

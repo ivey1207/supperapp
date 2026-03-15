@@ -43,7 +43,13 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
-    MapKitFactory.setApiKey("5b98719e-7779-4c0c-bfbc-bf60307687a4")
+    try {
+        MapKitFactory.setApiKey("5b98719e-7779-4c0c-bfbc-bf60307687a4")
+        MapKitFactory.initialize(this)
+    } catch (e: Exception) {
+        // Log error but continue to allow the app to start
+        android.util.Log.e("SuperApp", "Failed to initialize MapKit: ${e.message}")
+    }
     SoLoader.init(this, OpenSourceMergedSoMapping)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
       // If you opted-in for the New Architecture, we load the native entry point for this app.

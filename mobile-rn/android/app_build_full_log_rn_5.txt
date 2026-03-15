@@ -1,0 +1,2161 @@
+Starting a Gradle Daemon, 4 stopped Daemons could not be reused, use --status for details
+cache fileHashes.bin (/Users/avazov/uz-superapp/mobile-rn/android/.gradle/8.10.2/fileHashes/fileHashes.bin) is corrupt. Discarding.
+> Task :gradle-plugin:settings-plugin:checkKotlinGradlePluginConfigurationErrors
+> Task :gradle-plugin:shared:checkKotlinGradlePluginConfigurationErrors
+> Task :gradle-plugin:shared:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:shared:compileJava NO-SOURCE
+> Task :gradle-plugin:shared:processResources NO-SOURCE
+> Task :gradle-plugin:shared:classes UP-TO-DATE
+> Task :gradle-plugin:shared:jar UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:settings-plugin:pluginDescriptors UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:classes UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:jar UP-TO-DATE
+> Task :expo-module-gradle-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-dev-launcher-gradle-plugin:checkKotlinGradlePluginConfigurationErrors
+> Task :gradle-plugin:react-native-gradle-plugin:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-module-gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :expo-dev-launcher-gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :expo-module-gradle-plugin:processResources UP-TO-DATE
+> Task :expo-dev-launcher-gradle-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:react-native-gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:classes UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:jar UP-TO-DATE
+> Task :expo-dev-launcher-gradle-plugin:compileKotlin UP-TO-DATE
+> Task :expo-dev-launcher-gradle-plugin:compileJava NO-SOURCE
+> Task :expo-dev-launcher-gradle-plugin:classes UP-TO-DATE
+> Task :expo-dev-launcher-gradle-plugin:jar UP-TO-DATE
+> Task :expo-module-gradle-plugin:compileKotlin UP-TO-DATE
+> Task :expo-module-gradle-plugin:compileJava NO-SOURCE
+> Task :expo-module-gradle-plugin:classes UP-TO-DATE
+> Task :expo-module-gradle-plugin:jar UP-TO-DATE
+
+> Configure project :app
+ ℹ️  [33mApplying gradle plugin[0m '[32mexpo-dev-launcher-gradle-plugin[0m' (expo-dev-launcher@5.0.35)
+ ℹ️  [33mApplying gradle plugin[0m '[32mexpo-module-gradle-plugin[0m' (expo-modules-core@2.2.3)
+Property 'kspVersion' is not defined. Using default value: '2.0.21-1.0.28'. Please ensure the 'expo-root-project' plugin is applied to your root project.
+
+> Configure project :expo
+
+Using expo modules
+  - [32mexpo-asset[0m (11.0.5)
+  - [32mexpo-av[0m (15.0.2)
+  - [32mexpo-camera[0m (16.0.18)
+  - [32mexpo-constants[0m (17.0.8)
+  - [32mexpo-dev-client[0m (5.0.20)
+  - [32mexpo-dev-launcher[0m (5.0.35)
+  - [32mexpo-dev-menu[0m (6.0.25)
+  - [32mexpo-file-system[0m (18.0.12)
+  - [32mexpo-font[0m (13.0.4)
+  - [32mexpo-image-loader[0m (5.0.0)
+  - [32mexpo-image-picker[0m (16.0.6)
+  - [32mexpo-json-utils[0m (0.14.0)
+  - [32mexpo-keep-awake[0m (14.0.3)
+  - [32mexpo-linear-gradient[0m (14.0.2)
+  - [32mexpo-linking[0m (7.0.5)
+  - [32mexpo-localization[0m (16.0.1)
+  - [32mexpo-location[0m (18.0.10)
+  - [32mexpo-manifests[0m (0.15.8)
+  - [32mexpo-modules-core[0m (2.2.3)
+  - [32mexpo-speech[0m (13.0.1)
+  - [32mexpo-splash-screen[0m (0.29.24)
+  - [32mexpo-task-manager[0m (12.0.6)
+  - [32mexpo-web-browser[0m (14.0.2)
+  - [32munimodules-app-loader[0m (5.0.1)
+
+
+> Configure project :react-native-reanimated
+Android gradle plugin: 8.6.0
+Gradle: 8.10.2
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+> Task :app:generateAutolinkingPackageList
+> Task :app:generateCodegenSchemaFromJavaScript SKIPPED
+> Task :app:generateCodegenArtifactsFromSchema SKIPPED
+> Task :app:preBuild
+> Task :app:preReleaseBuild
+> Task :app:generateReleaseBuildConfig
+> Task :expo:generateExpoModulesPackageListTask
+> Task :expo:preBuild
+> Task :expo:preReleaseBuild
+> Task :expo-asset:preBuild UP-TO-DATE
+> Task :expo-asset:preReleaseBuild UP-TO-DATE
+> Task :expo-av:preBuild UP-TO-DATE
+> Task :expo-av:preReleaseBuild UP-TO-DATE
+> Task :expo-camera:preBuild UP-TO-DATE
+> Task :expo-camera:preReleaseBuild UP-TO-DATE
+> Task :expo-asset:writeReleaseAarMetadata
+> Task :expo-av:writeReleaseAarMetadata
+> Task :expo-camera:writeReleaseAarMetadata
+> Task :expo:writeReleaseAarMetadata
+
+> Task :expo-constants:createExpoConfig
+The NODE_ENV environment variable is required but was not specified. Ensure the project is bundled with Expo CLI or NODE_ENV is set.
+Proceeding without mode-specific .env
+env: load .env
+env: export EXPO_PUBLIC_MAPBOX_TOKEN EXPO_PUBLIC_MAPBOX_SECRET
+
+> Task :expo-constants:preBuild
+> Task :expo-constants:preReleaseBuild
+> Task :expo-dev-client:preBuild UP-TO-DATE
+> Task :expo-dev-client:preReleaseBuild UP-TO-DATE
+> Task :expo-constants:writeReleaseAarMetadata
+> Task :expo-dev-launcher:preBuild UP-TO-DATE
+> Task :expo-dev-client:writeReleaseAarMetadata
+> Task :expo-dev-launcher:preReleaseBuild UP-TO-DATE
+> Task :expo-dev-menu:preBuild UP-TO-DATE
+> Task :expo-dev-menu:preReleaseBuild UP-TO-DATE
+> Task :expo-dev-launcher:writeReleaseAarMetadata
+> Task :expo-dev-menu-interface:preBuild UP-TO-DATE
+> Task :expo-dev-menu-interface:preReleaseBuild UP-TO-DATE
+> Task :expo-dev-menu:writeReleaseAarMetadata
+> Task :expo-file-system:preBuild UP-TO-DATE
+> Task :expo-dev-menu-interface:writeReleaseAarMetadata
+> Task :expo-file-system:preReleaseBuild UP-TO-DATE
+> Task :expo-font:preBuild UP-TO-DATE
+> Task :expo-font:preReleaseBuild UP-TO-DATE
+> Task :expo-file-system:writeReleaseAarMetadata
+> Task :expo-image-loader:preBuild UP-TO-DATE
+> Task :expo-font:writeReleaseAarMetadata
+> Task :expo-image-loader:preReleaseBuild UP-TO-DATE
+> Task :expo-image-picker:preBuild UP-TO-DATE
+> Task :expo-image-picker:preReleaseBuild UP-TO-DATE
+> Task :expo-image-loader:writeReleaseAarMetadata
+> Task :expo-json-utils:preBuild UP-TO-DATE
+> Task :expo-json-utils:preReleaseBuild UP-TO-DATE
+> Task :expo-image-picker:writeReleaseAarMetadata
+> Task :expo-keep-awake:preBuild UP-TO-DATE
+> Task :expo-keep-awake:preReleaseBuild UP-TO-DATE
+> Task :expo-json-utils:writeReleaseAarMetadata
+> Task :expo-linear-gradient:preBuild UP-TO-DATE
+> Task :expo-linear-gradient:preReleaseBuild UP-TO-DATE
+> Task :expo-keep-awake:writeReleaseAarMetadata
+> Task :expo-linking:preBuild UP-TO-DATE
+> Task :expo-linking:preReleaseBuild UP-TO-DATE
+> Task :expo-linear-gradient:writeReleaseAarMetadata
+> Task :expo-localization:preBuild UP-TO-DATE
+> Task :expo-localization:preReleaseBuild UP-TO-DATE
+> Task :expo-linking:writeReleaseAarMetadata
+> Task :expo-location:preBuild UP-TO-DATE
+> Task :expo-localization:writeReleaseAarMetadata
+> Task :expo-location:preReleaseBuild UP-TO-DATE
+> Task :expo-manifests:preBuild UP-TO-DATE
+> Task :expo-manifests:preReleaseBuild UP-TO-DATE
+> Task :expo-location:writeReleaseAarMetadata
+> Task :expo-modules-core:preBuild UP-TO-DATE
+> Task :expo-manifests:writeReleaseAarMetadata
+> Task :expo-modules-core:preReleaseBuild UP-TO-DATE
+> Task :expo-speech:preBuild UP-TO-DATE
+> Task :expo-speech:preReleaseBuild UP-TO-DATE
+> Task :expo-modules-core:writeReleaseAarMetadata
+> Task :expo-splash-screen:preBuild UP-TO-DATE
+> Task :expo-speech:writeReleaseAarMetadata
+> Task :expo-splash-screen:preReleaseBuild UP-TO-DATE
+> Task :expo-task-manager:preBuild UP-TO-DATE
+> Task :expo-task-manager:preReleaseBuild UP-TO-DATE
+> Task :expo-splash-screen:writeReleaseAarMetadata
+> Task :expo-updates-interface:preBuild UP-TO-DATE
+> Task :expo-task-manager:writeReleaseAarMetadata
+> Task :expo-updates-interface:preReleaseBuild UP-TO-DATE
+> Task :expo-web-browser:preBuild UP-TO-DATE
+> Task :expo-web-browser:preReleaseBuild UP-TO-DATE
+> Task :expo-updates-interface:writeReleaseAarMetadata
+> Task :react-native-async-storage_async-storage:preBuild UP-TO-DATE
+> Task :react-native-async-storage_async-storage:preReleaseBuild UP-TO-DATE
+> Task :expo-web-browser:writeReleaseAarMetadata
+> Task :react-native-maps:preBuild UP-TO-DATE
+> Task :react-native-maps:preReleaseBuild UP-TO-DATE
+> Task :react-native-async-storage_async-storage:writeReleaseAarMetadata
+> Task :react-native-maps:writeReleaseAarMetadata
+> Task :react-native-reanimated:assertLatestReactNativeWithNewArchitectureTask SKIPPED
+> Task :react-native-reanimated:assertMinimalReactNativeVersionTask SKIPPED
+> Task :react-native-reanimated:prepareReanimatedHeadersForPrefabs
+> Task :react-native-reanimated:prepareWorkletsHeadersForPrefabs
+> Task :react-native-reanimated:preBuild
+> Task :react-native-reanimated:preReleaseBuild
+> Task :react-native-safe-area-context:preBuild UP-TO-DATE
+> Task :react-native-reanimated:writeReleaseAarMetadata
+> Task :react-native-safe-area-context:preReleaseBuild UP-TO-DATE
+> Task :react-native-screens:preBuild UP-TO-DATE
+> Task :react-native-screens:preReleaseBuild UP-TO-DATE
+> Task :react-native-safe-area-context:writeReleaseAarMetadata
+> Task :unimodules-app-loader:preBuild UP-TO-DATE
+> Task :unimodules-app-loader:preReleaseBuild UP-TO-DATE
+> Task :react-native-screens:writeReleaseAarMetadata
+> Task :unimodules-app-loader:writeReleaseAarMetadata
+
+> Task :app:createBundleReleaseJsAndAssets
+env: load .env
+env: export EXPO_PUBLIC_MAPBOX_TOKEN EXPO_PUBLIC_MAPBOX_SECRET
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Android Bundled 5543ms node_modules/expo-router/entry.js (1385 modules)
+Writing bundle output to: /Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle
+Writing sourcemap output to: /Users/avazov/uz-superapp/mobile-rn/android/app/build/intermediates/sourcemaps/react/release/index.android.bundle.packager.map
+Copying 46 asset files
+Done writing bundle output
+Done writing sourcemap output
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:2373:20: warning: the variable "Promise" was not declared in function "promiseMethodWrapper"
+        return new Promise((resolve, reject) => {
+                   ^~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:2595:23: warning: the variable "DebuggerInternal" was not declared in function "__shouldPauseOnThrow"
+        return typeof DebuggerInternal !== 'undefined' && DebuggerInternal.sh...
+                      ^~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:3912:5: warning: the variable "setImmediate" was not declared in function "handleResolved"
+    setImmediate(function () {
+    ^~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:5260:94: warning: the variable "setTimeout" was not declared in anonymous arrow function " 237#"
+...).then(callback).catch(error => setTimeout(() => {
+                                   ^~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:7537:5: warning: the variable "Headers" was not declared in anonymous function " 310#"
+    Headers,
+    ^~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:7538:5: warning: the variable "Request" was not declared in anonymous function " 310#"
+    Request,
+    ^~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:7539:5: warning: the variable "Response" was not declared in anonymous function " 310#"
+    Response
+    ^~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:7696:24: warning: the variable "FileReader" was not declared in function "readBlobAsArrayBuffer"
+      var reader = new FileReader();
+                       ^~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:7747:36: warning: the variable "Blob" was not declared in anonymous function " 321#"
+        } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+                                   ^~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:7749:40: warning: the variable "FormData" was not declared in anonymous function " 321#"
+        } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+                                       ^~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:7751:44: warning: the variable "URLSearchParams" was not declared in anonymous function " 321#"
+...e if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body...
+                                 ^~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:7870:26: warning: the variable "AbortController" was not declared in anonymous function " 327#"
+          var ctrl = new AbortController();
+                         ^~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:8004:23: warning: the variable "XMLHttpRequest" was not declared in anonymous function " 331#"
+        var xhr = new XMLHttpRequest();
+                      ^~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:7549:71: warning: the variable "self" was not declared in anonymous function " 313#"
+...undefined' && globalThis || typeof self !== 'undefined' && self ||
+                                      ^~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:17100:31: warning: the variable "nativeFabricUIManager" was not declared in anonymous function " 644#"
+  var _nativeFabricUIManage = nativeFabricUIManager,
+                              ^~~~~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:17128:21: warning: the variable "clearTimeout" was not declared in anonymous function " 644#"
+    cancelTimeout = clearTimeout;
+                    ^~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:17141:51: warning: the variable "RN$enableMicrotasksInReact" was not declared in anonymous function " 644#"
+... "undefined" !== typeof RN$enableMicrotasksInReact && !!RN$enableMicrotask...
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:17142:47: warning: the variable "queueMicrotask" was not declared in anonymous function " 644#"
+...otask = "function" === typeof queueMicrotask ? queueMicrotask : scheduleTi...
+                                 ^~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:21563:30: warning: the variable "__REACT_DEVTOOLS_GLOBAL_HOOK__" was not declared in anonymous function " 644#"
+  if ("undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__) {
+                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:21701:26: warning: the variable "navigator" was not declared in anonymous function " 677#"
+  "undefined" !== typeof navigator && undefined !== navigator.scheduling && u...
+                         ^~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:21811:37: warning: the variable "MessageChannel" was not declared in anonymous function " 677#"
+  };else if ("undefined" !== typeof MessageChannel) {
+                                    ^~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:21826:34: warning: the variable "nativeRuntimeScheduler" was not declared in anonymous function " 677#"
+... = "undefined" !== typeof nativeRuntimeScheduler ? nativeRuntimeScheduler....
+                             ^~~~~~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:30683:16: warning: the variable "SharedArrayBuffer" was not declared in function "from"
+    if (typeof SharedArrayBuffer !== 'undefined' && (isInstance(value, Shared...
+               ^~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:38562:34: warning: the variable "requestAnimationFrame" was not declared in function "start 9#"
+...    this._animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
+                              ^~~~~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:53731:26: warning: the variable "SuppressedError" was not declared in anonymous function " 1652#"
+    "function" == typeof SuppressedError && SuppressedError;
+                         ^~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:54016:34: warning: the variable "structuredClone" was not declared in function "be"
+        } : "function" == typeof structuredClone ? function (e) {
+                                 ^~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:61565:16: warning: Direct call to eval(), but lexical scope is not supported.
+        return eval(body);
+               ^~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:64915:38: warning: the variable "document" was not declared in anonymous function " 2229#"
+...r useClientLayoutEffect = typeof document !== 'undefined' || typeof naviga...
+                                    ^~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:70387:9: warning: the variable "REACT_NAVIGATION_DEVTOOLS" was not declared in anonymous arrow function " 2581#"
+        REACT_NAVIGATION_DEVTOOLS.set(refContainer.current, {
+        ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:76064:16: warning: the variable "requestIdleCallback" was not declared in anonymous arrow function " 2822#"
+      var id = requestIdleCallback(() => {
+               ^~~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:76067:20: warning: the variable "cancelIdleCallback" was not declared in anonymous arrow function " 2824#"
+      return () => cancelIdleCallback(id);
+                   ^~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:79566:11: warning: the variable "cancelAnimationFrame" was not declared in function "cleanup"
+          cancelAnimationFrame(this.splashScreenAnimationFrame);
+          ^~~~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:80746:16: warning: the variable "ReactNativeWebView" was not declared in function "emitDomEvent"
+    if (typeof ReactNativeWebView !== 'undefined') {
+               ^~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:120728:76: warning: the variable "Buffer" was not declared in function "convertValue"
+... 'function' ? new Blob([value]) : Buffer.from(value);
+                                     ^~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:127459:29: warning: the variable "Intl" was not declared in function "formatLanguageCode"
+            formattedCode = Intl.getCanonicalLocales(code)[0];
+                            ^~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:139728:11: warning: the variable "_WORKLET" was not declared in function "assertEasingIsWorklet"
+      if (_WORKLET) {
+          ^~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:141973:12: warning: the variable "__reanimatedLoggerConfig" was not declared in function "replaceLoggerImplementation"
+        ...__reanimatedLoggerConfig,
+           ^~~~~~~~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:142574:26: warning: Direct call to eval(), but lexical scope is not supported.
+            workletFun = eval('(' + initData.code + '\n)');
+                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:142597:112: warning: the variable "_toString" was not declared in function "valueUnpacker"
+...recognized by value unpacker: "${_toString(objectToUnpack)}".`);
+                                    ^~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:159982:27: warning: the variable "HTMLElement" was not declared in function "findDescendantWithExitingAnimation"
+    if (!(node instanceof HTMLElement)) {
+                          ^~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:160008:24: warning: the variable "MutationObserver" was not declared in function "addHTMLMutationObserver"
+    var observer = new MutationObserver(mutationsList => {
+                       ^~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:160053:41: warning: the variable "getComputedStyle" was not declared in function "fixElementPosition"
+...entBorderTopValue = parseInt(getComputedStyle(parent).borderTopWidth);
+                                ^~~~~~~~~~~~~~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:164025:5: warning: the variable "jest" was not declared in arrow function "beforeTest"
+    jest.useFakeTimers();
+    ^~~~
+/Users/avazov/uz-superapp/mobile-rn/android/app/build/generated/assets/createBundleReleaseJsAndAssets/index.android.bundle:164601:26: warning: the variable "_getAnimationTimestamp" was not declared in function "computeEasingProgress"
+      var elapsedTime = (_getAnimationTimestamp() - startingTimestamp) / 1000;
+                         ^~~~~~~~~~~~~~~~~~~~~~
+
+> Task :app:checkReleaseAarMetadata
+> Task :app:generateReleaseResValues
+> Task :expo:generateReleaseResValues
+> Task :expo:generateReleaseResources
+> Task :expo:packageReleaseResources
+> Task :expo-asset:generateReleaseResValues
+> Task :expo-asset:generateReleaseResources
+> Task :expo-asset:packageReleaseResources
+> Task :expo-av:generateReleaseResValues
+> Task :expo-av:generateReleaseResources
+> Task :expo-av:packageReleaseResources
+> Task :expo-camera:generateReleaseResValues
+> Task :expo-camera:generateReleaseResources
+> Task :expo-camera:packageReleaseResources
+> Task :expo-constants:generateReleaseResValues
+> Task :expo-constants:generateReleaseResources
+> Task :expo-constants:packageReleaseResources
+> Task :expo-dev-client:generateReleaseResValues
+> Task :expo-dev-client:generateReleaseResources
+> Task :expo-dev-client:packageReleaseResources
+> Task :expo-dev-launcher:generateReleaseResValues
+> Task :expo-dev-launcher:generateReleaseResources
+> Task :expo-dev-launcher:packageReleaseResources
+> Task :expo-dev-menu:generateReleaseResValues
+> Task :expo-dev-menu:generateReleaseResources
+> Task :expo-dev-menu:packageReleaseResources
+> Task :expo-dev-menu-interface:generateReleaseResValues
+> Task :expo-dev-menu-interface:generateReleaseResources
+> Task :expo-dev-menu-interface:packageReleaseResources
+> Task :expo-file-system:generateReleaseResValues
+> Task :expo-file-system:generateReleaseResources
+> Task :expo-file-system:packageReleaseResources
+> Task :expo-font:generateReleaseResValues
+> Task :expo-font:generateReleaseResources
+> Task :expo-font:packageReleaseResources
+> Task :expo-image-loader:generateReleaseResValues
+> Task :expo-image-loader:generateReleaseResources
+> Task :expo-image-loader:packageReleaseResources
+> Task :expo-image-picker:generateReleaseResValues
+> Task :expo-image-picker:generateReleaseResources
+> Task :expo-image-picker:packageReleaseResources
+> Task :expo-json-utils:generateReleaseResValues
+> Task :expo-json-utils:generateReleaseResources
+> Task :expo-json-utils:packageReleaseResources
+> Task :expo-keep-awake:generateReleaseResValues
+> Task :expo-keep-awake:generateReleaseResources
+> Task :expo-keep-awake:packageReleaseResources
+> Task :expo-linear-gradient:generateReleaseResValues
+> Task :expo-linear-gradient:generateReleaseResources
+> Task :expo-linear-gradient:packageReleaseResources
+> Task :expo-linking:generateReleaseResValues
+> Task :expo-linking:generateReleaseResources
+> Task :expo-linking:packageReleaseResources
+> Task :expo-localization:generateReleaseResValues
+> Task :expo-localization:generateReleaseResources
+> Task :expo-localization:packageReleaseResources
+> Task :expo-location:generateReleaseResValues
+> Task :expo-location:generateReleaseResources
+> Task :expo-location:packageReleaseResources
+> Task :expo-manifests:generateReleaseResValues
+> Task :expo-manifests:generateReleaseResources
+> Task :expo-manifests:packageReleaseResources
+> Task :expo-modules-core:generateReleaseResValues
+> Task :expo-modules-core:generateReleaseResources
+> Task :expo-modules-core:packageReleaseResources
+> Task :expo-speech:generateReleaseResValues
+> Task :expo-speech:generateReleaseResources
+> Task :expo-speech:packageReleaseResources
+> Task :expo-splash-screen:generateReleaseResValues
+> Task :expo-splash-screen:generateReleaseResources
+> Task :expo-splash-screen:packageReleaseResources
+> Task :expo-task-manager:generateReleaseResValues
+> Task :expo-task-manager:generateReleaseResources
+> Task :expo-task-manager:packageReleaseResources
+> Task :expo-updates-interface:generateReleaseResValues
+> Task :expo-updates-interface:generateReleaseResources
+> Task :expo-updates-interface:packageReleaseResources
+> Task :expo-web-browser:generateReleaseResValues
+> Task :expo-web-browser:generateReleaseResources
+> Task :expo-web-browser:packageReleaseResources
+> Task :react-native-async-storage_async-storage:generateReleaseResValues
+> Task :react-native-async-storage_async-storage:generateReleaseResources
+> Task :react-native-async-storage_async-storage:packageReleaseResources
+> Task :react-native-maps:generateReleaseResValues
+> Task :react-native-maps:generateReleaseResources
+> Task :react-native-maps:packageReleaseResources
+> Task :react-native-reanimated:generateReleaseResValues
+> Task :react-native-reanimated:generateReleaseResources
+> Task :react-native-reanimated:packageReleaseResources
+> Task :react-native-safe-area-context:generateReleaseResValues
+> Task :react-native-safe-area-context:generateReleaseResources
+> Task :react-native-safe-area-context:packageReleaseResources
+> Task :react-native-screens:generateReleaseResValues
+> Task :react-native-screens:generateReleaseResources
+> Task :react-native-screens:packageReleaseResources
+> Task :unimodules-app-loader:generateReleaseResValues
+> Task :unimodules-app-loader:generateReleaseResources
+> Task :unimodules-app-loader:packageReleaseResources
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :app:packageReleaseResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :expo:extractDeepLinksRelease
+> Task :expo-asset:extractDeepLinksRelease
+> Task :expo-av:extractDeepLinksRelease
+> Task :expo-camera:extractDeepLinksRelease
+> Task :expo-constants:extractDeepLinksRelease
+> Task :expo-dev-client:extractDeepLinksRelease
+> Task :app:parseReleaseLocalResources
+> Task :expo-dev-launcher:extractDeepLinksRelease
+> Task :expo-dev-menu:extractDeepLinksRelease
+> Task :expo-dev-menu-interface:extractDeepLinksRelease
+> Task :expo-dev-client:processReleaseManifest
+> Task :expo-constants:processReleaseManifest
+> Task :expo-camera:processReleaseManifest
+> Task :expo-asset:processReleaseManifest
+> Task :expo-av:processReleaseManifest
+> Task :expo-dev-launcher:processReleaseManifest
+> Task :expo-dev-menu:processReleaseManifest
+> Task :expo:processReleaseManifest
+> Task :expo-file-system:extractDeepLinksRelease
+> Task :expo-dev-menu-interface:processReleaseManifest
+> Task :expo-font:extractDeepLinksRelease
+> Task :expo-image-loader:extractDeepLinksRelease
+
+> Task :expo-file-system:processReleaseManifest
+/Users/avazov/uz-superapp/mobile-rn/node_modules/expo-file-system/android/src/main/AndroidManifest.xml:6:9-8:20 Warning:
+	provider#expo.modules.filesystem.FileSystemFileProvider@android:authorities was tagged at AndroidManifest.xml:6 to replace other declarations but no other declaration present
+
+> Task :expo-font:processReleaseManifest
+> Task :expo-image-picker:extractDeepLinksRelease
+> Task :expo-image-loader:processReleaseManifest
+> Task :expo-json-utils:extractDeepLinksRelease
+> Task :expo-image-picker:processReleaseManifest
+> Task :expo-keep-awake:extractDeepLinksRelease
+> Task :expo-json-utils:processReleaseManifest
+> Task :expo-linear-gradient:extractDeepLinksRelease
+> Task :expo-keep-awake:processReleaseManifest
+> Task :expo-linking:extractDeepLinksRelease
+> Task :expo-linear-gradient:processReleaseManifest
+> Task :expo-localization:extractDeepLinksRelease
+> Task :expo-linking:processReleaseManifest
+> Task :expo-location:extractDeepLinksRelease
+> Task :expo-localization:processReleaseManifest
+> Task :expo-manifests:extractDeepLinksRelease
+> Task :expo-location:processReleaseManifest
+> Task :expo-modules-core:extractDeepLinksRelease
+> Task :expo-manifests:processReleaseManifest
+> Task :expo-speech:extractDeepLinksRelease
+
+> Task :expo-modules-core:processReleaseManifest
+/Users/avazov/uz-superapp/mobile-rn/node_modules/expo-modules-core/android/src/main/AndroidManifest.xml:8:9-11:45 Warning:
+	meta-data#com.facebook.soloader.enabled@android:value was tagged at AndroidManifest.xml:8 to replace other declarations but no other declaration present
+
+> Task :expo-splash-screen:extractDeepLinksRelease
+> Task :expo-speech:processReleaseManifest
+> Task :expo-task-manager:extractDeepLinksRelease
+> Task :expo-splash-screen:processReleaseManifest
+> Task :expo-updates-interface:extractDeepLinksRelease
+> Task :expo-task-manager:processReleaseManifest
+> Task :expo-web-browser:extractDeepLinksRelease
+> Task :expo-updates-interface:processReleaseManifest
+> Task :react-native-async-storage_async-storage:extractDeepLinksRelease
+> Task :expo-web-browser:processReleaseManifest
+> Task :react-native-maps:extractDeepLinksRelease
+
+> Task :react-native-async-storage_async-storage:processReleaseManifest
+package="com.reactnativecommunity.asyncstorage" found in source AndroidManifest.xml: /Users/avazov/uz-superapp/mobile-rn/node_modules/@react-native-async-storage/async-storage/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.reactnativecommunity.asyncstorage" from the source AndroidManifest.xml: /Users/avazov/uz-superapp/mobile-rn/node_modules/@react-native-async-storage/async-storage/android/src/main/AndroidManifest.xml.
+
+> Task :react-native-reanimated:extractDeepLinksRelease
+> Task :react-native-maps:processReleaseManifest
+> Task :react-native-safe-area-context:extractDeepLinksRelease
+> Task :react-native-reanimated:processReleaseManifest
+> Task :react-native-screens:extractDeepLinksRelease
+
+> Task :react-native-safe-area-context:processReleaseManifest
+package="com.th3rdwave.safeareacontext" found in source AndroidManifest.xml: /Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-safe-area-context/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.th3rdwave.safeareacontext" from the source AndroidManifest.xml: /Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-safe-area-context/android/src/main/AndroidManifest.xml.
+
+> Task :unimodules-app-loader:extractDeepLinksRelease
+
+> Task :react-native-screens:processReleaseManifest
+package="com.swmansion.rnscreens" found in source AndroidManifest.xml: /Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.swmansion.rnscreens" from the source AndroidManifest.xml: /Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/AndroidManifest.xml.
+
+> Task :unimodules-app-loader:processReleaseManifest
+> Task :expo:compileReleaseLibraryResources
+> Task :app:mergeReleaseResources
+
+> Task :app:processReleaseMainManifest
+/Users/avazov/uz-superapp/mobile-rn/android/app/src/main/AndroidManifest.xml Warning:
+	provider#expo.modules.filesystem.FileSystemFileProvider@android:authorities was tagged at AndroidManifest.xml:0 to replace other declarations but no other declaration present
+
+> Task :app:processReleaseManifest
+> Task :expo-asset:compileReleaseLibraryResources
+> Task :expo:parseReleaseLocalResources
+> Task :expo-asset:parseReleaseLocalResources
+> Task :expo-camera:compileReleaseLibraryResources
+> Task :app:processReleaseManifestForPackage
+> Task :expo-av:parseReleaseLocalResources
+> Task :expo-av:compileReleaseLibraryResources
+> Task :expo-camera:parseReleaseLocalResources
+> Task :expo-constants:compileReleaseLibraryResources
+> Task :expo-asset:generateReleaseRFile
+> Task :expo:generateReleaseRFile
+> Task :expo-camera:generateReleaseRFile
+> Task :expo-av:generateReleaseRFile
+> Task :expo-constants:parseReleaseLocalResources
+> Task :expo-dev-client:compileReleaseLibraryResources
+> Task :expo-dev-client:parseReleaseLocalResources
+> Task :expo-constants:generateReleaseRFile
+> Task :expo-dev-client:generateReleaseRFile
+> Task :expo-dev-launcher:parseReleaseLocalResources
+> Task :expo-dev-launcher:compileReleaseLibraryResources
+> Task :expo-dev-launcher:generateReleaseRFile
+> Task :expo-dev-menu-interface:compileReleaseLibraryResources
+> Task :expo-dev-menu:parseReleaseLocalResources
+> Task :expo-dev-menu-interface:parseReleaseLocalResources
+> Task :expo-file-system:compileReleaseLibraryResources
+> Task :expo-dev-menu:generateReleaseRFile
+> Task :expo-dev-menu-interface:generateReleaseRFile
+> Task :expo-file-system:parseReleaseLocalResources
+> Task :expo-font:compileReleaseLibraryResources
+> Task :expo-file-system:generateReleaseRFile
+> Task :expo-font:parseReleaseLocalResources
+> Task :expo-image-loader:compileReleaseLibraryResources
+> Task :expo-font:generateReleaseRFile
+> Task :expo-image-loader:parseReleaseLocalResources
+> Task :expo-image-picker:compileReleaseLibraryResources
+> Task :expo-image-loader:generateReleaseRFile
+> Task :expo-image-picker:parseReleaseLocalResources
+> Task :expo-json-utils:compileReleaseLibraryResources
+> Task :expo-image-picker:generateReleaseRFile
+> Task :expo-json-utils:parseReleaseLocalResources
+> Task :expo-dev-menu:compileReleaseLibraryResources
+> Task :expo-keep-awake:compileReleaseLibraryResources
+> Task :expo-keep-awake:parseReleaseLocalResources
+> Task :expo-json-utils:generateReleaseRFile
+> Task :expo-linear-gradient:compileReleaseLibraryResources
+> Task :expo-keep-awake:generateReleaseRFile
+> Task :expo-linear-gradient:parseReleaseLocalResources
+> Task :expo-linking:compileReleaseLibraryResources
+> Task :expo-linear-gradient:generateReleaseRFile
+> Task :expo-linking:parseReleaseLocalResources
+> Task :expo-localization:compileReleaseLibraryResources
+> Task :expo-location:compileReleaseLibraryResources
+> Task :expo-localization:parseReleaseLocalResources
+> Task :expo-linking:generateReleaseRFile
+> Task :expo-location:parseReleaseLocalResources
+> Task :expo-localization:generateReleaseRFile
+> Task :expo-location:generateReleaseRFile
+> Task :expo-manifests:compileReleaseLibraryResources
+> Task :expo-manifests:parseReleaseLocalResources
+> Task :expo-modules-core:compileReleaseLibraryResources
+> Task :expo-modules-core:parseReleaseLocalResources
+> Task :expo-manifests:generateReleaseRFile
+> Task :expo-modules-core:generateReleaseRFile
+> Task :expo-speech:compileReleaseLibraryResources
+> Task :expo-speech:parseReleaseLocalResources
+> Task :expo-splash-screen:compileReleaseLibraryResources
+> Task :expo-speech:generateReleaseRFile
+> Task :expo-splash-screen:parseReleaseLocalResources
+> Task :expo-task-manager:compileReleaseLibraryResources
+> Task :expo-task-manager:parseReleaseLocalResources
+> Task :expo-splash-screen:generateReleaseRFile
+> Task :expo-task-manager:generateReleaseRFile
+> Task :expo-updates-interface:compileReleaseLibraryResources
+> Task :expo-updates-interface:parseReleaseLocalResources
+> Task :expo-web-browser:compileReleaseLibraryResources
+> Task :expo-web-browser:parseReleaseLocalResources
+> Task :expo-updates-interface:generateReleaseRFile
+> Task :react-native-async-storage_async-storage:compileReleaseLibraryResources
+> Task :expo-web-browser:generateReleaseRFile
+> Task :react-native-async-storage_async-storage:parseReleaseLocalResources
+> Task :react-native-maps:compileReleaseLibraryResources
+> Task :react-native-async-storage_async-storage:generateReleaseRFile
+> Task :react-native-maps:parseReleaseLocalResources
+> Task :react-native-reanimated:compileReleaseLibraryResources
+> Task :react-native-maps:generateReleaseRFile
+> Task :react-native-reanimated:parseReleaseLocalResources
+> Task :react-native-safe-area-context:compileReleaseLibraryResources
+> Task :react-native-reanimated:generateReleaseRFile
+> Task :react-native-safe-area-context:parseReleaseLocalResources
+> Task :react-native-safe-area-context:generateReleaseRFile
+> Task :react-native-screens:compileReleaseLibraryResources
+> Task :unimodules-app-loader:compileReleaseLibraryResources
+> Task :react-native-screens:parseReleaseLocalResources
+> Task :unimodules-app-loader:parseReleaseLocalResources
+> Task :expo:checkKotlinGradlePluginConfigurationErrors
+> Task :react-native-screens:generateReleaseRFile
+> Task :expo:generateReleaseBuildConfig
+> Task :expo-asset:checkKotlinGradlePluginConfigurationErrors
+> Task :unimodules-app-loader:generateReleaseRFile
+> Task :expo-asset:generateReleaseBuildConfig
+> Task :expo-modules-core:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-modules-core:generateReleaseBuildConfig
+> Task :expo-av:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-asset:javaPreCompileRelease
+> Task :expo-modules-core:javaPreCompileRelease
+> Task :expo-av:generateReleaseBuildConfig
+> Task :expo-camera:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-av:javaPreCompileRelease
+> Task :expo-camera:generateReleaseBuildConfig
+> Task :expo-constants:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-camera:javaPreCompileRelease
+> Task :expo-constants:generateReleaseBuildConfig
+> Task :expo-dev-client:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-constants:javaPreCompileRelease
+> Task :expo-dev-client:dataBindingMergeDependencyArtifactsRelease
+> Task :expo-dev-client:generateReleaseBuildConfig
+> Task :expo-dev-client:dataBindingGenBaseClassesRelease
+> Task :expo-dev-launcher:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-dev-client:javaPreCompileRelease
+> Task :expo-dev-launcher:dataBindingMergeDependencyArtifactsRelease
+> Task :expo-dev-launcher:generateReleaseBuildConfig
+> Task :expo-dev-launcher:dataBindingGenBaseClassesRelease
+> Task :expo-dev-menu:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-dev-menu:generateReleaseBuildConfig
+> Task :expo-dev-menu-interface:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-dev-menu-interface:generateReleaseBuildConfig
+> Task :expo-json-utils:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-dev-menu-interface:javaPreCompileRelease
+> Task :expo-json-utils:generateReleaseBuildConfig
+> Task :expo-manifests:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-json-utils:javaPreCompileRelease
+> Task :expo-manifests:generateReleaseBuildConfig
+> Task :expo-manifests:javaPreCompileRelease
+> Task :expo-updates-interface:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-dev-menu:javaPreCompileRelease
+> Task :expo-updates-interface:generateReleaseBuildConfig
+> Task :expo-updates-interface:javaPreCompileRelease
+> Task :expo-file-system:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-dev-launcher:javaPreCompileRelease
+> Task :expo-file-system:generateReleaseBuildConfig
+> Task :expo-font:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-file-system:javaPreCompileRelease
+> Task :expo-font:generateReleaseBuildConfig
+> Task :expo-image-loader:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-font:javaPreCompileRelease
+> Task :expo-image-loader:generateReleaseBuildConfig
+> Task :expo-image-picker:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-image-loader:javaPreCompileRelease
+> Task :expo-image-picker:generateReleaseBuildConfig
+> Task :expo-keep-awake:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-image-picker:javaPreCompileRelease
+> Task :expo-keep-awake:generateReleaseBuildConfig
+> Task :expo-linear-gradient:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-keep-awake:javaPreCompileRelease
+> Task :expo-linear-gradient:generateReleaseBuildConfig
+> Task :expo-linking:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-linear-gradient:javaPreCompileRelease
+> Task :expo-linking:generateReleaseBuildConfig
+> Task :expo-localization:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-linking:javaPreCompileRelease
+> Task :expo-localization:generateReleaseBuildConfig
+> Task :expo-location:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-localization:javaPreCompileRelease
+> Task :expo-location:generateReleaseBuildConfig
+> Task :expo-speech:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-location:javaPreCompileRelease
+> Task :expo-speech:generateReleaseBuildConfig
+> Task :expo-splash-screen:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-speech:javaPreCompileRelease
+> Task :expo-splash-screen:generateReleaseBuildConfig
+> Task :expo-task-manager:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-splash-screen:javaPreCompileRelease
+> Task :expo-task-manager:generateReleaseBuildConfig
+> Task :unimodules-app-loader:checkKotlinGradlePluginConfigurationErrors
+> Task :unimodules-app-loader:generateReleaseBuildConfig
+> Task :unimodules-app-loader:javaPreCompileRelease
+> Task :expo-web-browser:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-task-manager:javaPreCompileRelease
+> Task :expo-web-browser:generateReleaseBuildConfig
+> Task :expo-web-browser:javaPreCompileRelease
+> Task :expo:javaPreCompileRelease
+> Task :react-native-async-storage_async-storage:generateReleaseBuildConfig
+> Task :react-native-async-storage_async-storage:javaPreCompileRelease
+> Task :react-native-maps:generateReleaseBuildConfig
+> Task :app:processReleaseResources
+
+> Task :react-native-async-storage_async-storage:compileReleaseJavaWithJavac
+/Users/avazov/uz-superapp/mobile-rn/node_modules/@react-native-async-storage/async-storage/android/src/main/java/com/reactnativecommunity/asyncstorage/AsyncStorageModule.java:84: warning: [removal] onCatalystInstanceDestroy() in NativeModule has been deprecated and marked for removal
+  public void onCatalystInstanceDestroy() {
+              ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /Users/avazov/uz-superapp/mobile-rn/node_modules/@react-native-async-storage/async-storage/android/src/javaPackage/java/com/reactnativecommunity/asyncstorage/AsyncStoragePackage.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+1 warning
+
+> Task :react-native-maps:javaPreCompileRelease
+> Task :react-native-reanimated:generateReleaseBuildConfig
+> Task :react-native-async-storage_async-storage:bundleLibCompileToJarRelease
+
+> Task :react-native-maps:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-reanimated:packageNdkLibs NO-SOURCE
+> Task :react-native-safe-area-context:checkKotlinGradlePluginConfigurationErrors
+> Task :react-native-reanimated:javaPreCompileRelease
+> Task :react-native-maps:bundleLibCompileToJarRelease
+> Task :react-native-safe-area-context:generateReleaseBuildConfig
+
+> Task :react-native-reanimated:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :react-native-reanimated:bundleLibCompileToJarRelease
+> Task :react-native-screens:checkKotlinGradlePluginConfigurationErrors
+> Task :react-native-safe-area-context:javaPreCompileRelease
+> Task :react-native-screens:generateReleaseBuildConfig
+> Task :react-native-screens:javaPreCompileRelease
+> Task :app:buildKotlinToolingMetadata
+> Task :app:javaPreCompileRelease
+> Task :app:extractProguardFiles
+> Task :expo:extractProguardFiles
+> Task :expo-asset:extractProguardFiles
+> Task :expo-modules-core:extractProguardFiles
+> Task :expo-modules-core:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-asset:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-av:extractProguardFiles
+> Task :expo-av:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-camera:extractProguardFiles
+> Task :expo-camera:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-constants:extractProguardFiles
+> Task :expo-constants:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-dev-client:extractProguardFiles
+> Task :expo-dev-client:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-dev-launcher:extractProguardFiles
+> Task :expo-dev-menu:extractProguardFiles
+> Task :expo-dev-menu-interface:extractProguardFiles
+> Task :expo-dev-menu-interface:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-json-utils:extractProguardFiles
+> Task :expo-json-utils:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-manifests:extractProguardFiles
+> Task :expo-manifests:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-dev-menu:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-updates-interface:extractProguardFiles
+> Task :expo-updates-interface:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-dev-launcher:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-file-system:extractProguardFiles
+> Task :expo-file-system:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-font:extractProguardFiles
+> Task :expo-font:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-image-loader:extractProguardFiles
+> Task :expo-image-loader:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-image-picker:extractProguardFiles
+> Task :expo-image-picker:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-keep-awake:extractProguardFiles
+> Task :expo-keep-awake:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-linear-gradient:extractProguardFiles
+> Task :expo-linear-gradient:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-linking:extractProguardFiles
+> Task :expo-linking:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-localization:extractProguardFiles
+> Task :expo-localization:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-location:extractProguardFiles
+> Task :expo-location:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-speech:extractProguardFiles
+> Task :expo-speech:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-splash-screen:extractProguardFiles
+> Task :expo-splash-screen:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-task-manager:extractProguardFiles
+> Task :unimodules-app-loader:extractProguardFiles
+> Task :unimodules-app-loader:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-task-manager:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-web-browser:extractProguardFiles
+> Task :expo-web-browser:prepareLintJarForPublish UP-TO-DATE
+> Task :expo:prepareLintJarForPublish UP-TO-DATE
+> Task :react-native-async-storage_async-storage:processReleaseJavaRes NO-SOURCE
+> Task :react-native-async-storage_async-storage:bundleLibRuntimeToJarRelease
+> Task :react-native-async-storage_async-storage:extractProguardFiles
+> Task :react-native-async-storage_async-storage:createFullJarRelease
+> Task :react-native-async-storage_async-storage:generateReleaseLintModel
+> Task :react-native-async-storage_async-storage:prepareLintJarForPublish UP-TO-DATE
+> Task :react-native-maps:processReleaseJavaRes NO-SOURCE
+> Task :react-native-maps:extractProguardFiles
+> Task :react-native-maps:bundleLibRuntimeToJarRelease
+> Task :react-native-maps:generateReleaseLintModel
+> Task :react-native-maps:createFullJarRelease
+> Task :react-native-maps:prepareLintJarForPublish UP-TO-DATE
+> Task :react-native-reanimated:processReleaseJavaRes NO-SOURCE
+> Task :react-native-reanimated:extractProguardFiles
+> Task :react-native-reanimated:bundleLibRuntimeToJarRelease
+> Task :react-native-reanimated:generateReleaseLintModel
+> Task :react-native-reanimated:createFullJarRelease
+> Task :react-native-reanimated:prepareLintJarForPublish UP-TO-DATE
+> Task :react-native-safe-area-context:extractProguardFiles
+> Task :react-native-safe-area-context:prepareLintJarForPublish UP-TO-DATE
+> Task :react-native-screens:extractProguardFiles
+> Task :react-native-screens:prepareLintJarForPublish UP-TO-DATE
+> Task :expo:mergeReleaseJniLibFolders
+> Task :expo:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo:mergeReleaseShaders
+> Task :expo:compileReleaseShaders NO-SOURCE
+> Task :expo:generateReleaseAssets UP-TO-DATE
+> Task :expo:packageReleaseAssets
+> Task :expo:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-safe-area-context:mergeReleaseJniLibFolders
+> Task :react-native-safe-area-context:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-safe-area-context:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-safe-area-context:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-safe-area-context:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :react-native-safe-area-context:mergeReleaseShaders
+> Task :react-native-safe-area-context:compileReleaseShaders NO-SOURCE
+> Task :react-native-safe-area-context:generateReleaseAssets UP-TO-DATE
+> Task :react-native-safe-area-context:packageReleaseAssets
+> Task :react-native-safe-area-context:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-screens:configureCMakeRelWithDebInfo[arm64-v8a]
+> Task :react-native-screens:buildCMakeRelWithDebInfo[arm64-v8a]
+> Task :react-native-screens:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-screens:buildCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-screens:configureCMakeRelWithDebInfo[x86]
+> Task :react-native-screens:buildCMakeRelWithDebInfo[x86]
+> Task :react-native-screens:configureCMakeRelWithDebInfo[x86_64]
+> Task :react-native-screens:buildCMakeRelWithDebInfo[x86_64]
+> Task :react-native-screens:mergeReleaseJniLibFolders
+> Task :react-native-screens:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :react-native-screens:mergeReleaseShaders
+> Task :react-native-screens:compileReleaseShaders NO-SOURCE
+> Task :react-native-screens:generateReleaseAssets UP-TO-DATE
+> Task :react-native-screens:packageReleaseAssets
+> Task :react-native-screens:mergeReleaseNativeLibs
+> Task :react-native-screens:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-async-storage_async-storage:mergeReleaseJniLibFolders
+> Task :react-native-async-storage_async-storage:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-async-storage_async-storage:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-async-storage_async-storage:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :react-native-async-storage_async-storage:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-async-storage_async-storage:extractReleaseAnnotations
+> Task :react-native-async-storage_async-storage:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-async-storage_async-storage:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-async-storage_async-storage:mergeReleaseShaders
+> Task :react-native-async-storage_async-storage:compileReleaseShaders NO-SOURCE
+> Task :react-native-async-storage_async-storage:generateReleaseAssets UP-TO-DATE
+> Task :react-native-async-storage_async-storage:packageReleaseAssets
+> Task :react-native-async-storage_async-storage:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-maps:mergeReleaseJniLibFolders
+> Task :react-native-maps:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-maps:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-maps:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-maps:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :react-native-screens:stripReleaseDebugSymbols
+> Task :react-native-maps:extractReleaseAnnotations
+> Task :react-native-maps:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-maps:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-screens:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-maps:mergeReleaseShaders
+> Task :react-native-maps:compileReleaseShaders NO-SOURCE
+> Task :react-native-maps:generateReleaseAssets UP-TO-DATE
+> Task :react-native-maps:packageReleaseAssets
+> Task :react-native-async-storage_async-storage:mergeReleaseJavaResource
+> Task :react-native-async-storage_async-storage:syncReleaseLibJars
+> Task :react-native-async-storage_async-storage:bundleReleaseLocalLintAar
+> Task :react-native-maps:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-maps:mergeReleaseJavaResource
+> Task :react-native-reanimated:configureCMakeRelWithDebInfo[arm64-v8a]
+> Task :react-native-maps:syncReleaseLibJars
+> Task :react-native-maps:bundleReleaseLocalLintAar
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[arm64-v8a]
+> Task :react-native-reanimated:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-reanimated:configureCMakeRelWithDebInfo[x86]
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[x86]
+> Task :react-native-reanimated:configureCMakeRelWithDebInfo[x86_64]
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[x86_64]
+> Task :react-native-reanimated:mergeReleaseJniLibFolders
+> Task :react-native-reanimated:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :react-native-reanimated:extractReleaseAnnotations
+> Task :react-native-reanimated:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-reanimated:mergeReleaseConsumerProguardFiles
+> Task :react-native-reanimated:mergeReleaseShaders
+> Task :react-native-reanimated:compileReleaseShaders NO-SOURCE
+> Task :react-native-reanimated:generateReleaseAssets UP-TO-DATE
+> Task :react-native-reanimated:packageReleaseAssets
+
+> Task :react-native-safe-area-context:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaContextPackage.kt:27:11 'constructor ReactModuleInfo(String, String, Boolean, Boolean, Boolean, Boolean, Boolean)' is deprecated. use ReactModuleInfo(String, String, boolean, boolean, boolean, boolean)]
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaContextPackage.kt:33:27 'getter for hasConstants: Boolean' is deprecated. This property is unused and it's planning to be removed in a future version of
+        React Native. Please refrain from using it.
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-safe-area-context/android/src/main/java/com/th3rdwave/safeareacontext/SafeAreaView.kt:59:23 'getter for uiImplementation: UIImplementation!' is deprecated. Deprecated in Java
+
+> Task :react-native-reanimated:mergeReleaseNativeLibs
+> Task :react-native-reanimated:externalNativeBuildRelease
+
+> Task :react-native-safe-area-context:compileReleaseJavaWithJavac
+Note: /Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-safe-area-context/android/src/paper/java/com/th3rdwave/safeareacontext/NativeSafeAreaContextSpec.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-safe-area-context:bundleLibCompileToJarRelease
+> Task :react-native-safe-area-context:bundleLibRuntimeToJarRelease
+> Task :react-native-safe-area-context:processReleaseJavaRes
+> Task :react-native-safe-area-context:createFullJarRelease
+> Task :react-native-safe-area-context:generateReleaseLintModel
+> Task :react-native-safe-area-context:extractReleaseAnnotations
+> Task :react-native-safe-area-context:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-safe-area-context:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-reanimated:generateJsonModelRelease
+> Task :react-native-reanimated:prefabReleaseConfigurePackage UP-TO-DATE
+> Task :react-native-safe-area-context:mergeReleaseJavaResource
+> Task :react-native-reanimated:stripReleaseDebugSymbols
+> Task :react-native-reanimated:prefabReleasePackage
+> Task :react-native-safe-area-context:syncReleaseLibJars
+> Task :react-native-safe-area-context:bundleReleaseLocalLintAar
+> Task :react-native-reanimated:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-reanimated:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-reanimated:mergeReleaseJavaResource
+> Task :expo-asset:mergeReleaseJniLibFolders
+> Task :react-native-reanimated:syncReleaseLibJars
+> Task :react-native-reanimated:bundleReleaseLocalLintAar
+> Task :expo-asset:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-asset:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-asset:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-asset:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-asset:mergeReleaseShaders
+> Task :expo-asset:compileReleaseShaders NO-SOURCE
+> Task :expo-asset:generateReleaseAssets UP-TO-DATE
+> Task :expo-asset:packageReleaseAssets
+> Task :expo-asset:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-av:configureCMakeRelWithDebInfo[arm64-v8a]
+> Task :expo-av:buildCMakeRelWithDebInfo[arm64-v8a]
+> Task :expo-av:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :expo-av:buildCMakeRelWithDebInfo[armeabi-v7a]
+> Task :expo-av:configureCMakeRelWithDebInfo[x86]
+> Task :expo-av:buildCMakeRelWithDebInfo[x86]
+> Task :expo-av:configureCMakeRelWithDebInfo[x86_64]
+> Task :expo-av:buildCMakeRelWithDebInfo[x86_64]
+> Task :expo-av:mergeReleaseJniLibFolders
+> Task :expo-av:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-av:mergeReleaseShaders
+> Task :expo-av:compileReleaseShaders NO-SOURCE
+> Task :expo-av:generateReleaseAssets UP-TO-DATE
+> Task :expo-av:packageReleaseAssets
+> Task :expo-av:mergeReleaseNativeLibs
+> Task :expo-av:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-camera:mergeReleaseJniLibFolders
+> Task :expo-camera:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-camera:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-camera:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-camera:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-camera:mergeReleaseShaders
+> Task :expo-camera:compileReleaseShaders NO-SOURCE
+> Task :expo-camera:generateReleaseAssets UP-TO-DATE
+> Task :expo-av:stripReleaseDebugSymbols
+> Task :expo-camera:packageReleaseAssets
+> Task :expo-camera:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-av:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-constants:mergeReleaseJniLibFolders
+> Task :expo-constants:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-constants:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-constants:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-constants:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-constants:mergeReleaseShaders
+> Task :expo-constants:compileReleaseShaders NO-SOURCE
+> Task :expo-constants:generateReleaseAssets UP-TO-DATE
+> Task :expo-constants:packageReleaseAssets
+> Task :expo-constants:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-dev-client:mergeReleaseJniLibFolders
+> Task :expo-dev-client:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-dev-client:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-dev-client:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-dev-client:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-dev-client:mergeReleaseShaders
+> Task :expo-dev-client:compileReleaseShaders NO-SOURCE
+> Task :expo-dev-client:generateReleaseAssets UP-TO-DATE
+> Task :expo-dev-client:packageReleaseAssets
+> Task :expo-dev-client:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-dev-launcher:mergeReleaseJniLibFolders
+> Task :expo-dev-launcher:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-dev-launcher:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-dev-launcher:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-dev-launcher:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-dev-launcher:mergeReleaseShaders
+> Task :expo-dev-launcher:compileReleaseShaders NO-SOURCE
+> Task :expo-dev-launcher:generateReleaseAssets UP-TO-DATE
+> Task :expo-dev-launcher:packageReleaseAssets
+> Task :expo-dev-launcher:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-dev-menu:mergeReleaseJniLibFolders
+> Task :expo-dev-menu:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-dev-menu:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-dev-menu:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-dev-menu:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-dev-menu:mergeReleaseShaders
+> Task :expo-dev-menu:compileReleaseShaders NO-SOURCE
+> Task :expo-dev-menu:generateReleaseAssets UP-TO-DATE
+> Task :expo-dev-menu:packageReleaseAssets
+> Task :expo-dev-menu:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-file-system:mergeReleaseJniLibFolders
+> Task :expo-file-system:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-file-system:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-file-system:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-file-system:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-file-system:mergeReleaseShaders
+> Task :expo-file-system:compileReleaseShaders NO-SOURCE
+> Task :expo-file-system:generateReleaseAssets UP-TO-DATE
+> Task :expo-file-system:packageReleaseAssets
+> Task :expo-file-system:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-font:mergeReleaseJniLibFolders
+> Task :expo-font:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-font:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-font:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-font:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-font:mergeReleaseShaders
+> Task :expo-font:compileReleaseShaders NO-SOURCE
+> Task :expo-font:generateReleaseAssets UP-TO-DATE
+> Task :expo-font:packageReleaseAssets
+> Task :expo-font:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseJniLibFolders
+> Task :expo-image-loader:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-image-loader:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-image-loader:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-image-loader:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseShaders
+> Task :expo-image-loader:compileReleaseShaders NO-SOURCE
+> Task :expo-image-loader:generateReleaseAssets UP-TO-DATE
+> Task :expo-image-loader:packageReleaseAssets
+> Task :expo-image-loader:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseJniLibFolders
+> Task :expo-image-picker:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-image-picker:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-image-picker:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-image-picker:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseShaders
+> Task :expo-image-picker:compileReleaseShaders NO-SOURCE
+> Task :expo-image-picker:generateReleaseAssets UP-TO-DATE
+> Task :expo-image-picker:packageReleaseAssets
+> Task :expo-image-picker:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-manifests:mergeReleaseJniLibFolders
+> Task :expo-manifests:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-manifests:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-manifests:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-manifests:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-manifests:mergeReleaseShaders
+> Task :expo-manifests:compileReleaseShaders NO-SOURCE
+> Task :expo-manifests:generateReleaseAssets UP-TO-DATE
+> Task :expo-manifests:packageReleaseAssets
+> Task :expo-manifests:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-json-utils:mergeReleaseJniLibFolders
+> Task :expo-json-utils:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-json-utils:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-json-utils:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-json-utils:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-json-utils:mergeReleaseShaders
+> Task :expo-json-utils:compileReleaseShaders NO-SOURCE
+> Task :expo-json-utils:generateReleaseAssets UP-TO-DATE
+> Task :expo-json-utils:packageReleaseAssets
+> Task :expo-json-utils:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-keep-awake:mergeReleaseJniLibFolders
+> Task :expo-keep-awake:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-keep-awake:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-keep-awake:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-keep-awake:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-keep-awake:mergeReleaseShaders
+> Task :expo-keep-awake:compileReleaseShaders NO-SOURCE
+> Task :expo-keep-awake:generateReleaseAssets UP-TO-DATE
+> Task :expo-keep-awake:packageReleaseAssets
+> Task :expo-keep-awake:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-linear-gradient:mergeReleaseJniLibFolders
+> Task :expo-linear-gradient:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-linear-gradient:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-linear-gradient:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-linear-gradient:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-linear-gradient:mergeReleaseShaders
+> Task :expo-linear-gradient:compileReleaseShaders NO-SOURCE
+> Task :expo-linear-gradient:generateReleaseAssets UP-TO-DATE
+> Task :expo-linear-gradient:packageReleaseAssets
+> Task :expo-linear-gradient:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-linking:mergeReleaseJniLibFolders
+> Task :expo-linking:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-linking:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-linking:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-linking:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-linking:mergeReleaseShaders
+> Task :expo-linking:compileReleaseShaders NO-SOURCE
+> Task :expo-linking:generateReleaseAssets UP-TO-DATE
+> Task :expo-linking:packageReleaseAssets
+> Task :expo-linking:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-localization:mergeReleaseJniLibFolders
+> Task :expo-localization:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-localization:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-localization:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-localization:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-localization:mergeReleaseShaders
+> Task :expo-localization:compileReleaseShaders NO-SOURCE
+> Task :expo-localization:generateReleaseAssets UP-TO-DATE
+> Task :expo-localization:packageReleaseAssets
+> Task :expo-localization:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-location:mergeReleaseJniLibFolders
+> Task :expo-location:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-location:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-location:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-location:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-location:mergeReleaseShaders
+> Task :expo-location:compileReleaseShaders NO-SOURCE
+> Task :expo-location:generateReleaseAssets UP-TO-DATE
+> Task :expo-location:packageReleaseAssets
+> Task :expo-location:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-speech:mergeReleaseJniLibFolders
+> Task :expo-speech:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-speech:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-speech:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-speech:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-speech:mergeReleaseShaders
+> Task :expo-speech:compileReleaseShaders NO-SOURCE
+> Task :expo-speech:generateReleaseAssets UP-TO-DATE
+> Task :expo-speech:packageReleaseAssets
+> Task :expo-speech:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-splash-screen:mergeReleaseJniLibFolders
+> Task :expo-splash-screen:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-splash-screen:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-splash-screen:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-splash-screen:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-splash-screen:mergeReleaseShaders
+> Task :expo-splash-screen:compileReleaseShaders NO-SOURCE
+> Task :expo-splash-screen:generateReleaseAssets UP-TO-DATE
+> Task :expo-splash-screen:packageReleaseAssets
+> Task :expo-splash-screen:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-task-manager:mergeReleaseJniLibFolders
+> Task :expo-task-manager:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-task-manager:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-task-manager:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-task-manager:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-task-manager:mergeReleaseShaders
+> Task :expo-task-manager:compileReleaseShaders NO-SOURCE
+> Task :expo-task-manager:generateReleaseAssets UP-TO-DATE
+> Task :expo-task-manager:packageReleaseAssets
+> Task :expo-task-manager:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-web-browser:mergeReleaseJniLibFolders
+> Task :expo-web-browser:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-web-browser:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-web-browser:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-web-browser:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-web-browser:mergeReleaseShaders
+> Task :expo-web-browser:compileReleaseShaders NO-SOURCE
+> Task :expo-web-browser:generateReleaseAssets UP-TO-DATE
+> Task :expo-web-browser:packageReleaseAssets
+> Task :expo-web-browser:prepareReleaseArtProfile UP-TO-DATE
+> Task :unimodules-app-loader:mergeReleaseJniLibFolders
+> Task :unimodules-app-loader:mergeReleaseNativeLibs NO-SOURCE
+> Task :unimodules-app-loader:stripReleaseDebugSymbols NO-SOURCE
+> Task :unimodules-app-loader:copyReleaseJniLibsProjectAndLocalJars
+> Task :unimodules-app-loader:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :unimodules-app-loader:mergeReleaseShaders
+> Task :unimodules-app-loader:compileReleaseShaders NO-SOURCE
+> Task :unimodules-app-loader:generateReleaseAssets UP-TO-DATE
+> Task :unimodules-app-loader:packageReleaseAssets
+> Task :unimodules-app-loader:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-dev-menu-interface:mergeReleaseJniLibFolders
+> Task :expo-dev-menu-interface:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-dev-menu-interface:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-dev-menu-interface:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-dev-menu-interface:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-dev-menu-interface:mergeReleaseShaders
+> Task :expo-dev-menu-interface:compileReleaseShaders NO-SOURCE
+> Task :expo-dev-menu-interface:generateReleaseAssets UP-TO-DATE
+> Task :expo-dev-menu-interface:packageReleaseAssets
+> Task :expo-dev-menu-interface:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-updates-interface:mergeReleaseJniLibFolders
+> Task :expo-updates-interface:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-updates-interface:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-updates-interface:copyReleaseJniLibsProjectAndLocalJars
+> Task :expo-updates-interface:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-updates-interface:mergeReleaseShaders
+> Task :expo-updates-interface:compileReleaseShaders NO-SOURCE
+> Task :expo-updates-interface:generateReleaseAssets UP-TO-DATE
+> Task :expo-updates-interface:packageReleaseAssets
+> Task :expo-updates-interface:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-modules-core:configureCMakeRelWithDebInfo[arm64-v8a]
+
+> Task :react-native-screens:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/CustomToolbar.kt:19:53 'FrameCallback' is deprecated. Use Choreographer.FrameCallback instead
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/CustomToolbar.kt:20:38 'FrameCallback' is deprecated. Use Choreographer.FrameCallback instead
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/RNScreensPackage.kt:64:17 'constructor ReactModuleInfo(String, String, Boolean, Boolean, Boolean, Boolean, Boolean)' is deprecated. use ReactModuleInfo(String, String, boolean, boolean, boolean, boolean)]
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/Screen.kt:45:77 Unchecked cast: CoordinatorLayout.Behavior<(raw) View!>? to BottomSheetBehavior<Screen>
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenContainer.kt:33:53 'FrameCallback' is deprecated. Use Choreographer.FrameCallback instead
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenContainer.kt:34:38 'FrameCallback' is deprecated. Use Choreographer.FrameCallback instead
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFooter.kt:252:9 Parameter 'changed' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFooter.kt:253:9 Parameter 'left' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFooter.kt:254:9 Parameter 'top' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFooter.kt:255:9 Parameter 'right' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenFooter.kt:256:9 Parameter 'bottom' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:257:31 'setter for targetElevation: Float' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:260:13 'setHasOptionsMenu(Boolean): Unit' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:496:22 'onPrepareOptionsMenu(Menu): Unit' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackFragment.kt:504:22 'onCreateOptionsMenu(Menu, MenuInflater): Unit' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackHeaderConfig.kt:100:38 'getter for systemWindowInsetTop: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackHeaderConfigViewManager.kt:7:34 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackHeaderConfigViewManager.kt:209:9 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackHeaderConfigViewManager.kt:211:13 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStackHeaderConfigViewManager.kt:213:13 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenViewManager.kt:7:34 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenViewManager.kt:375:48 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenViewManager.kt:376:49 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenViewManager.kt:377:45 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenViewManager.kt:378:52 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenViewManager.kt:379:48 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenViewManager.kt:380:51 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenViewManager.kt:381:56 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenViewManager.kt:382:57 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenViewManager.kt:383:51 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:55:42 'replaceSystemWindowInsets(Int, Int, Int, Int): WindowInsetsCompat' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:56:39 'getter for systemWindowInsetLeft: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:58:39 'getter for systemWindowInsetRight: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:59:39 'getter for systemWindowInsetBottom: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:98:53 'getter for statusBarColor: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:109:48 'getter for statusBarColor: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:112:32 'setter for statusBarColor: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:208:72 'getter for navigationBarColor: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenWindowTraits.kt:214:16 'setter for navigationBarColor: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarManager.kt:5:34 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarManager.kt:138:66 Elvis operator (?:) always returns the left operand of non-nullable type Boolean
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarManager.kt:142:9 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarManager.kt:144:13 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarManager.kt:146:13 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarManager.kt:148:13 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarManager.kt:150:13 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarManager.kt:152:13 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarManager.kt:154:13 'MapBuilder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/SearchBarView.kt:153:43 Parameter 'flag' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:7:34 'ReactFeatureFlags' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/bottomsheet/BottomSheetDialogRootView.kt:25:13 'ReactFeatureFlags' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/paper/java/com/swmansion/rnscreens/FabricEnabledHeaderConfigViewGroup.kt:17:25 Parameter 'wrapper' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/paper/java/com/swmansion/rnscreens/FabricEnabledViewGroup.kt:10:25 Parameter 'wrapper' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/paper/java/com/swmansion/rnscreens/FabricEnabledViewGroup.kt:13:9 Parameter 'width' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/paper/java/com/swmansion/rnscreens/FabricEnabledViewGroup.kt:14:9 Parameter 'height' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/paper/java/com/swmansion/rnscreens/FabricEnabledViewGroup.kt:15:9 Parameter 'headerHeight' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/paper/java/com/swmansion/rnscreens/NativeProxy.kt:7:36 Parameter 'fabricUIManager' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/paper/java/com/swmansion/rnscreens/NativeProxy.kt:11:13 Parameter 'tag' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/paper/java/com/swmansion/rnscreens/NativeProxy.kt:12:13 Parameter 'view' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/paper/java/com/swmansion/rnscreens/NativeProxy.kt:15:33 Parameter 'tag' is never used
+
+> Task :expo-modules-core:buildCMakeRelWithDebInfo[arm64-v8a]
+
+> Task :react-native-screens:compileReleaseJavaWithJavac
+Note: /Users/avazov/uz-superapp/mobile-rn/node_modules/react-native-screens/android/src/paper/java/com/swmansion/rnscreens/NativeScreensModuleSpec.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :react-native-screens:bundleLibCompileToJarRelease
+> Task :react-native-screens:processReleaseJavaRes
+> Task :react-native-screens:bundleLibRuntimeToJarRelease
+> Task :react-native-screens:generateReleaseLintModel
+> Task :react-native-screens:createFullJarRelease
+> Task :react-native-screens:extractReleaseAnnotations
+> Task :react-native-screens:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-screens:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-screens:mergeReleaseJavaResource
+> Task :expo-modules-core:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-screens:syncReleaseLibJars
+> Task :react-native-screens:bundleReleaseLocalLintAar
+> Task :expo-modules-core:buildCMakeRelWithDebInfo[armeabi-v7a]
+> Task :expo-modules-core:configureCMakeRelWithDebInfo[x86]
+> Task :expo-modules-core:buildCMakeRelWithDebInfo[x86]
+> Task :expo-modules-core:configureCMakeRelWithDebInfo[x86_64]
+> Task :expo-modules-core:buildCMakeRelWithDebInfo[x86_64]
+> Task :expo-modules-core:mergeReleaseJniLibFolders
+> Task :expo-modules-core:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-modules-core:mergeReleaseShaders
+> Task :expo-modules-core:compileReleaseShaders NO-SOURCE
+> Task :expo-modules-core:generateReleaseAssets UP-TO-DATE
+> Task :expo-modules-core:packageReleaseAssets
+> Task :expo-modules-core:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-asset:writeReleaseLintModelMetadata
+> Task :expo-av:writeReleaseLintModelMetadata
+> Task :expo-camera:writeReleaseLintModelMetadata
+> Task :expo-constants:writeReleaseLintModelMetadata
+> Task :expo-dev-client:writeReleaseLintModelMetadata
+> Task :expo-dev-launcher:writeReleaseLintModelMetadata
+> Task :expo-dev-menu:writeReleaseLintModelMetadata
+> Task :expo-dev-menu-interface:writeReleaseLintModelMetadata
+> Task :expo-file-system:writeReleaseLintModelMetadata
+> Task :expo-font:writeReleaseLintModelMetadata
+> Task :expo-image-loader:writeReleaseLintModelMetadata
+> Task :expo-image-picker:writeReleaseLintModelMetadata
+> Task :expo-json-utils:writeReleaseLintModelMetadata
+> Task :expo-keep-awake:writeReleaseLintModelMetadata
+> Task :expo-linear-gradient:writeReleaseLintModelMetadata
+> Task :expo-linking:writeReleaseLintModelMetadata
+> Task :expo-localization:writeReleaseLintModelMetadata
+> Task :expo-location:writeReleaseLintModelMetadata
+> Task :expo-manifests:writeReleaseLintModelMetadata
+> Task :expo-modules-core:writeReleaseLintModelMetadata
+> Task :expo-speech:writeReleaseLintModelMetadata
+> Task :expo-splash-screen:writeReleaseLintModelMetadata
+> Task :expo-task-manager:writeReleaseLintModelMetadata
+> Task :expo-updates-interface:writeReleaseLintModelMetadata
+> Task :expo-web-browser:writeReleaseLintModelMetadata
+> Task :unimodules-app-loader:writeReleaseLintModelMetadata
+> Task :expo:writeReleaseLintModelMetadata
+> Task :react-native-async-storage_async-storage:writeReleaseLintModelMetadata
+> Task :react-native-maps:writeReleaseLintModelMetadata
+> Task :react-native-reanimated:writeReleaseLintModelMetadata
+> Task :react-native-safe-area-context:writeReleaseLintModelMetadata
+> Task :react-native-screens:writeReleaseLintModelMetadata
+> Task :react-native-async-storage_async-storage:generateReleaseLintVitalModel
+> Task :react-native-maps:generateReleaseLintVitalModel
+> Task :react-native-reanimated:generateReleaseLintVitalModel
+> Task :react-native-safe-area-context:generateReleaseLintVitalModel
+> Task :react-native-screens:generateReleaseLintVitalModel
+> Task :app:mergeReleaseJniLibFolders
+> Task :expo:copyReleaseJniLibsProjectOnly
+> Task :expo-asset:copyReleaseJniLibsProjectOnly
+> Task :expo-camera:copyReleaseJniLibsProjectOnly
+> Task :expo-constants:copyReleaseJniLibsProjectOnly
+> Task :expo-dev-client:copyReleaseJniLibsProjectOnly
+> Task :expo-dev-launcher:copyReleaseJniLibsProjectOnly
+> Task :expo-dev-menu:copyReleaseJniLibsProjectOnly
+> Task :expo-dev-menu-interface:copyReleaseJniLibsProjectOnly
+> Task :expo-file-system:copyReleaseJniLibsProjectOnly
+> Task :expo-av:copyReleaseJniLibsProjectOnly
+> Task :expo-font:copyReleaseJniLibsProjectOnly
+> Task :expo-image-loader:copyReleaseJniLibsProjectOnly
+> Task :expo-image-picker:copyReleaseJniLibsProjectOnly
+> Task :expo-json-utils:copyReleaseJniLibsProjectOnly
+> Task :expo-keep-awake:copyReleaseJniLibsProjectOnly
+> Task :expo-linear-gradient:copyReleaseJniLibsProjectOnly
+> Task :expo-linking:copyReleaseJniLibsProjectOnly
+> Task :expo-localization:copyReleaseJniLibsProjectOnly
+> Task :expo-location:copyReleaseJniLibsProjectOnly
+> Task :expo-manifests:copyReleaseJniLibsProjectOnly
+> Task :expo-speech:copyReleaseJniLibsProjectOnly
+> Task :expo-splash-screen:copyReleaseJniLibsProjectOnly
+> Task :expo-task-manager:copyReleaseJniLibsProjectOnly
+> Task :expo-updates-interface:copyReleaseJniLibsProjectOnly
+> Task :expo-web-browser:copyReleaseJniLibsProjectOnly
+> Task :expo-modules-core:mergeReleaseNativeLibs
+> Task :react-native-async-storage_async-storage:copyReleaseJniLibsProjectOnly
+> Task :react-native-maps:copyReleaseJniLibsProjectOnly
+> Task :expo-modules-core:stripReleaseDebugSymbols
+> Task :react-native-safe-area-context:copyReleaseJniLibsProjectOnly
+> Task :unimodules-app-loader:copyReleaseJniLibsProjectOnly
+> Task :react-native-screens:copyReleaseJniLibsProjectOnly
+> Task :expo-modules-core:copyReleaseJniLibsProjectAndLocalJars
+> Task :react-native-safe-area-context:bundleLibRuntimeToDirRelease
+> Task :react-native-async-storage_async-storage:bundleLibRuntimeToDirRelease
+> Task :expo-modules-core:copyReleaseJniLibsProjectOnly
+> Task :react-native-reanimated:copyReleaseJniLibsProjectOnly
+> Task :react-native-maps:bundleLibRuntimeToDirRelease
+> Task :react-native-reanimated:bundleLibRuntimeToDirRelease
+> Task :react-native-screens:bundleLibRuntimeToDirRelease
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:desugarReleaseFileDependencies
+> Task :app:mergeReleaseStartupProfile UP-TO-DATE
+> Task :app:mergeReleaseShaders
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseArtProfile
+> Task :app:mergeReleaseAssets
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:compressReleaseAssets
+> Task :app:collectReleaseDependencies
+> Task :app:sdkReleaseDependencyData
+> Task :app:validateSigningRelease
+> Task :app:writeReleaseAppMetadata
+> Task :app:writeReleaseSigningConfigVersions
+> Task :expo:mapReleaseSourceSetPaths
+> Task :app:mergeReleaseNativeLibs
+> Task :expo:mergeReleaseResources
+> Task :app:optimizeReleaseResources
+> Task :expo-asset:mapReleaseSourceSetPaths
+> Task :app:stripReleaseDebugSymbols
+> Task :expo-asset:mergeReleaseResources
+> Task :expo-av:mapReleaseSourceSetPaths
+> Task :react-native-maps:lintVitalAnalyzeRelease
+> Task :app:extractReleaseNativeSymbolTables
+> Task :expo:verifyReleaseResources
+> Task :expo-asset:verifyReleaseResources
+> Task :react-native-async-storage_async-storage:lintVitalAnalyzeRelease
+> Task :expo-modules-core:compileReleaseKotlin
+> Task :react-native-reanimated:lintVitalAnalyzeRelease
+> Task :expo-av:mergeReleaseResources
+> Task :expo-modules-core:compileReleaseJavaWithJavac
+> Task :expo-modules-core:processReleaseJavaRes
+> Task :expo-modules-core:bundleLibRuntimeToJarRelease
+> Task :expo-modules-core:bundleLibCompileToJarRelease
+> Task :expo-modules-core:generateReleaseLintModel
+> Task :expo-dev-client:compileReleaseKotlin NO-SOURCE
+> Task :expo-dev-client:compileReleaseJavaWithJavac
+> Task :expo-dev-client:bundleLibCompileToJarRelease
+> Task :expo-updates-interface:compileReleaseKotlin
+> Task :expo-json-utils:compileReleaseKotlin
+> Task :expo-updates-interface:compileReleaseJavaWithJavac
+> Task :expo-json-utils:compileReleaseJavaWithJavac
+> Task :expo-json-utils:bundleLibCompileToJarRelease
+> Task :expo-updates-interface:bundleLibCompileToJarRelease
+> Task :expo-asset:compileReleaseKotlin
+> Task :expo-constants:compileReleaseKotlin
+> Task :expo-dev-menu-interface:compileReleaseKotlin
+> Task :expo-asset:compileReleaseJavaWithJavac
+> Task :expo-asset:bundleLibCompileToJarRelease
+> Task :expo-constants:compileReleaseJavaWithJavac
+> Task :expo-constants:bundleLibCompileToJarRelease
+> Task :expo-font:compileReleaseKotlin
+> Task :expo-dev-menu-interface:compileReleaseJavaWithJavac
+> Task :expo-dev-menu-interface:bundleLibCompileToJarRelease
+> Task :expo-image-loader:compileReleaseKotlin
+> Task :expo-font:compileReleaseJavaWithJavac
+> Task :expo-font:bundleLibCompileToJarRelease
+> Task :expo-image-loader:compileReleaseJavaWithJavac
+> Task :expo-image-loader:bundleLibCompileToJarRelease
+> Task :expo-linking:compileReleaseKotlin
+> Task :expo-linking:compileReleaseJavaWithJavac
+> Task :expo-linking:bundleLibCompileToJarRelease
+> Task :expo-linear-gradient:compileReleaseKotlin
+
+> Task :expo-manifests:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-manifests/android/src/main/java/expo/modules/manifests/core/EmbeddedManifest.kt:19:16 This declaration overrides deprecated member but not marked as deprecated itself. Please add @Deprecated annotation or suppress. See https://youtrack.jetbrains.com/issue/KT-47902 for details
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-manifests/android/src/main/java/expo/modules/manifests/core/EmbeddedManifest.kt:19:86 'getLegacyID(): String' is deprecated. Prefer scopeKey or projectId depending on use case
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-manifests/android/src/main/java/expo/modules/manifests/core/ExpoUpdatesManifest.kt:16:16 This declaration overrides deprecated member but not marked as deprecated itself. Please add @Deprecated annotation or suppress. See https://youtrack.jetbrains.com/issue/KT-47902 for details
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-manifests/android/src/main/java/expo/modules/manifests/core/Manifest.kt:15:12 'getRawJson(): JSONObject' is deprecated. Prefer to use specific field getters
+
+> Task :expo-linear-gradient:compileReleaseJavaWithJavac
+> Task :expo-keep-awake:compileReleaseKotlin
+> Task :expo-manifests:compileReleaseJavaWithJavac
+> Task :expo-manifests:bundleLibCompileToJarRelease
+> Task :app:mergeExtDexRelease
+> Task :expo-keep-awake:compileReleaseJavaWithJavac
+> Task :expo-linear-gradient:bundleLibCompileToJarRelease
+> Task :expo-keep-awake:bundleLibCompileToJarRelease
+> Task :unimodules-app-loader:compileReleaseKotlin NO-SOURCE
+
+> Task :expo-av:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-av/android/src/main/java/expo/modules/av/ViewUtils.kt:10:26 'Promise' is deprecated. AsyncFunction will crash when called. Use expo.modules.kotlin.Promise instead
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-av/android/src/main/java/expo/modules/av/ViewUtils.kt:19:129 'Promise' is deprecated. AsyncFunction will crash when called. Use expo.modules.kotlin.Promise instead
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-av/android/src/main/java/expo/modules/av/ViewUtils.kt:21:78 'resolveView(Int): View?' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-av/android/src/main/java/expo/modules/av/ViewUtils.kt:39:111 'Promise' is deprecated. AsyncFunction will crash when called. Use expo.modules.kotlin.Promise instead
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-av/android/src/main/java/expo/modules/av/ViewUtils.kt:52:78 'resolveView(Int): View?' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-av/android/src/main/java/expo/modules/av/player/datasource/CustomHeadersOkHttpDataSourceFactory.kt:32:12 'constructor OkHttpDataSource(Call.Factory, String?, CacheControl?, HttpDataSource.RequestProperties?)' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-av/android/src/main/java/expo/modules/av/progress/AndroidLooperTimeMachine.kt:8:5 'constructor Handler()' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-av/android/src/main/java/expo/modules/av/video/VideoViewModule.kt:64:17 'tryRunWithVideoView(ModuleRegistry, Int, ViewUtils.VideoViewCallback, Promise): Unit' is deprecated. Use `dispatchCommands` in favor of finding view with imperative calls
+
+> Task :unimodules-app-loader:compileReleaseJavaWithJavac
+
+> Task :expo-localization:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-localization/android/src/main/java/expo/modules/localization/LocalizationModule.kt:240:16 'get(String!): Any?' is deprecated. Deprecated in Java
+
+> Task :expo-splash-screen:compileReleaseKotlin
+
+> Task :expo-speech:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-speech/android/src/main/java/expo/modules/speech/SpeechModule.kt:153:26 This declaration overrides deprecated member but not marked as deprecated itself. Please add @Deprecated annotation or suppress. See https://youtrack.jetbrains.com/issue/KT-47902 for details
+
+> Task :expo-av:compileReleaseJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :expo-av:bundleLibCompileToJarRelease
+> Task :expo-localization:compileReleaseJavaWithJavac
+> Task :expo-localization:bundleLibCompileToJarRelease
+> Task :expo-speech:compileReleaseJavaWithJavac
+> Task :expo-speech:bundleLibCompileToJarRelease
+> Task :expo-splash-screen:compileReleaseJavaWithJavac
+> Task :expo-splash-screen:bundleLibCompileToJarRelease
+> Task :unimodules-app-loader:bundleLibCompileToJarRelease
+> Task :expo-asset:bundleLibRuntimeToJarRelease
+> Task :expo-asset:processReleaseJavaRes
+> Task :expo-asset:createFullJarRelease
+> Task :expo-modules-core:createFullJarRelease
+> Task :expo-asset:generateReleaseLintModel
+> Task :expo-av:processReleaseJavaRes
+> Task :expo-av:bundleLibRuntimeToJarRelease
+> Task :expo-av:generateReleaseLintModel
+> Task :expo-av:createFullJarRelease
+> Task :expo-constants:bundleLibRuntimeToJarRelease
+> Task :expo-constants:processReleaseJavaRes
+> Task :expo-constants:createFullJarRelease
+> Task :expo-constants:generateReleaseLintModel
+> Task :expo-dev-client:processReleaseJavaRes NO-SOURCE
+> Task :expo-dev-client:bundleLibRuntimeToJarRelease
+> Task :expo-dev-client:createFullJarRelease
+> Task :expo-dev-client:generateReleaseLintModel
+> Task :expo-dev-menu-interface:bundleLibRuntimeToJarRelease
+> Task :expo-dev-menu-interface:processReleaseJavaRes
+> Task :expo-dev-menu-interface:createFullJarRelease
+> Task :expo-dev-menu-interface:generateReleaseLintModel
+> Task :expo-json-utils:bundleLibRuntimeToJarRelease
+> Task :expo-json-utils:processReleaseJavaRes
+> Task :expo-json-utils:createFullJarRelease
+> Task :expo-json-utils:generateReleaseLintModel
+> Task :expo-manifests:bundleLibRuntimeToJarRelease
+> Task :expo-manifests:processReleaseJavaRes
+> Task :expo-manifests:createFullJarRelease
+> Task :expo-manifests:generateReleaseLintModel
+> Task :expo-updates-interface:bundleLibRuntimeToJarRelease
+> Task :expo-updates-interface:processReleaseJavaRes
+> Task :expo-updates-interface:createFullJarRelease
+> Task :expo-updates-interface:generateReleaseLintModel
+> Task :expo-font:bundleLibRuntimeToJarRelease
+> Task :expo-font:processReleaseJavaRes
+> Task :expo-font:createFullJarRelease
+> Task :expo-font:generateReleaseLintModel
+> Task :expo-image-loader:bundleLibRuntimeToJarRelease
+> Task :expo-image-loader:processReleaseJavaRes
+> Task :expo-image-loader:createFullJarRelease
+> Task :expo-image-loader:generateReleaseLintModel
+> Task :expo-keep-awake:bundleLibRuntimeToJarRelease
+> Task :expo-keep-awake:processReleaseJavaRes
+> Task :expo-keep-awake:createFullJarRelease
+> Task :expo-keep-awake:generateReleaseLintModel
+> Task :expo-linear-gradient:bundleLibRuntimeToJarRelease
+> Task :expo-linear-gradient:processReleaseJavaRes
+> Task :expo-linear-gradient:createFullJarRelease
+> Task :expo-linear-gradient:generateReleaseLintModel
+> Task :expo-linking:bundleLibRuntimeToJarRelease
+> Task :expo-linking:processReleaseJavaRes
+> Task :expo-task-manager:compileReleaseKotlin
+> Task :expo-linking:createFullJarRelease
+
+> Task :expo-image-picker:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-image-picker/android/src/main/java/expo/modules/imagepicker/ImagePickerConstants.kt:123:23 'TAG_ISO_SPEED_RATINGS: String' is deprecated. Deprecated in Java
+
+> Task :expo-task-manager:compileReleaseJavaWithJavac
+Note: /Users/avazov/uz-superapp/mobile-rn/node_modules/expo-task-manager/android/src/main/java/expo/modules/taskManager/TaskService.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :expo-web-browser:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-web-browser/android/src/main/java/expo/modules/webbrowser/WebBrowserModule.kt:112:15 'setToolbarColor(Int): CustomTabsIntent.Builder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-web-browser/android/src/main/java/expo/modules/webbrowser/WebBrowserModule.kt:117:15 'setSecondaryToolbarColor(Int): CustomTabsIntent.Builder' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-web-browser/android/src/main/java/expo/modules/webbrowser/WebBrowserModule.kt:123:15 'addDefaultShareMenuItem(): CustomTabsIntent.Builder' is deprecated. Deprecated in Java
+
+> Task :expo-image-picker:compileReleaseJavaWithJavac
+> Task :expo-task-manager:bundleLibCompileToJarRelease
+> Task :expo-image-picker:bundleLibCompileToJarRelease
+> Task :expo-web-browser:compileReleaseJavaWithJavac
+> Task :expo-web-browser:bundleLibCompileToJarRelease
+> Task :expo-image-picker:processReleaseJavaRes
+> Task :expo-image-picker:bundleLibRuntimeToJarRelease
+> Task :expo-image-picker:generateReleaseLintModel
+> Task :expo-image-picker:createFullJarRelease
+> Task :expo-linking:generateReleaseLintModel
+> Task :expo-localization:processReleaseJavaRes
+> Task :expo-localization:bundleLibRuntimeToJarRelease
+> Task :expo-localization:createFullJarRelease
+> Task :expo-localization:generateReleaseLintModel
+> Task :expo-speech:bundleLibRuntimeToJarRelease
+> Task :expo-speech:processReleaseJavaRes
+> Task :expo-speech:createFullJarRelease
+> Task :expo-speech:generateReleaseLintModel
+> Task :expo-splash-screen:bundleLibRuntimeToJarRelease
+> Task :expo-splash-screen:processReleaseJavaRes
+> Task :expo-splash-screen:createFullJarRelease
+> Task :expo-splash-screen:generateReleaseLintModel
+> Task :expo-task-manager:processReleaseJavaRes
+> Task :expo-task-manager:bundleLibRuntimeToJarRelease
+> Task :unimodules-app-loader:bundleLibRuntimeToJarRelease
+> Task :expo-task-manager:createFullJarRelease
+> Task :unimodules-app-loader:processReleaseJavaRes NO-SOURCE
+> Task :unimodules-app-loader:createFullJarRelease
+> Task :unimodules-app-loader:generateReleaseLintModel
+> Task :expo-file-system:compileReleaseKotlin
+> Task :expo-task-manager:generateReleaseLintModel
+
+> Task :expo-camera:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-camera/android/src/main/java/expo/modules/camera/ExpoCameraView.kt:605:73 'getter for defaultDisplay: Display!' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-camera/android/src/main/java/expo/modules/camera/tasks/ResolveTakenPicture.kt:146:32 Type mismatch: inferred type is String? but String was expected
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-camera/android/src/main/java/expo/modules/camera/utils/ExifTags.kt:71:32 'TAG_ISO_SPEED_RATINGS: String' is deprecated. Deprecated in Java
+
+> Task :expo-file-system:compileReleaseJavaWithJavac
+> Task :expo-camera:compileReleaseJavaWithJavac
+> Task :expo-camera:bundleLibCompileToJarRelease
+> Task :expo-camera:processReleaseJavaRes
+> Task :expo-file-system:bundleLibCompileToJarRelease
+> Task :expo-camera:bundleLibRuntimeToJarRelease
+
+> Task :expo-dev-menu:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/main/java/com/facebook/react/devsupport/DevMenuSettingsBase.kt:6:27 'PreferenceManager' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/main/java/com/facebook/react/devsupport/DevMenuSettingsBase.kt:18:51 'PreferenceManager' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/main/java/com/facebook/react/devsupport/DevMenuSettingsBase.kt:18:69 'getDefaultSharedPreferences(Context!): SharedPreferences!' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/main/java/com/facebook/react/devsupport/DevMenuSettingsBase.kt:56:16 This declaration overrides deprecated member but not marked as deprecated itself. Please add @Deprecated annotation or suppress. See https://youtrack.jetbrains.com/issue/KT-47902 for details
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/main/java/expo/modules/devmenu/fab/MovableFloatingActionButton.kt:173:17 'computeBounds(RectF, Boolean): Unit' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/main/java/expo/modules/devmenu/helpers/DevMenuOkHttpExtension.kt:58:19 'create(MediaType?, String): RequestBody' is deprecated. Moved to extension function. Put the 'content' argument first to fix Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/main/java/expo/modules/devmenu/modules/DevMenuModule.kt:33:44 Elvis operator (?:) always returns the left operand of non-nullable type ReadableMap
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/react-native-74/main/expo/modules/devmenu/react/DevMenuPackagerConnectionSettings.kt:16:9 Parameter 'host' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/release/java/expo/modules/devmenu/DevMenuManager.kt:40:42 Returning type parameter has been inferred to Nothing implicitly. Please specify type arguments explicitly to hide this warning. Nothing can produce an exception at runtime.
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/release/java/expo/modules/devmenu/DevMenuManager.kt:82:43 The corresponding parameter in the supertype 'DevMenuManagerInterface' is named 'shouldAutoLaunch'. This may cause problems when calling this function with named arguments.
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-menu/android/src/release/java/expo/modules/devmenu/DevMenuManager.kt:94:17 Parameter 'context' is never used
+
+> Task :expo-camera:generateReleaseLintModel
+
+> Task :expo-location:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-location/android/src/main/java/expo/modules/location/LocationModule.kt:664:63 'getFromLocationName(String, Int): (Mutable)List<Address!>?' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-location/android/src/main/java/expo/modules/location/LocationModule.kt:696:63 'getFromLocation(Double, Double, Int): (Mutable)List<Address!>?' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-location/android/src/main/java/expo/modules/location/records/LocationResults.kt:84:23 'getter for isFromMockProvider: Boolean' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-location/android/src/main/java/expo/modules/location/records/LocationResults.kt:91:7 Unchecked cast: {BaseBundle & Parcelable & kotlin.Cloneable} to BundleType
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-location/android/src/main/java/expo/modules/location/records/LocationResults.kt:133:7 Unchecked cast: {BaseBundle & Parcelable & kotlin.Cloneable} to BundleType
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-location/android/src/main/java/expo/modules/location/services/LocationTaskService.kt:50:5 'stopForeground(Boolean): Unit' is deprecated. Deprecated in Java
+
+> Task :expo-dev-menu:compileReleaseJavaWithJavac
+> Task :expo-dev-menu:bundleLibCompileToJarRelease
+> Task :expo-location:compileReleaseJavaWithJavac
+> Task :expo-camera:createFullJarRelease
+> Task :expo-location:bundleLibCompileToJarRelease
+> Task :expo-dev-menu:bundleLibRuntimeToJarRelease
+> Task :expo-dev-menu:processReleaseJavaRes
+> Task :expo-dev-menu:createFullJarRelease
+> Task :expo-dev-menu:generateReleaseLintModel
+> Task :expo-file-system:processReleaseJavaRes
+> Task :expo-file-system:bundleLibRuntimeToJarRelease
+> Task :expo-file-system:generateReleaseLintModel
+> Task :expo-file-system:createFullJarRelease
+> Task :expo-location:processReleaseJavaRes
+> Task :expo-location:bundleLibRuntimeToJarRelease
+> Task :expo-location:generateReleaseLintModel
+> Task :expo-location:createFullJarRelease
+> Task :expo-web-browser:bundleLibRuntimeToJarRelease
+> Task :expo-web-browser:processReleaseJavaRes
+> Task :expo-web-browser:createFullJarRelease
+> Task :expo-web-browser:generateReleaseLintModel
+> Task :expo-asset:extractReleaseAnnotations
+> Task :expo-asset:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-asset:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-asset:mergeReleaseJavaResource
+> Task :expo-av:extractReleaseAnnotations
+> Task :expo-asset:syncReleaseLibJars
+> Task :expo-asset:bundleReleaseLocalLintAar
+> Task :expo-av:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-av:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-av:mergeReleaseJavaResource
+> Task :expo-camera:extractReleaseAnnotations
+> Task :expo-av:syncReleaseLibJars
+> Task :expo-av:bundleReleaseLocalLintAar
+> Task :expo-camera:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-camera:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-camera:mergeReleaseJavaResource
+> Task :expo-constants:extractReleaseAnnotations
+> Task :expo-camera:syncReleaseLibJars
+> Task :expo-camera:bundleReleaseLocalLintAar
+> Task :expo-constants:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-constants:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-constants:mergeReleaseJavaResource
+> Task :expo-dev-client:extractReleaseAnnotations
+> Task :expo-constants:syncReleaseLibJars
+> Task :expo-constants:bundleReleaseLocalLintAar
+> Task :expo-dev-client:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-dev-client:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-dev-client:mergeReleaseJavaResource
+> Task :expo-dev-menu:extractReleaseAnnotations
+> Task :expo-dev-client:syncReleaseLibJars
+> Task :expo-dev-client:bundleReleaseLocalLintAar
+> Task :expo-dev-menu:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-dev-menu:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-dev-menu:mergeReleaseJavaResource
+> Task :expo-file-system:extractReleaseAnnotations
+> Task :expo-dev-menu:syncReleaseLibJars
+> Task :expo-dev-menu:bundleReleaseLocalLintAar
+> Task :expo-file-system:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-file-system:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-file-system:mergeReleaseJavaResource
+> Task :expo-font:extractReleaseAnnotations
+> Task :expo-file-system:syncReleaseLibJars
+> Task :expo-file-system:bundleReleaseLocalLintAar
+> Task :expo-font:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-font:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-font:mergeReleaseJavaResource
+> Task :expo-image-loader:extractReleaseAnnotations
+> Task :expo-font:syncReleaseLibJars
+> Task :expo-font:bundleReleaseLocalLintAar
+> Task :expo-image-loader:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseJavaResource
+> Task :expo-image-picker:extractReleaseAnnotations
+> Task :expo-image-loader:syncReleaseLibJars
+> Task :expo-image-loader:bundleReleaseLocalLintAar
+> Task :expo-image-picker:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseJavaResource
+> Task :expo-manifests:extractReleaseAnnotations
+> Task :expo-image-picker:syncReleaseLibJars
+> Task :expo-image-picker:bundleReleaseLocalLintAar
+> Task :expo-manifests:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-manifests:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-json-utils:extractReleaseAnnotations
+> Task :expo-manifests:mergeReleaseJavaResource
+> Task :expo-json-utils:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-manifests:syncReleaseLibJars
+> Task :expo-manifests:bundleReleaseLocalLintAar
+> Task :expo-json-utils:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-json-utils:mergeReleaseJavaResource
+> Task :expo-keep-awake:extractReleaseAnnotations
+> Task :expo-json-utils:syncReleaseLibJars
+> Task :expo-json-utils:bundleReleaseLocalLintAar
+> Task :expo-keep-awake:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-keep-awake:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-keep-awake:mergeReleaseJavaResource
+> Task :expo-linear-gradient:extractReleaseAnnotations
+> Task :expo-keep-awake:syncReleaseLibJars
+> Task :expo-keep-awake:bundleReleaseLocalLintAar
+> Task :expo-linear-gradient:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-linear-gradient:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-linear-gradient:mergeReleaseJavaResource
+> Task :expo-linking:extractReleaseAnnotations
+> Task :expo-linear-gradient:syncReleaseLibJars
+> Task :expo-linear-gradient:bundleReleaseLocalLintAar
+> Task :expo-linking:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-linking:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-localization:extractReleaseAnnotations
+> Task :expo-linking:mergeReleaseJavaResource
+> Task :expo-localization:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-linking:syncReleaseLibJars
+> Task :expo-linking:bundleReleaseLocalLintAar
+> Task :expo-localization:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-localization:mergeReleaseJavaResource
+> Task :expo-location:extractReleaseAnnotations
+> Task :expo-localization:syncReleaseLibJars
+> Task :expo-localization:bundleReleaseLocalLintAar
+> Task :expo-location:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-location:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-location:mergeReleaseJavaResource
+> Task :expo-speech:extractReleaseAnnotations
+> Task :expo-location:syncReleaseLibJars
+> Task :expo-location:bundleReleaseLocalLintAar
+> Task :expo-speech:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-speech:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-speech:mergeReleaseJavaResource
+> Task :expo-splash-screen:extractReleaseAnnotations
+> Task :expo-speech:syncReleaseLibJars
+> Task :expo-speech:bundleReleaseLocalLintAar
+> Task :expo-splash-screen:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-splash-screen:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-splash-screen:mergeReleaseJavaResource
+> Task :expo-task-manager:extractReleaseAnnotations
+> Task :expo-splash-screen:syncReleaseLibJars
+> Task :expo-splash-screen:bundleReleaseLocalLintAar
+> Task :expo-task-manager:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-task-manager:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-web-browser:extractReleaseAnnotations
+> Task :expo-task-manager:mergeReleaseJavaResource
+> Task :expo-web-browser:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-task-manager:syncReleaseLibJars
+> Task :expo-task-manager:bundleReleaseLocalLintAar
+> Task :expo-web-browser:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :unimodules-app-loader:extractReleaseAnnotations
+> Task :expo-web-browser:mergeReleaseJavaResource
+> Task :unimodules-app-loader:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-web-browser:syncReleaseLibJars
+> Task :expo-web-browser:bundleReleaseLocalLintAar
+> Task :unimodules-app-loader:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :unimodules-app-loader:mergeReleaseJavaResource
+> Task :expo-dev-menu-interface:extractReleaseAnnotations
+> Task :unimodules-app-loader:syncReleaseLibJars
+> Task :unimodules-app-loader:bundleReleaseLocalLintAar
+> Task :expo-dev-menu-interface:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-dev-menu-interface:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-dev-menu-interface:mergeReleaseJavaResource
+> Task :expo-updates-interface:extractReleaseAnnotations
+> Task :expo-dev-menu-interface:syncReleaseLibJars
+> Task :expo-dev-menu-interface:bundleReleaseLocalLintAar
+> Task :expo-updates-interface:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-updates-interface:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-updates-interface:mergeReleaseJavaResource
+> Task :expo-modules-core:extractReleaseAnnotations
+> Task :expo-updates-interface:syncReleaseLibJars
+> Task :expo-updates-interface:bundleReleaseLocalLintAar
+> Task :expo-modules-core:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-modules-core:mergeReleaseConsumerProguardFiles
+cache executionHistory.bin (/Users/avazov/uz-superapp/mobile-rn/android/.gradle/8.10.2/executionHistory/executionHistory.bin) is corrupt. Discarding.
+> Task :expo-modules-core:mergeReleaseJavaResource
+
+> Task :expo-dev-launcher:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/helpers/DevLauncherUpdatesHelper.kt:16:3 Parameter 'context' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/DevLauncherRecentlyOpenedAppsRegistry.kt:32:47 Unchecked cast: MutableMap<Any?, Any?> to MutableMap<String, Any>
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/DevLauncherRecentlyOpenedAppsRegistry.kt:50:27 'getRawJson(): JSONObject' is deprecated. Prefer to use specific field getters
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:37:23 'constructor TaskDescription(String!, Bitmap!, Int)' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:63:61 'FLAG_TRANSLUCENT_STATUS: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:90:33 Variable 'appliedStatusBarStyle' initializer is redundant
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:92:45 'getter for systemUiVisibility: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:95:68 'SYSTEM_UI_FLAG_LIGHT_STATUS_BAR: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:99:67 'SYSTEM_UI_FLAG_LIGHT_STATUS_BAR: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:103:67 'SYSTEM_UI_FLAG_LIGHT_STATUS_BAR: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:107:15 'setter for systemUiVisibility: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:115:59 'FLAG_FULLSCREEN: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:116:61 'FLAG_FORCE_NOT_FULLSCREEN: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:118:59 'FLAG_FORCE_NOT_FULLSCREEN: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:119:61 'FLAG_FULLSCREEN: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:131:23 'replaceSystemWindowInsets(Int, Int, Int, Int): WindowInsets' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:132:25 'getter for systemWindowInsetLeft: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:134:25 'getter for systemWindowInsetRight: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:135:25 'getter for systemWindowInsetBottom: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:150:15 'setter for statusBarColor: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:160:63 'FLAG_TRANSLUCENT_NAVIGATION: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:161:25 'setter for navigationBarColor: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:171:63 'FLAG_TRANSLUCENT_NAVIGATION: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:175:33 'getter for systemUiVisibility: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:176:33 'SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:177:21 'setter for systemUiVisibility: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:190:29 'getter for systemUiVisibility: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:191:62 'SYSTEM_UI_FLAG_HIDE_NAVIGATION: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:191:101 'SYSTEM_UI_FLAG_FULLSCREEN: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:192:63 'SYSTEM_UI_FLAG_HIDE_NAVIGATION: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:192:102 'SYSTEM_UI_FLAG_FULLSCREEN: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:192:136 'SYSTEM_UI_FLAG_IMMERSIVE: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:193:70 'SYSTEM_UI_FLAG_HIDE_NAVIGATION: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:193:109 'SYSTEM_UI_FLAG_FULLSCREEN: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:193:143 'SYSTEM_UI_FLAG_IMMERSIVE_STICKY: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/launcher/configurators/DevLauncherExpoActivityConfigurator.kt:196:17 'setter for systemUiVisibility: Int' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/main/java/expo/modules/devlauncher/react/DevLauncherPackagerConnectionSettings.kt:12:9 Parameter 'value' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherController.kt:102:29 Parameter 'context' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherController.kt:102:47 Parameter 'reactHost' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherController.kt:108:67 Parameter 'launcherClass' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherController.kt:113:56 Parameter 'additionalPackages' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherController.kt:113:93 Parameter 'launcherClass' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherController.kt:118:35 Parameter 'reactActivity' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherController.kt:123:27 Parameter 'reactActivity' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherController.kt:123:57 Parameter 'intent' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherPackageDelegate.kt:12:27 Parameter 'reactContext' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherPackageDelegate.kt:13:43 Parameter 'context' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherPackageDelegate.kt:14:45 Parameter 'activityContext' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherPackageDelegate.kt:15:35 Parameter 'activityContext' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/DevLauncherPackageDelegate.kt:16:37 Parameter 'context' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/launcher/DevLauncherReactHost.kt:8:14 Parameter 'application' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/launcher/DevLauncherReactHost.kt:8:40 Parameter 'launcherIp' is never used
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/release/java/expo/modules/devlauncher/launcher/DevLauncherReactNativeHost.kt:8:60 Parameter 'launcherIp' is never used
+
+> Task :expo-dev-launcher:compileReleaseJavaWithJavac
+Note: /Users/avazov/uz-superapp/mobile-rn/node_modules/expo-dev-launcher/android/src/rn74/main/com/facebook/react/devsupport/NonFinalBridgeDevSupportManager.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :expo-dev-launcher:bundleLibCompileToJarRelease
+> Task :expo-dev-launcher:bundleLibRuntimeToJarRelease
+> Task :expo-dev-launcher:processReleaseJavaRes
+> Task :expo-dev-launcher:createFullJarRelease
+> Task :expo-dev-launcher:generateReleaseLintModel
+> Task :expo-dev-launcher:extractReleaseAnnotations
+> Task :expo-dev-launcher:mergeReleaseGeneratedProguardFiles
+> Task :expo-dev-launcher:mergeReleaseConsumerProguardFiles
+> Task :expo-dev-launcher:mergeReleaseJavaResource
+> Task :expo-modules-core:syncReleaseLibJars
+> Task :expo-dev-launcher:syncReleaseLibJars
+> Task :expo-dev-launcher:bundleReleaseLocalLintAar
+> Task :expo-modules-core:bundleReleaseLocalLintAar
+> Task :expo-asset:generateReleaseLintVitalModel
+> Task :expo-av:generateReleaseLintVitalModel
+> Task :expo-camera:generateReleaseLintVitalModel
+> Task :expo-constants:generateReleaseLintVitalModel
+> Task :expo-dev-client:generateReleaseLintVitalModel
+> Task :expo-dev-launcher:generateReleaseLintVitalModel
+> Task :expo-dev-menu:generateReleaseLintVitalModel
+> Task :expo-dev-menu-interface:generateReleaseLintVitalModel
+> Task :expo-file-system:generateReleaseLintVitalModel
+> Task :expo-font:generateReleaseLintVitalModel
+> Task :expo-image-loader:generateReleaseLintVitalModel
+> Task :expo-image-picker:generateReleaseLintVitalModel
+> Task :expo-json-utils:generateReleaseLintVitalModel
+> Task :expo-keep-awake:generateReleaseLintVitalModel
+> Task :expo-linear-gradient:generateReleaseLintVitalModel
+> Task :expo-linking:generateReleaseLintVitalModel
+> Task :expo-localization:generateReleaseLintVitalModel
+> Task :expo-location:generateReleaseLintVitalModel
+> Task :expo-manifests:generateReleaseLintVitalModel
+> Task :expo-modules-core:generateReleaseLintVitalModel
+> Task :expo-speech:generateReleaseLintVitalModel
+> Task :expo-splash-screen:generateReleaseLintVitalModel
+> Task :expo-task-manager:generateReleaseLintVitalModel
+> Task :expo-updates-interface:generateReleaseLintVitalModel
+> Task :expo-web-browser:generateReleaseLintVitalModel
+> Task :unimodules-app-loader:generateReleaseLintVitalModel
+> Task :expo-asset:bundleLibRuntimeToDirRelease
+> Task :expo-constants:bundleLibRuntimeToDirRelease
+> Task :expo-camera:bundleLibRuntimeToDirRelease
+> Task :expo-av:bundleLibRuntimeToDirRelease
+> Task :expo-dev-client:bundleLibRuntimeToDirRelease
+> Task :expo-dev-launcher:bundleLibRuntimeToDirRelease
+> Task :expo-dev-menu:bundleLibRuntimeToDirRelease
+> Task :app:mergeReleaseNativeDebugMetadata
+> Task :expo-file-system:bundleLibRuntimeToDirRelease
+> Task :expo-font:bundleLibRuntimeToDirRelease
+> Task :expo-image-loader:bundleLibRuntimeToDirRelease
+> Task :expo-image-picker:bundleLibRuntimeToDirRelease
+
+> Task :expo:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo/android/src/main/java/expo/modules/ReactActivityDelegateWrapper.kt:163:34 'constructor ReactDelegate(Activity!, ReactNativeHost!, String?, Bundle?)' is deprecated. Deprecated in Java
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo/android/src/main/java/expo/modules/fetch/NativeResponse.kt:40:16 This declaration overrides deprecated member but not marked as deprecated itself. Please add @Deprecated annotation or suppress. See https://youtrack.jetbrains.com/issue/KT-47902 for details
+w: file:///Users/avazov/uz-superapp/mobile-rn/node_modules/expo/android/src/main/java/expo/modules/fetch/NativeResponse.kt:42:11 'deallocate(): Unit' is deprecated. Use sharedObjectDidRelease() instead.
+
+> Task :expo:compileReleaseJavaWithJavac
+> Task :expo:bundleLibCompileToJarRelease
+> Task :expo:processReleaseJavaRes
+> Task :expo:bundleLibRuntimeToJarRelease
+> Task :expo:generateReleaseLintModel
+> Task :expo-asset:lintVitalAnalyzeRelease
+> Task :expo:createFullJarRelease
+> Task :expo:extractReleaseAnnotations
+> Task :expo:mergeReleaseGeneratedProguardFiles
+> Task :expo:mergeReleaseConsumerProguardFiles
+> Task :expo:mergeReleaseJavaResource
+> Task :expo:syncReleaseLibJars
+> Task :expo:bundleReleaseLocalLintAar
+> Task :expo:generateReleaseLintVitalModel
+> Task :expo:bundleLibRuntimeToDirRelease
+> Task :expo-manifests:bundleLibRuntimeToDirRelease
+> Task :expo-json-utils:bundleLibRuntimeToDirRelease
+> Task :expo-keep-awake:bundleLibRuntimeToDirRelease
+> Task :expo-linear-gradient:bundleLibRuntimeToDirRelease
+> Task :expo-linking:bundleLibRuntimeToDirRelease
+> Task :expo-localization:bundleLibRuntimeToDirRelease
+> Task :expo-speech:bundleLibRuntimeToDirRelease
+> Task :expo-location:bundleLibRuntimeToDirRelease
+> Task :expo-splash-screen:bundleLibRuntimeToDirRelease
+
+> Task :app:compileReleaseKotlin
+w: file:///Users/avazov/uz-superapp/mobile-rn/android/app/src/main/java/com/uz/superapp/mobile/YandexNavigationView.kt:11:44 'RCTEventEmitter' is deprecated. Deprecated in Java
+
+> Task :app:compileReleaseJavaWithJavac
+> Task :app:generateReleaseLintVitalReportModel
+> Task :unimodules-app-loader:bundleLibRuntimeToDirRelease
+> Task :expo-dev-menu-interface:bundleLibRuntimeToDirRelease
+> Task :expo-updates-interface:bundleLibRuntimeToDirRelease
+> Task :expo-web-browser:bundleLibRuntimeToDirRelease
+> Task :expo-task-manager:bundleLibRuntimeToDirRelease
+> Task :expo-modules-core:bundleLibRuntimeToDirRelease
+> Task :app:dexBuilderRelease
+> Task :app:processReleaseJavaRes
+> Task :app:mergeReleaseGlobalSynthetics
+> Task :expo:bundleReleaseAar
+> Task :expo:assembleRelease
+> Task :expo-asset:bundleReleaseAar
+> Task :expo-asset:assembleRelease
+> Task :expo-av:bundleReleaseAar
+> Task :expo-av:lintVitalAnalyzeRelease
+> Task :expo-camera:bundleReleaseAar
+> Task :expo-camera:mapReleaseSourceSetPaths
+> Task :expo-av:verifyReleaseResources
+> Task :expo-camera:mergeReleaseResources
+> Task :expo-av:assembleRelease
+> Task :expo-constants:bundleReleaseAar
+> Task :expo-constants:mapReleaseSourceSetPaths
+> Task :app:mergeReleaseJavaResource
+> Task :expo:lintVitalAnalyzeRelease
+> Task :expo-camera:verifyReleaseResources
+> Task :expo-constants:mergeReleaseResources
+> Task :expo-camera:assembleRelease
+> Task :expo-dev-client:bundleReleaseAar
+> Task :expo-dev-client:mapReleaseSourceSetPaths
+> Task :expo-constants:lintVitalAnalyzeRelease
+> Task :expo-constants:verifyReleaseResources
+> Task :expo-dev-client:mergeReleaseResources
+> Task :expo-constants:assembleRelease
+> Task :expo-dev-launcher:bundleReleaseAar
+> Task :expo-dev-launcher:mapReleaseSourceSetPaths
+> Task :expo-dev-client:lintVitalAnalyzeRelease
+> Task :expo-dev-client:verifyReleaseResources
+> Task :expo-dev-launcher:mergeReleaseResources
+> Task :expo-dev-client:assembleRelease
+> Task :expo-dev-menu:bundleReleaseAar
+> Task :expo-dev-menu:mapReleaseSourceSetPaths
+> Task :expo-dev-launcher:verifyReleaseResources
+> Task :expo-dev-menu:mergeReleaseResources
+> Task :expo-dev-launcher:assembleRelease
+> Task :expo-dev-menu-interface:bundleReleaseAar
+> Task :expo-dev-menu-interface:mapReleaseSourceSetPaths
+> Task :expo-camera:lintVitalAnalyzeRelease
+> Task :expo-dev-menu:verifyReleaseResources
+> Task :expo-dev-menu-interface:mergeReleaseResources
+> Task :expo-dev-menu:assembleRelease
+> Task :expo-file-system:bundleReleaseAar
+> Task :expo-file-system:mapReleaseSourceSetPaths
+> Task :expo-dev-menu-interface:verifyReleaseResources
+> Task :expo-file-system:mergeReleaseResources
+> Task :expo-dev-menu-interface:assembleRelease
+> Task :expo-font:bundleReleaseAar
+> Task :expo-font:mapReleaseSourceSetPaths
+> Task :expo-file-system:verifyReleaseResources
+> Task :expo-font:mergeReleaseResources
+> Task :expo-file-system:assembleRelease
+> Task :expo-image-loader:bundleReleaseAar
+> Task :expo-image-loader:mapReleaseSourceSetPaths
+> Task :expo-font:verifyReleaseResources
+> Task :expo-image-loader:mergeReleaseResources
+> Task :expo-font:assembleRelease
+> Task :expo-image-picker:bundleReleaseAar
+> Task :expo-image-picker:mapReleaseSourceSetPaths
+> Task :app:mergeDexRelease
+> Task :expo-image-loader:verifyReleaseResources
+> Task :expo-image-picker:mergeReleaseResources
+> Task :expo-image-loader:assembleRelease
+> Task :expo-json-utils:bundleReleaseAar
+> Task :expo-json-utils:mapReleaseSourceSetPaths
+> Task :expo-image-picker:verifyReleaseResources
+> Task :app:compileReleaseArtProfile
+> Task :expo-json-utils:mergeReleaseResources
+> Task :expo-dev-launcher:lintVitalAnalyzeRelease
+> Task :expo-image-picker:assembleRelease
+> Task :expo-keep-awake:bundleReleaseAar
+> Task :expo-keep-awake:mapReleaseSourceSetPaths
+> Task :expo-json-utils:verifyReleaseResources
+> Task :expo-keep-awake:mergeReleaseResources
+> Task :expo-json-utils:assembleRelease
+> Task :expo-linear-gradient:bundleReleaseAar
+> Task :expo-linear-gradient:mapReleaseSourceSetPaths
+> Task :expo-keep-awake:verifyReleaseResources
+> Task :expo-linear-gradient:mergeReleaseResources
+> Task :expo-keep-awake:assembleRelease
+> Task :expo-linking:bundleReleaseAar
+> Task :expo-linking:mapReleaseSourceSetPaths
+> Task :expo-linear-gradient:verifyReleaseResources
+> Task :expo-linking:mergeReleaseResources
+> Task :expo-linear-gradient:assembleRelease
+> Task :expo-localization:bundleReleaseAar
+> Task :expo-localization:mapReleaseSourceSetPaths
+> Task :expo-dev-menu-interface:lintVitalAnalyzeRelease
+> Task :expo-linking:verifyReleaseResources
+> Task :expo-localization:mergeReleaseResources
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :expo-linking:assembleRelease
+> Task :expo-modules-core:lintVitalAnalyzeRelease
+> Task :expo-location:bundleReleaseAar
+> Task :expo-location:mapReleaseSourceSetPaths
+> Task :expo-font:lintVitalAnalyzeRelease
+> Task :expo-localization:verifyReleaseResources
+> Task :expo-location:mergeReleaseResources
+> Task :expo-localization:assembleRelease
+> Task :expo-manifests:bundleReleaseAar
+> Task :expo-manifests:mapReleaseSourceSetPaths
+> Task :expo-location:verifyReleaseResources
+> Task :expo-manifests:mergeReleaseResources
+> Task :expo-location:assembleRelease
+> Task :expo-modules-core:bundleReleaseAar
+> Task :expo-modules-core:mapReleaseSourceSetPaths
+> Task :expo-dev-menu:lintVitalAnalyzeRelease
+> Task :expo-manifests:verifyReleaseResources
+> Task :expo-modules-core:mergeReleaseResources
+> Task :expo-manifests:assembleRelease
+> Task :expo-speech:bundleReleaseAar
+> Task :expo-speech:mapReleaseSourceSetPaths
+> Task :expo-image-loader:lintVitalAnalyzeRelease
+> Task :expo-modules-core:verifyReleaseResources
+> Task :expo-speech:mergeReleaseResources
+> Task :expo-modules-core:assembleRelease
+> Task :expo-splash-screen:bundleReleaseAar
+> Task :expo-splash-screen:mapReleaseSourceSetPaths
+> Task :expo-speech:verifyReleaseResources
+> Task :expo-splash-screen:mergeReleaseResources
+> Task :expo-speech:assembleRelease
+> Task :expo-task-manager:bundleReleaseAar
+> Task :expo-task-manager:mapReleaseSourceSetPaths
+> Task :expo-file-system:lintVitalAnalyzeRelease
+> Task :expo-splash-screen:verifyReleaseResources
+> Task :expo-task-manager:mergeReleaseResources
+> Task :expo-splash-screen:assembleRelease
+> Task :expo-updates-interface:bundleReleaseAar
+> Task :expo-updates-interface:mapReleaseSourceSetPaths
+> Task :expo-keep-awake:lintVitalAnalyzeRelease
+> Task :expo-task-manager:verifyReleaseResources
+> Task :expo-updates-interface:mergeReleaseResources
+> Task :expo-task-manager:assembleRelease
+> Task :expo-web-browser:bundleReleaseAar
+> Task :expo-web-browser:mapReleaseSourceSetPaths
+> Task :expo-linear-gradient:lintVitalAnalyzeRelease
+> Task :expo-updates-interface:verifyReleaseResources
+> Task :expo-web-browser:mergeReleaseResources
+> Task :expo-updates-interface:assembleRelease
+> Task :react-native-async-storage_async-storage:bundleReleaseAar
+> Task :react-native-async-storage_async-storage:mapReleaseSourceSetPaths
+> Task :expo-json-utils:lintVitalAnalyzeRelease
+> Task :expo-linking:lintVitalAnalyzeRelease
+> Task :expo-web-browser:verifyReleaseResources
+> Task :react-native-async-storage_async-storage:mergeReleaseResources
+> Task :expo-web-browser:assembleRelease
+> Task :react-native-maps:bundleReleaseAar
+> Task :react-native-maps:mapReleaseSourceSetPaths
+> Task :react-native-async-storage_async-storage:verifyReleaseResources
+> Task :react-native-maps:mergeReleaseResources
+> Task :react-native-async-storage_async-storage:assembleRelease
+> Task :react-native-maps:verifyReleaseResources
+> Task :expo-image-picker:lintVitalAnalyzeRelease
+> Task :react-native-reanimated:bundleReleaseAar
+> Task :react-native-maps:assembleRelease
+> Task :react-native-reanimated:mapReleaseSourceSetPaths
+> Task :react-native-reanimated:mergeReleaseResources
+> Task :react-native-safe-area-context:bundleReleaseAar
+> Task :react-native-safe-area-context:mapReleaseSourceSetPaths
+> Task :react-native-reanimated:verifyReleaseResources
+> Task :react-native-safe-area-context:mergeReleaseResources
+> Task :react-native-reanimated:assembleRelease
+> Task :react-native-screens:bundleReleaseAar
+> Task :react-native-screens:mapReleaseSourceSetPaths
+> Task :react-native-safe-area-context:verifyReleaseResources
+> Task :react-native-screens:mergeReleaseResources
+> Task :react-native-safe-area-context:assembleRelease
+> Task :unimodules-app-loader:bundleReleaseAar
+> Task :unimodules-app-loader:mapReleaseSourceSetPaths
+> Task :expo-localization:lintVitalAnalyzeRelease
+> Task :unimodules-app-loader:mergeReleaseResources
+> Task :expo-location:lintVitalAnalyzeRelease
+> Task :react-native-screens:verifyReleaseResources
+> Task :react-native-screens:assembleRelease
+> Task :expo-speech:lintVitalAnalyzeRelease
+> Task :unimodules-app-loader:verifyReleaseResources
+> Task :unimodules-app-loader:assembleRelease
+> Task :expo-manifests:lintVitalAnalyzeRelease
+> Task :expo-updates-interface:lintVitalAnalyzeRelease
+> Task :expo-task-manager:lintVitalAnalyzeRelease
+> Task :expo-splash-screen:lintVitalAnalyzeRelease
+> Task :expo-web-browser:lintVitalAnalyzeRelease
+> Task :unimodules-app-loader:lintVitalAnalyzeRelease
+> Task :react-native-screens:lintVitalAnalyzeRelease
+> Task :react-native-safe-area-context:lintVitalAnalyzeRelease
+> Task :app:lintVitalAnalyzeRelease
+> Task :app:lintVitalReportRelease
+> Task :app:lintVitalRelease
+> Task :app:assembleRelease
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.10.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 47s
+1458 actionable tasks: 1284 executed, 174 up-to-date

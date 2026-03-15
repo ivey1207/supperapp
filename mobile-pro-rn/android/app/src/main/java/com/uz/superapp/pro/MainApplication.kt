@@ -36,6 +36,7 @@ class MainApplication : Application(), ReactApplication {
       ReleaseLevel.STABLE
     }
     MapKitFactory.setApiKey("5b98719e-7779-4c0c-bfbc-bf60307687a4")
+    MapKitFactory.initialize(this)
     loadReactNative(this)
     ApplicationLifecycleDispatcher.onApplicationCreate(this)
   }

@@ -177,4 +177,7 @@ dependencies {
 
     // Yandex MapKit
     implementation("com.yandex.android:maps.mobile:4.10.1-navikit")
+
+    // Google Maps (Ensuring for react-native-maps)
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, ActivityIndicator, RefreshControl, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, ActivityIndicator, RefreshControl, Linking, Switch, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -192,12 +192,18 @@ export default function WasherDashboardScreen() {
                     <Ionicons name="arrow-back" size={24} color="#1E293B" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>{t('workInSuperApp')}</Text>
-                <TouchableOpacity onPress={handleToggleStatus} style={[styles.statusToggle, { backgroundColor: online ? '#DCFCE7' : '#F1F5F9' }]}>
-                    <View style={[styles.statusDot, { backgroundColor: online ? '#22C55E' : '#94A3B8' }]} />
-                    <Text style={[styles.statusText, { color: online ? '#166534' : '#64748B' }]}>
+                <View style={styles.statusToggleContainer}>
+                    <Text style={[styles.statusToggleText, { color: online ? '#166534' : '#64748B' }]}>
                         {online ? t('online') : t('offline')}
                     </Text>
-                </TouchableOpacity>
+                    <Switch
+                        trackColor={{ false: '#94A3B8', true: '#22C55E' }}
+                        thumbColor={'#fff'}
+                        ios_backgroundColor="#CBD5E1"
+                        onValueChange={handleToggleStatus}
+                        value={online}
+                    />
+                </View>
             </View>
 
             {activeOrder ? (
@@ -298,9 +304,8 @@ const styles = StyleSheet.create({
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 20, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
     headerTitle: { fontSize: 18, fontWeight: '800', color: '#1E293B' },
-    statusToggle: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, gap: 6 },
-    statusDot: { width: 8, height: 8, borderRadius: 4 },
-    statusText: { fontSize: 12, fontWeight: '800' },
+    statusToggleContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    statusToggleText: { fontSize: 13, fontWeight: '800', letterSpacing: 0.2 },
     listContent: { padding: 20 },
     listHeader: { marginBottom: 16 },
     sectionTitle: { fontSize: 13, fontWeight: '800', color: '#64748B', letterSpacing: 1 },

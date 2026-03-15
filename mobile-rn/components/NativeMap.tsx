@@ -6,10 +6,11 @@ import { getFileUrl } from '@/lib/api';
 import * as Location from 'expo-location';
 import * as Speech from 'expo-speech';
 
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { View, Image, TouchableOpacity, Text, useColorScheme } from 'react-native';
 import { RoutePoint } from '@/lib/navigation';
 import Colors from '@/constants/Colors';
+import { useRouter } from 'expo-router';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface NativeMapProps {
     branches: Branch[];
@@ -182,6 +183,7 @@ function calculateDistance(p1: { lat: number, lon: number }, p2: { lat: number, 
 export default function NativeMap({ branches, selectedBranchId, onBranchSelect, routePoints, onStartNavigation, onStopNavigation, isNavigating }: NativeMapProps) {
     const scheme = useColorScheme() ?? 'light';
     const colors = Colors[scheme];
+    const router = useRouter();
     const mapRef = React.useRef<MapView>(null);
     const [userLoc, setUserLoc] = React.useState<Location.LocationObjectCoords | null>(null);
     const [hasCenteredOnUser, setHasCenteredOnUser] = React.useState(false);
@@ -388,6 +390,8 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
         }
 
     }, [userLoc, isNavigating, maneuvers, nextManeuverIdx, lastSpokenDist, routePoints]);
+    
+    const selectedBranch = branches.find(b => b.id === selectedBranchId);
 
     return (
         <View style={styles.outerContainer}>
@@ -589,6 +593,67 @@ export default function NativeMap({ branches, selectedBranchId, onBranchSelect, 
                     </TouchableOpacity>
                 </View>
             )}
+
+            {/* Branch Info Card - IG/Navigator Style */}
+            {!isNavigating && selectedBranch && (
+                <View style={styles.branchInfoCard}>
+                    <View style={styles.cardIndicator} />
+                    <View style={styles.branchHeader}>
+                        <View style={styles.branchTitleRow}>
+                            <Text style={styles.branchName}>{selectedBranch.name}</Text>
+                            <TouchableOpacity onPress={() => onBranchSelect?.(null as any)}>
+                                <Ionicons name="close-circle" size={24} color="#CBD5E1" />
+                            </TouchableOpacity>
+                        </View>
+                        <Text style={styles.branchAddress}>{selectedBranch.address || 'Tashkent, Uzbekistan'}</Text>
+                    </View>
+
+                    <View style={styles.statsRow}>
+                        <View style={styles.branchStatBox}>
+                            <Ionicons name="star" size={16} color="#EAB308" />
+                            <Text style={styles.branchStatText}>{selectedBranch.rating?.toFixed(1) || '4.5'}</Text>
+                            <Text style={styles.branchStatLabel}>({selectedBranch.reviewCount || 0} отз)</Text>
+                        </View>
+                        <View style={styles.statDividerVertical} />
+                        <View style={styles.branchStatBox}>
+                            <MaterialCommunityIcons name="currency-usd" size={16} color="#10B981" />
+                            <Text style={styles.branchStatText}>{selectedBranch.averagePrice?.toLocaleString() || '45 000'} сум</Text>
+                            <Text style={styles.branchStatLabel}>ср. чек</Text>
+                        </View>
+                    </View>
+
+                    <View style={styles.servicesPreview}>
+                        <Text style={styles.servicesTitle}>Доступные услуги:</Text>
+                        <View style={styles.servicePills}>
+                            {['Мойка', 'Полировка', 'Химчистка'].map((s, i) => (
+                                <View key={i} style={styles.servicePill}>
+                                    <Text style={styles.servicePillText}>{s}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+
+                    <View style={styles.cardActions}>
+                        <TouchableOpacity 
+                            style={[styles.mainActionBtn, { backgroundColor: '#3B82F6' }]}
+                            onPress={() => onStartNavigation?.(selectedBranch)}
+                        >
+                            <Ionicons name="navigate" size={20} color="#fff" />
+                            <Text style={styles.mainActionText}>ПОЕХАЛИ</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                            style={styles.secondaryActionBtn}
+                            onPress={() => {
+                                // Close map and navigate to branch details
+                                router.navigate(`/branch/${selectedBranch.id}` as any);
+                            }}
+                        >
+                            <Ionicons name="calendar" size={20} color="#3B82F6" />
+                            <Text style={styles.secondaryActionText}>ЗАПИСЬ</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
         </View>
     );
 }
@@ -750,4 +815,46 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 5,
     },
+    branchInfoCard: {
+        position: 'absolute',
+        bottom: 100,
+        left: 20,
+        right: 20,
+        backgroundColor: '#fff',
+        borderRadius: 32,
+        padding: 24,
+        paddingTop: 12,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+        elevation: 15,
+    },
+    cardIndicator: {
+        width: 40,
+        height: 4,
+        backgroundColor: '#E2E8F0',
+        borderRadius: 2,
+        alignSelf: 'center',
+        marginBottom: 16,
+    },
+    branchHeader: { marginBottom: 16 },
+    branchTitleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    branchName: { fontSize: 22, fontWeight: '800', color: '#1E293B', flex: 1 },
+    branchAddress: { fontSize: 14, color: '#64748B', marginTop: 4, fontWeight: '500' },
+    statsRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', padding: 12, borderRadius: 16, marginBottom: 16 },
+    branchStatBox: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
+    branchStatText: { fontSize: 16, fontWeight: '800', color: '#0F172A' },
+    branchStatLabel: { fontSize: 12, color: '#94A3B8', fontWeight: '600' },
+    statDividerVertical: { width: 1, height: 24, backgroundColor: '#E2E8F0' },
+    servicesPreview: { marginBottom: 20 },
+    servicesTitle: { fontSize: 13, fontWeight: '800', color: '#94A3B8', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
+    servicePills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    servicePill: { backgroundColor: '#EFF6FF', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+    servicePillText: { fontSize: 12, fontWeight: '700', color: '#3B82F6' },
+    cardActions: { flexDirection: 'row', gap: 12 },
+    mainActionBtn: { flex: 1.5, height: 56, borderRadius: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, elevation: 4 },
+    mainActionText: { color: '#fff', fontSize: 16, fontWeight: '900' },
+    secondaryActionBtn: { flex: 1, height: 56, backgroundColor: '#F0F9FF', borderRadius: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1, borderColor: '#BAE6FD' },
+    secondaryActionText: { color: '#3B82F6', fontSize: 16, fontWeight: '900' },
 });

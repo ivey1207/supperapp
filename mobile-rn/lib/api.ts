@@ -150,6 +150,8 @@ export type Branch = {
   };
   distance?: number;
   discountValue?: string;
+  averagePrice?: number;
+  services?: string[];
 };
 
 export async function getBranches(token: string, status?: string, filter?: string, partnerType?: string, lat?: number, lon?: number) {

@@ -70,7 +70,7 @@ export default function StoryViewScreen() {
     };
 
     const onLikeToggle = async () => {
-        if (!token || !activeStory || activeStory.type !== 'USER') return;
+        if (!token || !activeStory) return;
 
         const isLiked = activeStory.isLiked;
         const newIsLiked = !isLiked;

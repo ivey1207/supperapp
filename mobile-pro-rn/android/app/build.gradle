@@ -138,9 +138,6 @@ android {
     }
 }
 
-configurations.all {
-    exclude group: 'com.google.android.gms', module: 'play-services-maps'
-}
 
 // Apply static values from `gradle.properties` to the `android.packagingOptions`
 // Accepts values in comma delimited lists, example:
@@ -191,4 +188,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // Google Maps (Ensuring for react-native-maps)
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
 }
